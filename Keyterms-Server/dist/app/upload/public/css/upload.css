@@ -1,0 +1,91 @@
+/*
+ * NOTICE
+ * This software was produced for the U.S. Government and is subject to the
+ * Rights in Data-General Clause 5.227-14 (May 2014).
+ * Copyright 2018 The MITRE Corporation. All rights reserved.
+ * Approved for Public Release; Distribution Unlimited. Case 18-2165
+ *
+ * This project contains content developed by The MITRE Corporation.
+ * If this code is used in a deployment or embedded within another project,
+ * it is requested that you send an email to opensource@mitre.org
+ * in order to let us know where this software is being used.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+nav.navbar {
+    margin-bottom: 0;
+}
+
+div.content {
+    width: 60%;
+    /*text-align: center;*/
+    margin: 0 auto;
+    position: relative;
+}
+
+div.content div.loading {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0e0e0e;
+    opacity: 0.6;
+    z-index: 500;
+    text-align: center;
+}
+
+div.content div.loading > div {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    height: 30%;
+    margin: auto;
+}
+
+div.content div.loading i {
+    color: #d0d0d0; /* off-white */
+}
+
+div.content hr {
+    margin-left: -8%;
+    margin-right: -8%;
+}
+
+div.well {
+    padding-bottom: 0;
+    position: relative;
+}
+
+form p.help-block,
+.form p.help-block {
+   margin-bottom: 0;
+}
+
+.form-group .form-control {
+    padding: 6px 12px;
+}
+
+.form-group input[type="file"].form-control {
+    padding: 0 12px;
+}
+
+.preserve-newlines {
+    white-space: pre-wrap;
+}

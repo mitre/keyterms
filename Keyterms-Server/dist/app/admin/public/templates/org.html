@@ -1,0 +1,120 @@
+<!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<h1 class="page-title">{{ ::title }}</h1>
+<div class="well">
+    <form class="form-horizontal" name="orgForm" ng-submit="submit()" novalidate ng-switch="showUsers">
+<!-- Name -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Name</label>
+            <div class="col-sm-6">
+                <input type="text" class="form-control" name="name" required ng-model="org.name">
+            </div>
+        </div>
+<!-- Abbreviation -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Abbreviation</label>
+            <div class="col-sm-6">
+                <input type="text" class="form-control" name="abbreviation" required ng-model="org.abbreviation">
+            </div>
+        </div>
+<!-- Description -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Description</label>
+            <div class="col-sm-6">
+                <textarea class="form-control" rows="2" name="description" ng-model="org.description"></textarea>
+            </div>
+        </div>
+<!-- Languages -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Language List</label>
+            <lang-select class="col-sm-6" org="org" reference="reference" lang-codes="langCodes"></lang-select>
+        </div>
+<!-- Global Block -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Global Block
+                <span uib-popover="Prevents all Entries of this Organization from being searchable by users outside of this Organization"
+                      popover-trigger="mouseenter" popover-placement="bottom" class="help-popover">
+                    <i class="fa fa-fw fa-question-circle text-info"></i>
+                </span>
+            </label>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="org.globalBlock">
+                </label>
+            </div>
+        </div>
+<!-- Members -->
+        <div class="form-group" ng-switch-default>
+            <label class="col-sm-3 control-label">Members</label>
+            <div class="col-sm-6" ng-if="users.length > 0">
+                <table class="table table-striped member-list">
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Org QC</th>
+                            <th>Org Admin</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tr class="member-item" ng-repeat="user in users">
+                        <td>{{ :: user.fullName }}</td>
+                        <td>{{ :: user.email }}</td>
+                        <td><input type="checkbox" ng-model="user.qc" ng-change="userUpdate(user)"></td>
+                        <td><input type="checkbox" ng-model="user.admin" ng-change="userUpdate(user)"></td>
+                        <td><rm-org-user user="user" form="orgForm"></rm-org-user></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-sm-6 text-center" ng-if="users.length < 1">&nbsp;
+                <h5>No users belong to this Organization</h5>
+                <button class="btn btn-primary" role="button">Add Users</button>
+            </div>
+        </div>
+        <div class="form-group" ng-switch-when="false">
+            <label class="col-sm-3 control-label">Members</label>
+            <div class="col-sm-6 text-center">&nbsp;
+                <p class="help-block">Cannot add, update or remove users until Organization is created</p>
+            </div>
+        </div>
+<!-- Submit Button -->
+        <div class="form-group">
+            <div class="row">
+                <div class="col-sm-offset-4 col-sm-2">
+                    <button type="submit" class="btn btn-primary btn-block" ng-disabled="orgForm.$invalid || orgForm.$pristine">{{ ::button }}</button>
+                </div>
+                <div class="col-sm-2">
+                    <a class="btn btn-default btn-block" href="javascript: history.back()">Cancel</a>
+                </div>
+            </div>
+            <div class="row" ng-show="orgForm.$invalid">
+                <div class="col-sm-12 text-center">
+                    <p class="help-block">All fields are required</p>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

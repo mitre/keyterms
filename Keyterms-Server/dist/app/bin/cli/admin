@@ -1,0 +1,91 @@
+
+
+#!/usr/bin/env node
+
+var mongoose = require('mongoose');
+var Promise = require('bluebird');
+var readline = require('readline');
+
+var rl = readline.createInterface({
+	input: process.stdin,
+	output: process.stdout
+});
+
+var prompt = function (_prompt) {
+	return new Promise( function (resolve, reject) {
+		rl.question(_prompt, resolve);
+	});
+};
+
+var exit = function () {
+	rl.close();
+	mongoose.disconnect();
+};
+
+var db = require('../../db').init({performCheck: false})
+.then( function () {
+
+	var admin = {
+		isAdmin: true
+	};
+
+	console.log('Welcome to the Sys Admin cli: ');
+
+	return prompt('Enter your full name: ')
+	.then( function (ans) {
+		admin.fullName = ans;
+
+		return prompt('Enter your email: ')
+	})
+	.then( function (ans) {
+		admin.username = ans;
+		admin.email = ans;
+
+		return prompt('Enter your password: ')
+	})
+	.then( function (ans) {
+		admin.password = ans;
+
+		return prompt('Add user to an organization? (Y/N)');
+	})
+	// Adds membership to a single organization for this user
+	.then( function (ans) {
+		if (ans[0].toUpperCase() === 'Y') {
+			return mongoose.model('Organization').find().select('abbreviation name').exec()
+			.then( function (orgs) {
+				console.log('*************************************');
+				orgs.forEach( function (org) {
+					console.log(`${org.name} (${org.abbreviation})`);
+				});
+				console.log('*************************************');
+				return prompt('Enter the abbreviation of the org: ')
+				.then( function (_ans) {
+					var index = orgs.map(o => o.abbreviation).indexOf(_ans);
+					if (index == -1) {
+						console.log(_ans + ' does not exist!');
+						exit(); process.exit();
+					}
+					else {
+						admin.organizations = [];
+						admin.organizations.push(orgs[index]._id);
+						admin.currentOrg = orgs[index]._id;
+					}
+				})
+			})
+		}
+		else {
+			return false;
+		}
+	})
+	.then( function () {
+
+		return admin;
+	})
+})
+.then( function (admin) {
+	return mongoose.model('User').create(admin);
+})
+.then( function (user) {
+	console.log('Sys Admin User was created');
+	exit();
+});

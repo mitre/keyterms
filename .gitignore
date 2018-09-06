@@ -1,0 +1,18 @@
+**/.DS_Store
+node_modules/
+.idea/
+
+npm-debug.log
+package-lock.json
+deploy
+
+*.iml
+
+# No longer track build destination
+public/keyterms
+
+# Auto-commit hash versioning file
+public/.version.txt
+
+# Ignore installer symlinks
+bin/scripts/chosen-os

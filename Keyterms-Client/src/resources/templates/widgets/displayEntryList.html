@@ -1,0 +1,52 @@
+<div class="term-list-item well" ng-repeat="entry in entries" >
+    <!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+    <p class="banner-heading heading-top search-item">{{ :: entry.bannerText || entry.org.name }}</p>
+    <div class="checkbox-container" ng-if="::$parent.showCheckboxes">
+        <input type="checkbox" ng-model="entry.checkVal">
+    </div>
+    <div class="term-container row" ng-click="$parent.viewEntry(entry._id)" ng-class="{'has-labels': entry.labels.length > 0}">
+        <div class="col-xs-11">
+            <div class="labels-container">
+                <span ng-repeat="label in entry.terms | filter: {isLabel: true}" >
+                    <span ng-if="$parent.$parent.isTextSearch" ng-bind-html="::label.termText"></span>
+                    <span ng-if="!$parent.$parent.isTextSearch">{{label.termText}}</span>
+                </span>
+            </div>
+            <div class="terms">
+                <span ng-repeat="term in entry.terms | filter: { src : '!nlp', isLabel: false }" ><span ng-if="!$parent.$parent.isTextSearch">{{::term.termText}}</span><span ng-bind-html="::term.termText" ng-if="$parent.$parent.isTextSearch"></span>{{::$last ? '' : ', ' }} </span>
+            </div>
+            <div class="entry-info">
+                <span class="org-name"   tooltip-placement="bottom" uib-tooltip="Organization: {{::entry.org.name}}"><i class="fa fa-sitemap"></i> {{::entry.org.name}}</span>
+                <span class="view-scope" tooltip-placement="bottom" uib-tooltip="Visible To: {{::$parent.viewScopeList[entry.viewScope]}}"><i class="fa fa-eye"></i> {{::$parent.viewScopeList[entry.viewScope]}}</span>
+                <span class="edit-scope" tooltip-placement="bottom" uib-tooltip="Editable By: {{::$parent.editScopeList[entry.editScope]}}"><i class="fa fa-pencil" ></i> {{::$parent.editScopeList[entry.editScope]}}</span>
+            </div>
+        </div>
+        <div class="col-xs-1 text-center">
+            <!--<i class="fa fa-user" aria-hidden="true"></i>-->
+            &nbsp;
+        </div>
+    </div>
+</div>

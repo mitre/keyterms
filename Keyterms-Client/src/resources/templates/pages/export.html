@@ -1,0 +1,143 @@
+<!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div id="export" class="template-container">
+	<div>
+		<form class="form-horizontal" novalidate>
+			<div class="form-group">
+				<label class="col-xs-3 control-label">Creation Start Date:</label>
+				<div class="col-xs-4">
+					<p class="input-group">
+						<input type="text" class="form-control" uib-datepicker-popup="dd-MMMM-yyyy" ng-model="formData.creation.startDate" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" popup-placement="bottom-left"/>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-primary" ng-click="popup1.opened = true">
+								&nbsp;<i class="fa fa-calendar" aria-hidden="true"></i>
+							</button>
+						</span>
+					</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-3 control-label">Creation End Date:</label>
+				<div class="col-xs-4">
+					<p class="input-group">
+						<input type="text" class="form-control" uib-datepicker-popup="dd-MMMM-yyyy" ng-model="formData.creation.endDate" is-open="popup2.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" popup-placement="bottom-left"/>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-primary" ng-click="popup2.opened = true">
+								&nbsp;<i class="fa fa-calendar" aria-hidden="true"></i>
+							</button>
+						</span>
+					</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-3 control-label">Last Modified Start Date:</label>
+				<div class="col-xs-4">
+					<p class="input-group">
+						<input type="text" class="form-control" uib-datepicker-popup="dd-MMMM-yyyy" ng-model="formData.lastMod.startDate" is-open="popup3.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" popup-placement="bottom-left"/>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-primary" ng-click="popup3.opened = true">
+								&nbsp;<i class="fa fa-calendar" aria-hidden="true"></i>
+							</button>
+						</span>
+					</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-3 control-label">Last Modified End Date:</label>
+				<div class="col-xs-4">
+					<p class="input-group">
+						<input type="text" class="form-control" uib-datepicker-popup="dd-MMMM-yyyy" ng-model="formData.lastMod.endDate" is-open="popup4.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" popup-placement="bottom-left"/>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-primary" ng-click="popup4.opened = true">
+								&nbsp;<i class="fa fa-calendar" aria-hidden="true"></i>
+							</button>
+						</span>
+					</p>
+				</div>
+			</div>
+			<!--<div class="form-group">
+				<label class="col-xs-3 control-label">Restricted by Tags:</label>
+				<div class="col-xs-8">
+					<div class="tag-list-display" style="display:block;">
+		  				<uib-alert ng-repeat="tag in formData.tagList" type="success" close="removeTag($index)">{{ tag }}</uib-alert>
+						<input type="text" placeholder="add tags" class="pull-left" ng-keyup="addTag($event)" ng-model="formData.tagStr">
+		  			</div>
+		  		</div>
+	  			<div class="col-xs-1">
+	  				<div class="btn-group" uib-dropdown>
+						<button type="button" class="btn btn-lg btn-primary" uib-dropdown-toggle>
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" uib-dropdown-menu role="menu">
+							<li role="menuitem"><a href="#">Action</a></li>
+							<li role="menuitem"><a href="#">Another action</a></li>
+							<li role="menuitem"><a href="#">Something else here</a></li>
+							<li class="divider"></li>
+							<li role="menuitem"><a href="#">Separated link</a></li>
+						</ul>
+					</div>
+	  			</div>
+			</div>-->
+			<div class="form-group">
+				<label class="col-xs-3 control-label">Select Language:</label>
+				<div class="col-xs-4">
+					<!--<div class="select-tag btn-group" uib-dropdown>-->
+						<!--<button type="button" class="btn btn-primary btn-select">{{ formData.langCode }}</button>-->
+						<!--<button type="button" class="btn btn-primary" uib-dropdown-toggle> -->
+							<!--&nbsp;<span class="caret"></span>-->
+						<!--</button>-->
+						<!--<ul class="dropdown-menu" uib-dropdown-menu role="menu">-->
+							<!--<li role="menuitem" ng-repeat="lang in langCodeList">-->
+								<!--<a ng-click="formData.langCode = lang">{{ lang }}</a>-->
+							<!--</li>-->
+						<!--</ul>-->
+					<!--</div>-->
+					<lang-code-dropdown binding="formData.langCode"></lang-code-dropdown>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-3 control-label">File Type:</label>
+				<div class="col-xs-4">
+					<div class="select-tag btn-group" uib-dropdown keyboard-nav>
+						<button type="button" class="btn btn-primary btn-select dropdown-selector" uib-dropdown-toggle>{{ formData.fileType.name }}&nbsp;<span class="caret"></span></button>
+						<ul class="dropdown-menu" uib-dropdown-menu role="menu">
+							<li role="menuitem" ng-repeat="fType in fileTypes">
+								<a ng-click="formData.fileType = fType">{{ fType.name }}</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-xs-offset-3 col-xs-2">
+					<a ng-href="{{buildQuery()}}"  class="btn btn-info btn-block" target="_blank">
+						<i class="fa fa-download" aria-hidden="true"></i> Export
+					</a>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>

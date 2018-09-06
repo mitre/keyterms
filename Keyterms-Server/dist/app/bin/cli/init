@@ -1,0 +1,85 @@
+#!/usr/bin/env node
+
+var mongoose = require('mongoose');
+var Promise = require('bluebird');
+var readline = require('readline');
+var config = require('../../../config').commonOrg;
+
+var rl = readline.createInterface({
+	input: process.stdin,
+	output: process.stdout
+});
+
+var prompt = function (_prompt) {
+	return new Promise( function (resolve, reject) {
+		rl.question(_prompt, resolve);
+	});
+};
+
+var exit = function () {
+	rl.close();
+	mongoose.disconnect();
+	process.exit();
+};
+
+var db = require('../../db').init({performCheck: false})
+.then( function () {
+
+	var org = {
+		isAdmin: true
+	};
+
+	console.log('Initializing KeyTerms...');
+	console.log('Creating common organization...');
+	if(!!config.name && !!config.abbreviation && !!config.description) {
+		org.name = config.name;
+		org.abbreviation = config.abbreviation;
+		org.description = config.description;
+		org.isCommon = true;
+		return mongoose.model('Organization').create(org);
+	} else {
+		console.log('Missing config setting(s) for common organization');
+		throw new Error('Common org not configured');
+	}
+
+}).then( function (org) {
+
+	var admin = {
+		isAdmin: true
+	};
+
+	console.log('Creating initial admin user...');
+	return prompt('Enter your full name: ')
+	.then( function (ans) {
+		admin.fullName = ans;
+		return prompt('Enter your email. This will also be your username: ')
+	})
+	.then( function (ans) {
+		admin.username = ans;
+		admin.email = ans;
+		return prompt('Create your password: ')
+	})
+	.then( function (ans) {
+		admin.password = ans;
+		return true;
+	}).then( function () {
+		console.log('Adding admin user to common organization...');
+		admin.organizations = [];
+		admin.organizations.push(org._id);
+		admin.currentOrg = org._id;
+		return admin;
+	}).then( function (admin) {
+            return mongoose.model('User').create(admin);
+	}).then( function (user) {
+            org.qcs.push(user._id);
+            org.admins.push(user._id);
+            return org.save();
+	}).then( function (savedOrg) {
+		console.log('Initialization completed successfully.');
+	});
+
+}).catch( function (err) {
+	console.log('Error during initialization. Please check config settings, then run this script again.');
+}).finally( function () {
+	exit();
+});

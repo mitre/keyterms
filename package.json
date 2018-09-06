@@ -1,0 +1,19 @@
+{
+  "name": "keyterms",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "./bin/build-deploy.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:mitre/keyterms.git"
+  },
+  "author": "The MITRE Corporation",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "http-server": "^0.11.1"
+  }
+}

@@ -1,0 +1,15 @@
+[Unit]
+Description=KeyTerms Server
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=kt_nodejs
+Group=keyterms
+Environment='NODE_ENV=production'
+WorkingDirectory=/usr/opt/keyterms/server
+ExecStart=/usr/bin/node app/app.js
+ExecStop=/bin/kill -15 $MAINPID
+
+[Install]
+WantedBy=multi-user.target

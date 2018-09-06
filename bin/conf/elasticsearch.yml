@@ -1,0 +1,6 @@
+cluster.name: keyterms
+
+node.name: ktelastic-1
+
+# _local_ is a special value which resolves to localhost (127.0.0.1)
+network.host: _local_

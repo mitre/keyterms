@@ -1,0 +1,65 @@
+{
+  "author": {
+    "name": "https://github.com/angular-ui/bootstrap/graphs/contributors"
+  },
+  "name": "angular-ui-bootstrap",
+  "version": "1.3.2",
+  "homepage": "http://angular-ui.github.io/bootstrap/",
+  "dependencies": {},
+  "directories": {
+    "lib": "src/"
+  },
+  "files": [
+    "index.js",
+    "dist/",
+    "src/",
+    "template/"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "grunt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/angular-ui/bootstrap.git"
+  },
+  "devDependencies": {
+    "angular": "1.5.3",
+    "angular-mocks": "1.5.3",
+    "angular-sanitize": "1.5.3",
+    "grunt": "^0.4.5",
+    "grunt-contrib-concat": "^1.0.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-uglify": "^1.0.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-conventional-changelog": "^6.1.0",
+    "grunt-ddescribe-iit": "0.0.6",
+    "grunt-eslint": "^17.3.1",
+    "grunt-html2js": "^0.3.0",
+    "grunt-karma": "^0.12.0",
+    "jasmine-core": "^2.2.0",
+    "karma": "0.13.22",
+    "karma-chrome-launcher": "^0.2.0",
+    "karma-coverage": "^0.5.0",
+    "karma-firefox-launcher": "^0.1.4",
+    "karma-jasmine": "^0.3.5",
+    "load-grunt-tasks": "^3.3.0",
+    "lodash": "^4.1.0",
+    "marked": "^0.3.5",
+    "semver": "^5.0.1",
+    "shelljs": "^0.6.0"
+  },
+  "license": "MIT",
+  "readme": "### UI Bootstrap - [AngularJS](http://angularjs.org/) directives specific to [Bootstrap](http://getbootstrap.com)\n\n[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/angular-ui/bootstrap?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)\n[![Build Status](https://secure.travis-ci.org/angular-ui/bootstrap.svg)](http://travis-ci.org/angular-ui/bootstrap)\n[![devDependency Status](https://david-dm.org/angular-ui/bootstrap/dev-status.svg?branch=master)](https://david-dm.org/angular-ui/bootstrap#info=devDependencies)\n\n### Quick links\n- [Demo](#demo)\n- [Angular 2](#angular-2)\n- [Installation](#installation)\n    - [NPM](#install-with-npm)\n    - [Bower](#install-with-bower)\n    - [NuGet](#install-with-nuget)\n    - [Custom](#custom-build)\n    - [Manual](#manual-download)\n- [Webpack](#webpack)\n- [Support](#support)\n    - [FAQ](#faq)\n    - [Code of Conduct](#code-of-conduct)\n    - [PREFIX MIGRATION GUIDE](#prefix-migration-guide)\n    - [Supported browsers](#supported-browsers)\n    - [Need help?](#need-help)\n    - [Found a bug?](#found-a-bug)\n- [Contributing to the project](#contributing-to-the-project)\n- [Development, meeting minutes, roadmap and more.](#development-meeting-minutes-roadmap-and-more)\n\n\n# Demo\n\nDo you want to see directives in action? Visit http://angular-ui.github.io/bootstrap/!\n\n# Angular 2\n\nAre you interested in Angular 2? We are on our way! Check out [ng-bootstrap](https://github.com/ui-bootstrap/core).\n\n# Installation\n\nInstallation is easy as UI Bootstrap has minimal dependencies - only the AngularJS and Twitter Bootstrap's CSS are required.\n*Notes:*\n* Since version 0.13.0, UI Bootstrap depends on [ngAnimate](https://docs.angularjs.org/api/ngAnimate) for transitions and animations, such as the accordion, carousel, etc. Include `ngAnimate` in the module dependencies for your app in order to enable animation.\n* UI Bootstrap depends on [ngTouch](https://docs.angularjs.org/api/ngTouch) for swipe actions. Include `ngTouch` in the module dependencies for your app in order to enable swiping.\n\n## Angular Requirements\n* UI Bootstrap 1.0 and higher _requires_ Angular 1.4.x or higher and it has been tested with Angular 1.4.8.\n* UI Bootstrap 0.14.3 is the _last_ version that supports Angular 1.3.x.\n* UI Bootstrap 0.12.0 is the _last_ version that supports Angular 1.2.x.\n\n## Bootstrap Requirements\n* UI Bootstrap requires Bootstrap CSS version 3.x or higher and it has been tested with Bootstrap CSS 3.3.6.\n* UI Bootstrap 0.8 is the _last_ version that supports Bootstrap CSS 2.3.x.\n\n#### Install with NPM\n\n```sh\n$ npm install angular-ui-bootstrap\n```\n\nThis will install AngularJS and Bootstrap NPM packages.\n\n#### Install with Bower\n```sh\n$ bower install angular-bootstrap\n```\n\nNote: do not install 'angular-ui-bootstrap'.  A separate repository - [bootstrap-bower](https://github.com/angular-ui/bootstrap-bower) - hosts the compiled javascript file and bower.json.\n\n#### Install with NuGet\nTo install AngularJS UI Bootstrap, run the following command in the Package Manager Console\n\n```sh\nPM> Install-Package Angular.UI.Bootstrap\n```\n\n#### Custom build\n\nHead over to http://angular-ui.github.io/bootstrap/ and hit the *Custom build* button to create your own custom UI Bootstrap build, just the way you like it.\n\n#### Manual download\n\nAfter downloading dependencies (or better yet, referencing them from your favorite CDN) you need to download build version of this project. All the files and their purposes are described here:\nhttps://github.com/angular-ui/bootstrap/tree/gh-pages#build-files\nDon't worry, if you are not sure which file to take, opt for `ui-bootstrap-tpls-[version].min.js`.\n\n### Adding dependency to your project\n\nWhen you are done downloading all the dependencies and project files the only remaining part is to add dependencies on the `ui.bootstrap` AngularJS module:\n\n```js\nangular.module('myModule', ['ui.bootstrap']);\n```\n\n# Webpack / JSPM\n\nTo use this project with webpack, follow the [NPM](#install-with-npm) instructions.\nNow, if you want to use only the accordion, you can do:\n\n```js\nimport accordion from 'angular-ui-bootstrap/src/accordion';\n\nangular.module('myModule', [accordion]);\n```\n\nYou can import all the pieces you need in the same way:\n\n```js\nimport accordion from 'angular-ui-bootstrap/src/accordion';\nimport datepicker from 'angular-ui-bootstrap/src/datepicker';\n\nangular.module('myModule', [accordion, datepicker]);\n```\n\nThis will load all the dependencies (if any) and also the templates (if any).\n\nBe sure to have a loader able to process `css` files like `css-loader`.\n\nIf you would prefer not to load your css through your JavaScript file loader/bundler, you can choose to import the `index-nocss.js` file instead, which is available for the modules:\n* carousel\n* datepicker\n* datepickerPopup\n* dropdown\n* popover\n* position\n* timepicker\n* tooltip\n* typeahead\n\nThe other modules, such as `accordion` in the example below, do not have CSS resources to load, so you should continue to import them as normal:\n\n```js\nimport accordion from 'angular-ui-bootstrap/src/accordion';\nimport typeahead from 'angular-ui-bootstrap/src/typeahead/index-nocss.js';\n\nangular.module('myModule', [accordion, datepicker]);\n```\n\n# Support\n\n## FAQ\n\nhttps://github.com/angular-ui/bootstrap/wiki/FAQ\n\n# Code of Conduct\n\nTake a moment to read our [Code of Conduct](CODE_OF_CONDUCT.md)\n\n## PREFIX MIGRATION GUIDE\n\nIf you're updating your application to use prefixes, please check the [migration guide](https://github.com/angular-ui/bootstrap/wiki/Migration-guide-for-prefixes).\n\n## Supported browsers\n\nDirectives from this repository are automatically tested with the following browsers:\n* Chrome (stable and canary channel)\n* Firefox\n* IE 9 and 10\n* Opera\n* Safari\n\nModern mobile browsers should work without problems.\n\n## Need help?\nNeed help using UI Bootstrap?\n\n* Live help in the IRC (`#angularjs` channel at the `freenode` network). Use this [webchat](https://webchat.freenode.net/) or your own IRC client.\n* Ask a question in [StackOverflow](http://stackoverflow.com/) under the [angular-ui-bootstrap](http://stackoverflow.com/questions/tagged/angular-ui-bootstrap) tag.\n\n**Please do not create new issues in this repository to ask questions about using UI Bootstrap**\n\n## Found a bug?\nPlease take a look at [CONTRIBUTING.md](CONTRIBUTING.md#you-think-youve-found-a-bug) and submit your issue [here](https://github.com/angular-ui/bootstrap/issues/new).\n\n\n----\n\n\n# Contributing to the project\n\nWe are always looking for the quality contributions! Please check the [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution guidelines.\n\n# Development, meeting minutes, roadmap and more.\n\nHead over to the [Wiki](https://github.com/angular-ui/bootstrap/wiki) for notes on development for UI Bootstrap, meeting minutes from the UI Bootstrap team, roadmap plans, project philosophy and more.\n",
+  "readmeFilename": "README.md",
+  "description": "[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/angular-ui/bootstrap?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://secure.travis-ci.org/angular-ui/bootstrap.svg)](http://travis-ci.org/angular-ui/bootstrap) [![devDependency Status](https://david-dm.org/angular-ui/bootstrap/dev-status.svg?branch=master)](https://david-dm.org/angular-ui/bootstrap#info=devDependencies)",
+  "bugs": {
+    "url": "https://github.com/angular-ui/bootstrap/issues"
+  },
+  "_id": "angular-ui-bootstrap@1.3.2",
+  "dist": {
+    "shasum": "f534d751700e201b7b8fa90ce56801600ccbeadf"
+  },
+  "_from": "angular-ui-bootstrap@",
+  "_resolved": "http://registry.npmjs.org/angular-ui-bootstrap/-/angular-ui-bootstrap-1.3.2.tgz"
+}

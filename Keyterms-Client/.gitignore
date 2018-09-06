@@ -1,0 +1,18 @@
+# Removes WebStorm (IntelliJ) Config Files
+.idea
+.idea/
+.idea/*
+
+# No longer track build destination
+public/keyterms
+
+# Auto-commit hash versioning file
+public/.version.txt
+
+node_modules
+
+.DS_Store
+
+package-lock.json
+
+deploy

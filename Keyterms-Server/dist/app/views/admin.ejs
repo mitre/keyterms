@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KeyTerms Admin</title>
+    <base href="/admin/">
+    <link rel="stylesheet" href="/libs/css/bootstrap/css/united.css" />
+    <link rel="stylesheet" href="/libs/css/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="static/css/admin.css" />
+    <script type="text/javascript" src="/libs/js/angular/angular.js"></script>
+    <script type="text/javascript" src="/libs/js/angular/angular-route.js"></script>
+    <script type="text/javascript" src="/libs/js/angular/angular-animate.js"></script>
+    <!-- Load Bootstrap UI Angular -->
+    <!-- todo: switch to the .min versions of these files when we move to production -->
+    <script type="text/javascript" src="/libs/js/angular-ui-bootstrap/dist/ui-bootstrap.js"></script>
+    <script type="text/javascript" src="/libs/js/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
+</head>
+<body ng-app="baas-admin" ng-controller="admin-ctrl as main">
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="home">KeyTerms Admin</a>
+        </div>
+        <ul class="nav navbar-nav navbar-left">
+            <!-- empty -->
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown" uib-dropdown>
+                <a class="dropdown-toggle" uib-dropdown-toggle>
+                    {{main.currentUser.currentOrg.name}} ({{main.currentUser.currentOrg.abbreviation}})
+                    <i class="fa fa-fw fa-users"></i>
+                    <i class="fa fa-fw fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu" uib-dropdown-menu role="menu">
+                    <li role="menuitem"><a href="">Edit</a></li>
+                </ul>
+            </li>
+            <li class="dropdown" uib-dropdown>
+                <a class="dropdown-toggle" uib-dropdown-toggle>
+                    {{::main.currentUser.email}}
+                    <i class="fa fa-fw fa-user"></i>
+                    <i class="fa fa-fw fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu" uib-dropdown-menu role="menu">
+                    <li role="menuitem"><a target="_self" href="logout">Logout</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div><!-- /.container-fluid -->
+</nav>
+<div class="content">
+
+    <div class="left-panel">
+        <div class="list-group">
+            <a href="users" class="list-group-item" ng-class="{ 'active': main.active == 'users' }">
+                <h4 class="list-group-item-heading">Users</h4>
+            </a>
+            <a href="orgs" class="list-group-item" ng-class="{ 'active': main.active == 'orgs' }">
+                <h4 class="list-group-item-heading">Organizations</h4>
+            </a>
+        </div>
+    </div>
+    <!-- does this actually work? -->
+    <div class="right-panel">
+        <ng-view></ng-view>
+    </div>
+
+</div>
+
+<script id="userscript" type="text/javascript">
+    var __user__ = '<%- user %>';
+
+    document.currentScript.parentNode.removeChild(document.currentScript);
+</script>
+<!-- Include javascript files w/ angular logic -->
+<script type="text/javascript" src="static/js/admin.js"></script>
+
+</body>
+</html>

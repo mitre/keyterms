@@ -1,0 +1,179 @@
+#!/bin/sh
+
+################################################################################
+# Main install script for KeyTerms. Assumes all dependencies are installed
+#   and running as services where applicable. To check dependency setup, run
+#   setup.sh.
+#
+# ---- THIS SCRIPT SHOULD BE RUN AS ROOT. ----
+################################################################################
+
+# Directories
+APP_DIR=/usr/opt
+PROJ_DIR=$(cd "$(dirname $0)/../../.."; pwd)
+BIN_DIR=$PROJ_DIR/bin
+SERVICES_DIR=$BIN_DIR/services
+LIB_DIR=$PROJ_DIR/lib
+CLIENT_DIR=$PROJ_DIR/Keyterms-Client
+SERVER_DIR=$PROJ_DIR/Keyterms-Server
+CONF_DIR=$BIN_DIR/conf
+
+# Dependencies
+NLP_SERVICES_WAR=NLPServices.war
+NLP_WAR=keytermsnlp.war
+
+# Services
+TOMCAT_DAEMON=tomcat.service
+
+# Users and groups
+APP_GROUP=keyterms
+test -n "$TOMCAT_USER" || TOMCAT_USER=kt_tomcat
+test -n "$NODEJS_USER" || NODEJS_USER=kt_nodejs
+
+# Query for SSL install
+echo ' '; read -p 'Install KeyTerms over SSL? (y|N) ' sslOption
+case "$sslOption" in
+    y|Y) USE_SSL=1 ;;
+    *) USE_SSL=0 ;;
+esac
+
+################################################################################
+# Install Keyterms server
+################################################################################
+
+# Set up directory
+echo ' '; echo 'Setting up Keyterms server directory...'
+SERVER_DEPLOY_DIR=$APP_DIR/keyterms/server
+mkdir -p $SERVER_DEPLOY_DIR
+echo '... copying in server files. This may take a minute ...'
+cp -R $SERVER_DIR/dist/* $SERVER_DEPLOY_DIR
+chown -R $NODEJS_USER:$APP_GROUP $SERVER_DEPLOY_DIR
+
+# Run npm install (if no node_modules directory)
+if [ ! -d "$SERVER_DEPLOY_DIR/node_modules/" ]; then
+    echo '... running npm install ...'
+    cd $SERVER_DEPLOY_DIR
+    npm install
+fi
+
+# Copy in config file
+echo '... copying over appropriate config file ...'
+if [ $USE_SSL -ne 0 ]; then
+    cp $CONF_DIR/config.js.localhost.https $SERVER_DEPLOY_DIR/config.js
+    SV_PROTOCOL="https"
+    SV_PORT="5443"
+else
+    cp $CONF_DIR/config.js.localhost.http $SERVER_DEPLOY_DIR/config.js
+    SV_PROTOCOL="http"
+    SV_PORT="5000"
+fi
+
+# Set URLs for server config
+read -p 'Please enter the fully qualified domain name of your server (e.g. keyterms.mycompany.com): ' fqdn
+serverLOC="$fqdn:$SV_PORT"
+sed -i -e "s|myServerLocation|${fqdn}|g" $SERVER_DEPLOY_DIR/config.js
+sed -i -e "s|myPort|${SV_PORT}|g" $SERVER_DEPLOY_DIR/config.js
+
+read -p "Would you like to use the default database name, \"KeyTerms\"? (Y|n) " choice
+case "$choice" in
+    n|N )
+        echo "Please enter a database name for the KeyTerms collection:"
+        read dbname
+        perl -pi -e "s/(db:[\t\s]+\')\w+/\1${dbname}/" $SERVER_DEPLOY_DIR/config.js
+        echo "Using database $dbname"
+        ;;
+    * )
+        echo "Using database name KeyTerms."
+        ;;
+esac
+
+# Set up systemd service
+echo '... deploying Keyterms server...'
+cp $SERVICES_DIR/ktserver.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable ktserver
+systemctl start ktserver
+echo '... Keyterms server deployed and service started (ktserver).'
+
+################################################################################
+# Deploy NLP Services and Keyterms client to Tomcat
+################################################################################
+
+# Check for CATALINA_HOME
+if [ -n "$CATALINA_HOME" ]; then
+    echo "CATALINA_HOME is $CATALINA_HOME"
+else
+    echo "CATALINA_HOME not set. Please export, then re-run this script."
+    exit 0
+fi
+
+# Check if tomcat service exists and is running
+if service --status-all 2>&1 | grep -Fq $TOMCAT_DAEMON; then
+    echo "Tomcat service is running. Stopping ..."
+    systemctl stop $TOMCAT_DAEMON
+fi
+echo "Updating Tomcat service ..."
+if [ -e $CATALINA_HOME/bin/$TOMCAT_DAEMON ]; then
+    dt=$(date +%Y%m%d%H%M%S)
+    mv $CATALINA_HOME/bin/$TOMCAT_DAEMON $CATALINA_HOME/bin/$TOMCAT_DAEMON.bak.${dt}
+fi
+if [ $USE_SSL -eq 0 ]; then
+    echo "... configuring Tomcat for HTTP - check $CATALINA_HOME/conf/server.xml if issues occur in Tomcat deployment."
+    cp $CONF_DIR/server.xml.http $CATALINA_HOME/conf/server.xml
+else
+    echo "... configuring Tomcat for HTTPS - check $CATALINA_HOME/conf/server.xml if issues occur in Tomcat deployment."
+    echo "USER ACTION REQUIRED: Be sure to configure Tomcat to use your SSL certificates."
+    cp $CONF_DIR/server.xml.ssl $CATALINA_HOME/conf/server.xml
+fi
+# TODO: ADD BIT FOR SETTING HTTP.PROXY IN CONNECTORS IN SERVER.XML
+cp $SERVICES_DIR/$TOMCAT_DAEMON /etc/systemd/system/
+chown -R $TOMCAT_USER:$APP_GROUP $CATALINA_HOME
+systemctl daemon-reload
+
+# Deploy NLP Services
+echo ' '; echo 'Deploying NLP Services to Tomcat ...'
+cp $LIB_DIR/$NLP_SERVICES_WAR $CATALINA_HOME/webapps
+cp $LIB_DIR/$NLP_WAR $CATALINA_HOME/webapps
+echo "... deployed under $CATALINA_HOME/webapps"
+
+# Deploy client (if desired)
+read -p 'Deploy Keyterms client under Tomcat? (y|N) ' choice
+case "$choice" in
+    y|Y ) echo '... deploying Keyterms client to Tomcat ...'
+        mv $CATALINA_HOME/webapps/ROOT $CATALINA_HOME/webapps/ROOT_BAK
+        CLIENT_TOMCAT_DIR=$CATALINA_HOME/webapps/ROOT
+        mkdir -p $CLIENT_TOMCAT_DIR
+        cp -R $CLIENT_DIR/public/keyterms/* $CLIENT_TOMCAT_DIR
+        chown -R $TOMCAT_USER:$APP_GROUP $CLIENT_TOMCAT_DIR
+
+        echo "... KeyTerms client has been placed into $CATALINA_HOME/webapps/ROOT"
+        serverURL="$SV_PROTOCOL://$fqdn:$SV_PORT/"
+        sed -i -e "s|myServerLocation|${serverURL}|g" $CATALINA_HOME/webapps/ROOT/config.js
+        echo "USER ATTENTION REQUIRED: If you are having problems with the client under tomcat, please verify the server location setting in $CATALINA_HOME/webapps/ROOT/keyterms/config.js"
+        ;;
+    *)
+        echo '... skipping Keyterms client installation.'
+        ;;
+esac
+
+# Restart Tomcat
+systemctl start $TOMCAT_DAEMON
+systemctl enable $TOMCAT_DAEMON
+
+################################################################################
+
+# Run init-cli script
+echo ' '
+read -p 'Installation complete. Run database initialization script? (y|N) ' dbChoice
+case $dbChoice in
+    y|Y)
+        cd $SERVER_DEPLOY_DIR
+        npm run init-cli
+        ;;
+    *)
+        ;;
+esac
+
+chown -R $NODEJS_USER:$APP_GROUP $SERVER_DEPLOY_DIR
+systemctl restart ktserver
+echo ' '; echo 'Database initialization complete.'

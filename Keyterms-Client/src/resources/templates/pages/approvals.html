@@ -1,0 +1,84 @@
+<!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div id="approvals" class="template-container">
+	<div class="form form-inline">
+		<div class="form-group">
+			<label>Order By: </label>
+			<select ng-options="o as o.view for o in ordering" ng-model="orderBy" ng-change="changeOrder()" class="form-control"></select>
+		</div>
+		<!--&nbsp;&nbsp;-->
+		<div class="form-group">
+			<label>Items Per Page</label>
+			<select ng-options="x for x in [10, 15, 20, 25, 30]" ng-model="itemsPerPage" class="form-control"></select>
+		</div>
+	</div>
+	<div class="text-center" ng-if="::filteredResults.length < 1">
+		<h4>No Pending Nominations</h4>
+		<p>Congrats, your work here is done!</p>
+	</div>
+	<div class="approval-list-container">
+		<div class="approval-list-item animate-repeat" ng-repeat="nom in filteredResults" ng-click="selectApproval(nom._id)">
+			<div class="approval-container row" ng-class="{'has-labels': nom.data.labels.length > 0}">
+				<div class="labels-container" ng-show="nom.data.labels.length > 0">
+					<span ng-repeat="label in nom.data.labels">{{label}}</span>
+				</div>
+				<div class="col-xs-5 terms" ng-if="!nom.originalEntry">
+					<br>
+					<span ng-repeat="term in nom.data.terms">{{ ::term.termText }}{{ ::$last ? '' : ', ' }}</span>
+				</div>
+				<div class="col-xs-5 terms" ng-if="!!nom.originalEntry">
+					<br>
+					<span ng-repeat="term in nom.originalEntry.terms">{{ ::term.termText }}{{ ::$last ? '' : ', ' }}</span>
+				</div>
+				<div class="col-xs-6 user">
+					<div class="left">
+						<p>Nominated By:</p>
+						<p>Modification Date:</p>
+						<p ng-if="::nom.type != 'add'">Entry Created By:</p>
+					</div>
+					<div class="right">
+						<p>
+							{{ ::nom.createdBy.fullName }}&emsp;({{ ::nom.createdBy.email }})
+						</p>
+						<p>{{ ::nom.creationDate | date : 'MMM d, y H:mm:ss' }}</p>
+						<p ng-if="!!nom.originalEntry">
+							{{ ::nom.originalEntry.createdBy.fullName }}&emsp;({{ ::nom.originalEntry.createdBy.email }})
+						</p>
+					</div>
+				</div>
+				<div class="col-xs-1">
+					<br> <!-- centers the icon (because the columns above are 3 lines) -->
+					<i class="fa fa-lg fa-plus text-success" aria-hidden="true" ng-if="::nom.type == 'add'"></i>
+					<i class="fa fa-lg fa-trash text-danger" aria-hidden="true" ng-if="::nom.type == 'del'"></i>
+					<i class="fa fa-lg fa-pencil text-info" aria-hidden="true" ng-if="::nom.type == 'mod'"></i>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="pagination-container" ng-show="filteredResults.length > 0">
+		<uib-pagination ng-model="currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" total-items="totalItems" max-size="3" force-ellipses="true" rotate="true" ng-change="setPage(currentPage)" items-per-page="itemsPerPage"></uib-pagination>
+	</div>
+</div>

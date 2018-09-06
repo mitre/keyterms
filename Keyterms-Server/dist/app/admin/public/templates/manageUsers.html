@@ -1,0 +1,106 @@
+<!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<h1>
+    <a href="javascript: history.back()"><i class="fa fa-fw fa-long-arrow-left"></i></a>
+    Manage Users
+</h1>
+<div class="container-fluid">
+    <div class="row">
+        <div class="filter-controls col-sm-offset-1 col-sm-9 well well-sm" on-filter-change="filterChange" filter-fields="filterFields"></div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">Current Members</div>
+        <div class="panel-body">
+            <table class="table table-striped member-list" style="margin-bottom: 0">
+                <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th class="text-center">Org QC</th>
+                    <th class="text-center">Org Admin</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tr class="member-item removal-item"
+                    ng-repeat="user in members | dynamicField: {field: ctrls.filterBy, val: ctrls.filter} | filter: {$: ctrls.searchFor} | orderBy: ['isDeactivated', 'username']"
+                    ng-class="{'user-deactivated': user.isDeactivated }"
+                    ng-hide="user.isDeactivated && !showDeactive">
+                    <td>
+                        {{ ::user.fullName }}
+                        <span ng-if="user.isDeactivated" class="deactivated-tag">(deactivated)</span>
+                    </td>
+                    <td>{{ ::user.email }}</td>
+                    <td class="text-center">
+                        <i class="fa fa-fw fa-lg" ng-class="{'fa-check text-success': user.qc, 'fa-times text-danger': !user.qc}"></i>
+                    </td>
+                    <td class="text-center">
+                        <i class="fa fa-fw fa-lg" ng-class="{'fa-check text-success': user.admin, 'fa-times text-danger': !user.admin}"></i>
+                    </td>
+                    <td>
+                        <div class="btn-group" uib-dropdown>
+                            <button type="button" class="btn btn-sm btn-primary" uib-dropdown-toggle>
+                                Actions <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" uib-dropdown-menu role="menu">
+                                <li role="menuitem"><a href="user/{{ ::user._id }}">Edit User</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li role="menuitem" ng-switch="user.marked">
+                                    <a href="" ng-click="user.marked = true" ng-switch-default>Remove User from Org</a>
+                                    <a href="" ng-click="user.marked = false" ng-switch-when="true">
+                                        <i class="fa fa-fw fa-undo text-info i-btn"></i>
+                                        &nbsp;Undo Remove User
+                                    </a>
+                                </li>
+                                <li role="menuitem" ng-switch="user.admin">
+                                    <a href="" ng-click="user.admin = true" ng-switch-when="false">Promote to Org Admin</a>
+                                    <a href="" ng-click="user.admin = false" ng-switch-when="true">Revoke Org Admin</a>
+                                </li>
+                                <li role="menuitem" ng-switch="user.qc">
+                                    <a href="" ng-click="user.qc = true" ng-switch-when="false">Promote to Org QC</a>
+                                    <a href="" ng-click="user.qc = false" ng-switch-when="true">Revoke Org QC</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div class="text-center text-muted" ng-if="deactiveCount > 0" >
+                {{deactiveCount}} deactivated user<span ng-if="deactiveCount > 1">s</span>
+                <br>
+                <a href="" ng-click="toggleShowDeactive()">({{deactiveVerb}} deactivated)</a>
+            </div>
+            <div class="text-center" style="margin-top: 20px;">
+                <a href="" ng-click="openModal()"><i class="fa fa-fw fa-plus"></i>&nbsp;Add User</a>
+            </div>
+        </div>
+    </div>
+    <div class="text-center manage-btns">
+        <p class="animate-msg" ng-if="statusMsg != null" ng-class="{'text-success': !!statusMsg.success, 'text-danger': !!statusMsg.error}">{{ ::statusMsg.success || statusMsg.error }}</p>
+        <!--<fading-msg status="statusMsg"></fading-msg>-->
+        <button class="btn btn-primary" role="button" type="button" ng-click="save()" ng-disabled="isDisabled()">Save Changes</button>
+        <a class="btn btn-default" href="javascript: history.back()">Cancel</a>
+    </div>
+</div>

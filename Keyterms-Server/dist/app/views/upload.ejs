@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <title>KeyTerms Upload</title>
+    <base href="/upload/" />
+
+    <script src="/libs/js/angular/angular.js"></script>
+    <script src="/libs/js/angular-ui-bootstrap/dist/ui-bootstrap.js"></script>
+    <script src="/libs/js/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
+
+    <link href="/libs/css/bootstrap/css/yeti.css" rel="stylesheet" type="text/css">
+    <link href="/libs/js/angular-ui-bootstrap/dist/ui-bootstrap-csp.css" rel="stylesheet">
+    <link href="/libs/css/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css">
+
+    <link href="static/css/upload.css" rel="stylesheet" type="text/css">
+</head>
+<body ng-app="kt-upload" ng-controller="upload-ctrl">
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">KeyTerms Upload</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown" uib-dropdown>
+                    <a class="dropdown-toggle" uib-dropdown-toggle>
+                        {{::fm.org.name}} ({{::fm.org.abbreviation}})
+                        <i class="fa fa-fw fa-users"></i>
+                    </a>
+                </li>
+                <li class="dropdown" uib-dropdown>
+                    <a class="dropdown-toggle" uib-dropdown-toggle>
+                        {{user.email}}
+                        <i class="fa fa-fw fa-user"></i>
+                    </a>
+                </li>
+            </ul>
+        </div><!-- /.container-fluid -->
+    </nav>
+    <div class="content">
+        <div class="loading" ng-if="loading">
+            <div>
+                <i class="fa fa-fw fa-3x fa-spin fa-circle-o-notch" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="well">
+            <form class="form-horizontal" name="uploadForm" novalidate ng-submit="submit()">
+                <fieldset>
+                    <legend>KeyTerms File Upload Client</legend>
+                    <!-- Organization Select -->
+                    <div class="form-group">
+                        <label for="org" class="col-lg-2 control-label">Organization</label>
+                        <div class="col-lg-4">
+                            <select class="form-control" id="org" name="org" ng-options="option.name for option in fm.orgs" ng-model="fm.org" required>
+                                <!--<option value="{{currentOrgAbr}}"> {{::currentOrg}} ({{::currentOrgAbr}})</option>-->
+
+                            </select>
+                        </div>
+                        <label for="vs" class="col-lg-2 control-label">View Scope</label>
+                        <div class="col-lg-4">
+                            <select class="form-control" id="vs" name="vs" ng-model="fm.vs" required>
+                                <% viewScopes.forEach( function (vs) { %>
+                                <option value="<%- vs.value %>"><%- vs.name %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- File Select -->
+                    <div class="form-group">
+                        <label for="file" class="col-lg-2 control-label">File</label>
+                        <div class="col-lg-10">
+                            <input class="form-control" id="file" name="file" type="file" ng-upload="fm.file" required>
+                        </div>
+                    </div>
+                    <!-- File Extension Select -->
+                    <div class="form-group">
+                        <label for="ext" class="col-lg-2 control-label">File Extension</label>
+                        <div class="col-lg-10">
+                            <select class="form-control" id="ext" name="ext" ng-model="fm.ext" ng-change="setFormat()" required>
+                                <option ng-repeat="ext in exts" value="{{ ::ext }}">.{{ ::ext }} ({{ ::extHints[ext].hint }})</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Upload Format Select -->
+                    <div class="form-group">
+                        <label for="format" class="col-lg-2 control-label">Upload Format</label>
+                        <div class="col-lg-10">
+                            <select class="form-control" id="format" name="format" ng-model="fm.format" ng-disabled="!fm.ext" required>
+                                <option ng-repeat="format in formats" value="{{ ::format }}">{{ ::format }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Submit Buttons -->
+                    <div class="form-group">
+                        <div class="col-lg-12 text-center">
+                            <p style="margin-top:15px">&nbsp;<span ng-show="msg.show" ng-class="msg.format">{{ msg.text }}</span></p>
+                            <div class="row">
+                                <div class="col-lg-offset-3 col-xs-3">
+                                    <button type="submit" class="btn btn-block btn-warning" ng-disabled="isFormValid()">Submit</button>
+                                </div>
+                                <div class="col-lg-3">
+                                    <button type="reset" class="btn btn-block btn-default" ng-click="cancel()">Cancel</button>
+                                </div>
+                            </div>
+                            <p class="help-block" ng-show="isFormValid()">All fields are required</p>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <div ng-cloak ng-if="!isEmpty(errors)">
+            <hr>
+            <h3>Errors</h3>
+            <table class="table table-hover table-bordered">
+                <thead>
+                <tr>
+                    <th>Entry Import Id</th>
+                    <th>Number of Errors</th>
+                    <th>Error Message(s)</th>
+                    <th>Error Type(s)</th>
+                    <th>Reason for Error(s)</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="(importId, error) in errors">
+                        <td>{{ ::importId }}</td>
+                        <td>{{ ::error | importError:'count' }}</td>
+                        <td class="preserve-newlines">{{ ::error | importError:'message' }}</td>
+                        <td class="preserve-newlines">{{ ::error | importError:'name' }}</td>
+                        <td class="preserve-newlines">{{ ::error | importError:'path' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        var ___includes___ = '<%- includes %>';
+
+    </script>
+    <script src="<%- ctrlPath %>"></script>
+</body>
+</html>

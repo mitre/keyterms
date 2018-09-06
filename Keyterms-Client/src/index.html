@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta charset="utf-8"/>
+
+	<link href="resources/css/libs/bootstrap/css/paper-theme/bootstrap.css" rel="stylesheet">
+	<link href="resources/js/libs/angular-ui-bootstrap/dist/ui-bootstrap-csp.css" rel="stylesheet">
+	<link href="resources/css/libs/font-awesome/css/font-awesome.css" rel="stylesheet">
+	<link href="resources/css/keytermsClient.css" rel="stylesheet" type="text/css">
+
+	<style>
+		/* ngAnimate Classes */
+		.animate-repeat.ng-move,
+		.animate-repeat.ng-enter,
+		.animate-repeat.ng-leave {
+			transition: all linear 0.5s;
+		}
+
+		.toast.animate-repeat.ng-move,
+		.toast.animate-repeat.ng-enter,
+		.toast.animate-repeat.ng-leave {
+			transition: all linear 1.5s;
+		}
+
+		.animate-repeat.ng-leave.ng-leave-active,
+		.animate-repeat.ng-move,
+		.animate-repeat.ng-enter {
+			opacity:0;
+		}
+
+		.animate-repeat.ng-leave,
+		.animate-repeat.ng-move.ng-move-active,
+		.animate-repeat.ng-enter.ng-enter-active {
+			opacity:1;
+		}
+
+		.navbar-header {
+			float: left !important;
+		}
+
+		nav .id-container {
+			position: absolute;
+			right: 0;
+			padding: 5px 20px;
+			border-bottom-left-radius: 10px;
+			background: #005294;
+			color: #b2dbfb;
+			box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
+		}
+
+		nav .id-container > div {
+			display: inline-block;
+		}
+
+		nav .user-container {padding-right: 15px;}
+
+		@media (max-width: 800px) {
+			.navbar-nav {
+				margin: 0 -15px;
+			}
+			.navbar-nav li a {
+				padding: 20px 8px;
+			}
+			.hidden-xs-override {
+				display: none;
+			}
+			.show-xs-override {
+				display: unset !important;
+			}
+		}
+		.show-xs-override {
+			display: none;
+
+		}
+	</style>
+
+	<title>KeyTerms Client</title>
+	<!--<base href="/keyterms/" />-->
+	<script type="text/javascript">
+        document.write(`<base href="${location.protocol}//${location.host}${location.pathname}" />`);
+	</script>
+
+	<script type="text/javascript">
+        // Using feature detection to determine Browser
+        // Check for Firefox's install addon-on feature called 'InstallTrigger'
+        // Check to see if we're in the Chrome Browser, otherwise redirect to the browser error
+        // Temporarily disabled browser checking
+		/*if (typeof InstallTrigger  !== 'object' && !window.chrome) {
+            var regex = /(https?:\/\/.+)(:\d\d\d\d)(\/.+)?/gi;
+            var match = regex.exec(window.location.href);
+            window.location = match[1] + match[2] + '/keyterms/incorrectBrowser.html';
+        }*/
+	</script>
+</head>
+<body ng-app="keyterms-client">
+<div id="keytermsClient-ctrl" ng-controller="keytermsClient-ctrl">
+	<script type="text/ng-template" id="orgPopup.html">
+		<div class="modal-header">
+			<h3 class="modal-title" >Select Organization</h3>
+		</div>
+		<div class="modal-body org-popup-body">
+			<org-dropdown></org-dropdown>
+		</div>
+		<div class="modal-footer">
+			<label>
+				Set this organization as your default?
+				<input type="checkbox" ng-model="saveAsDefault" />
+			</label>
+			<button class="btn btn-warning" ng-click="close()">Save & Close</button>
+		</div>
+	</script>
+
+	<div id="header-container">
+		<nav class="navbar navbar-inverse navbar-fixed-top" style="min-height: unset">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="./#/search">KeyTerms
+						<span class="text-tiny hidden-sm hidden-xs" style="margin:0;padding:0;">v-{{ ::tbVersion }}</span>
+					</a>
+					<!--<a class="navbar-brand hidden-lg hidden-md" href="./#/search">KT</a>-->
+				</div>
+				<ul class="nav navbar-nav navbar-right" ng-if="showNav">
+					<!-- Navigation Links go here -->
+					<li>
+						<a href="#/search" tooltip-placement="bottom" uib-tooltip="Search">
+							<p><i class="fa fa-fw fa-search" aria-hidden="true"></i></p>
+							<p class="hidden-xs-override">Search</p>
+						</a>
+					</li>
+					<li>
+						<a href="#/browse" tooltip-placement="bottom" uib-tooltip="Browse Term Index">
+							<p><i class="fa fa-fw fa-folder" aria-hidden="true"></i></p>
+							<p class="hidden-xs-override">Browse</p>
+						</a>
+					</li>
+					<li>
+						<a href="#/addentry" tooltip-placement="bottom" uib-tooltip="Add Entry">
+							<p><i class="fa fa-fw fa-language" aria-hidden="true"></i></p>
+							<p class="hidden-xs-override">Add Entry</p>
+						</a>
+					</li>
+					<li>
+						<a href="#/myentries" tooltip-placement="bottom" uib-tooltip="My Entries">
+							<p><i class="fa fa-fw fa-user" aria-hidden="true"></i></p>
+							<p class="hidden-xs-override">My Entries</p>
+						</a>
+					</li>
+					<li>
+						<a href="#/tags" tooltip-placement="bottom" uib-tooltip="Tags">
+							<p><i class="fa fa-fw fa-tags" aria-hidden="true"></i></p>
+							<p class="hidden-xs-override">Tags</p>
+						</a>
+					</li>
+					<li>
+						<a href="#/approvals" tooltip-placement="bottom" uib-tooltip="Nominations">
+							<p><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i></p>
+							<p class="hidden-xs-override">Nominations</p>
+						</a>
+					</li>
+					<li>
+						<a href="#/drafts" tooltip-placement="bottom" uib-tooltip="Drafts">
+							<p><i class="fa fa-fw fa-pencil" aria-hidden="true"></i></p>
+							<p class="hidden-xs-override">Drafts</p>
+						</a>
+					</li>
+					<li>
+						<a id="user-dropdown" uib-popover-template="'userPopover.html'" popover-trigger="outsideClick" popover-animation="false" popover-placement="bottom-right">
+							<p><i class="fa fa-fw fa-gear fa-lg hidden-xs-override" style="padding-top: 15px" aria-hidden="true" ng-class="{ 'active' : userPopoverOpen }"></i></p>
+							<p><i class="fa fa-fw fa-gear show-xs-override" aria-hidden="true" ng-class="{ 'active' : userPopoverOpen }"></i></p>
+						</a>
+
+					</li>
+				</ul>
+			</div>
+			<div class="id-container" ng-if="showNav">
+				<div class="user-container">
+					<div class="select-tag btn-group" uib-dropdown keyboard-nav auto-close="always" is-open="isOpen">
+						<div class="btn-select" uib-dropdown-toggle style="cursor: pointer; box-shadow: none; min-width: unset">
+							{{user.getUser().fullName}} <span class="caret" style=""></span>
+						</div>
+						<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu rule="menu">
+							<li role="menuitem">
+								<a ng-click="logout()">Logout</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="org-dropdown-container">
+					<org-dropdown></org-dropdown>
+				</div>
+			</div>
+		</nav>
+		<div id="page-label-container" >
+			<span class="h4">&nbsp;</span>
+			<span class="h4 pull-left" style="margin-top:0;">{{ currentpageName }}</span>
+			<div ng-if="!$parent.showOrgPopup && showNav" class="pull-right greeting-text" >
+			</div>
+		</div>
+	</div> <!-- End of Header Container -->
+	<div id="body-container">
+		<div id="body-content" ng-hide="initializing">
+			<div ng-view autoscroll="true"></div>
+		</div>
+		<div id="loading-content" ng-show="initializing"><h1>Loading...</h1></div>
+	</div>
+	<!--<button id="jira-feedback-btn" ng-click="jiraFeedback">Provide Feedback</button>-->
+</div>
+<script type="text/ng-template" id="userPopover.html">
+	<div class="gear-popover" style="color:rgb(72, 78, 85)">
+		<div class="row">
+			<div class="col-xs-6 text-center">
+				<a class="btn btn-link btn-block" href="#/user">
+					<p><i class="fa fa-user fa-3x"></i></p>
+					<p>Account</p>
+				</a>
+			</div>
+			<div class="col-xs-6 text-center" ng-if="::user.getUser().isAdmin">
+				<a class="btn btn-link btn-block" target="_blank" href="{{::apiUrl}}admin">
+					<p><i class="fa fa-lock fa-3x"></i></p>
+					<p>Admin</p>
+				</a>
+			</div>
+			<div class="col-xs-6 text-center">
+				<a class="btn btn-link btn-block" href="mailto:{{mailto}}">
+					<p><i class="fa fa-fw fa-envelope-o fa-3x"></i></p>
+					<p>Contact</p>
+				</a>
+
+			</div>
+			<div class="col-xs-6 text-center">
+				<a class="btn btn-link btn-block" href="#/export">
+					<p><i class="fa fa-fw fa-download fa-3x" aria-hidden="true"></i></p>
+					<p>Export</p>
+				</a>
+			</div>
+			<div class="col-xs-6 text-center">
+				<a class="btn btn-link btn-block" target="_blank" href="{{ ::apiUrl }}upload" ng-disabled="!isOrgQC()">
+					<p><i class="fa fa-fw fa-upload fa-3x" aria-hidden="true"></i></p>
+					<p>Import</p>
+				</a>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-10 col-xs-offset-1" id="pop-border"></div>
+		</div>
+		<div class="row">
+			<div class="col-xs-6 col-xs-offset-3 text-center" ng-switch="user.isLoggedIn()">
+				<a class="btn btn-link btn-block" ng-switch-when="true" ng-click="logout()">
+					<p><i class="fa fa-unlock fa-3x"></i></p>
+					<p>Sign Out</p>
+				</a>
+				<a class="btn btn-link btn-block" ng-switch-when="false" ng-click="openLoginModal()">
+					<p><i class="fa fa-lock fa-3x"></i></p>
+					<p>Sign In</p>
+				</a>
+			</div>
+		</div>
+	</div>
+</script>
+
+<script src="resources/js/libs/angular/angular.js"></script>
+<script src="resources/js/libs/angular/angular-route.js"></script>
+<script src="resources/js/libs/angular/angular-cookies.js"></script>
+<script src="resources/js/libs/angular/angular-animate.js"></script>
+<script src="resources/js/libs/angular/angular-sanitize.js"></script>
+<script src="resources/js/libs/angular-ui-bootstrap/dist/ui-bootstrap.js"></script>
+<script src="resources/js/libs/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
+
+<!-- Global Application Configuration File -->
+<script src="config.js"></script>
+
+<!-- Bootstrapping and Configuration of the Angular App -->
+<script src="resources/js/keytermsClient.js"></script>
+
+<!-- Include all service files -->
+<script src="resources/js/services/keyterms-service.js"></script>
+<script src="resources/js/services/init-service.js"></script>
+<script src="resources/js/services/user-service.js"></script>
+<script src="resources/js/services/components/base.js"></script>
+<script src="resources/js/services/components/termlink.js"></script>
+<script src="resources/js/services/components/tag.js"></script>
+<script src="resources/js/services/components/note.js"></script>
+<script src="resources/js/services/components/term.js"></script>
+<script src="resources/js/services/components/entry.js"></script>
+<script src="resources/js/services/keytermsClient-service.js"></script>
+<script src="resources/js/services/keyterms-fnfactory.js"></script>
+<script src="resources/js/services/toast-service.js"></script>
+<script src="resources/js/services/term-highlight.js"></script>
+
+<!-- Include all controller files -->
+<script src="resources/js/controllers/keytermsClient-ctrl.js"></script>
+<script src="resources/js/controllers/addentry-ctrl.js"></script>
+<script src="resources/js/controllers/approvals-ctrl.js"></script>
+<script src="resources/js/controllers/contact-ctrl.js"></script>
+<script src="resources/js/controllers/drafts-ctrl.js"></script>
+<script src="resources/js/controllers/edit-ctrl.js"></script>
+<script src="resources/js/controllers/export-ctrl.js"></script>
+<script src="resources/js/controllers/review-ctrl.js"></script>
+<script src="resources/js/controllers/search-ctrl.js"></script>
+<script src="resources/js/controllers/tags-ctrl.js"></script>
+<script src="resources/js/controllers/user-ctrl.js"></script>
+<script src="resources/js/controllers/userentries-ctrl.js"></script>
+<script src="resources/js/controllers/viewentry-ctrl.js"></script>
+<script src="resources/js/controllers/browse-ctrl.js"></script>
+
+<!-- Include all directive files -->
+<script src="resources/js/directives/utils.js"></script>
+<script src="resources/js/directives/entry.js"></script>
+<script src="resources/js/directives/displays.js"></script>
+<script src="resources/js/directives/forms.js"></script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<h1>{{ ::title }}</h1>
+<div class="well">
+    <form class="form-horizontal" name="userForm" ng-submit="submit()" novalidate>
+        <!-- sets a reference to the form controller in the $modal scope, if it exists -->
+        <span ng-bind="$modal.userForm = (!!$modal) ? userForm : null" style="display:none;"></span>
+        <!-- Username -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Username</label>
+            <div class="col-sm-6">
+                <input type="text" class="form-control" name="username" required ng-model="user.username">
+            </div>
+        </div>
+        <!-- Email Address -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Email</label>
+            <div class="col-sm-6">
+                <input type="email" class="form-control" name="email" required ng-model="user.email">
+            </div>
+        </div>
+        <!-- Full Name -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Full Name</label>
+            <div class="col-sm-6">
+                <input type="text" class="form-control" name="fullName" required ng-model="user.fullName">
+            </div>
+        </div>
+        <!-- Password -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Password</label>
+            <div class="col-sm-6">
+                <button ng-if="existing" type="button" class="btn btn-primary btn-block" ng-click="setPassword()">
+                    <span>Reset Password</span>
+                </button>
+                <div ng-if="!existing">
+                    <input ng-if="$modal.modal" type="text" class="form-control" name="password" ng-model="$modal.password" required disabled>
+                    <input ng-if="nonmodal" type="text" class="form-control" name="password" ng-model="user.password" required disabled>
+                </div>
+            </div>
+        </div>
+        <!-- System Admin -->
+        <div class="form-group" ng-if="::main.currentUser.isAdmin">
+            <label class="col-sm-3 control-label">System Admin</label>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="user.isAdmin">
+                </label>
+            </div>
+        </div>
+        <!-- Organization -->
+        <div class="form-group" ng-if="::main.currentUser.isAdmin">
+            <label class="col-sm-3 control-label">Organizations</label>
+            <div class="col-sm-6">&nbsp;
+                <table class="table table-striped white-bg">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Abbreviation</th>
+                        <th class="text-center">Org Admin</th>
+                        <th class="text-center">Org QC</th>
+                        <th ng-if="($modal.modal || existing) && user.organizations.length > 1"></th>
+                    </tr>
+                    </thead>
+                    <tr ng-repeat="org in ::user.organizations">
+                        <td>{{ ::org.name }}</td>
+                        <td>{{ ::org.abbreviation }}</td>
+                        <td class="text-center"><i class="fa fa-fw fa-lg" ng-class="::{'fa-check text-success': isOrgAdmin(org), 'fa-times text-danger': !isOrgAdmin(org)}"></i></td>
+                        <td class="text-center"><i class="fa fa-fw fa-lg" ng-class="::{'fa-check text-success': isOrgQC(org), 'fa-times text-danger': !isOrgQC(org)}"></i></td>
+                        <td ng-if="($modal.modal || existing) && user.organizations.length > 1"><rm-org-user ng-if="showOrgDeleteBtn(org._id)" user="user" form="userForm" orgid="org._id"></rm-org-user></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <!-- Common Organization -->
+        <div class="form-group" ng-if="$modal.modal">
+            <div class="col-sm-6 col-sm-offset-3">
+                <div class="form-control-static">Note: This user will also be added to the common organization <strong>{{ $modal.commonOrg.name }}</strong>.</div>
+            </div>
+        </div>
+        <!-- Deactivate User -->
+        <div class="form-group" ng-if="currentUser !== user._id">
+            <label class="col-sm-3 control-label">
+                Deactivate User <span uib-popover="Deactivating a user locks them out of their account for all organizations."
+                                      popover-trigger="mouseenter" popover-placement="bottom" class="help-popover">
+                    <i class="fa fa-fw fa-question-circle text-info"></i>
+                </span>
+            </label>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="user.isDeactivated">
+                </label>
+            </div>
+        </div>
+        <!-- Submit Button -->
+        <div class="form-group" ng-if="nonmodal">
+            <div class="row">
+                <div class="col-sm-offset-4 col-sm-2">
+                    <button type="submit" class="btn btn-primary btn-block" ng-disabled="userForm.$invalid || (userForm.$pristine && !pwdChanged)">{{ ::submit_value }}</button>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn btn-default btn-block" ng-click="back()">Cancel</button>
+                </div>
+            </div>
+            <div class="row" ng-show="userForm.$invalid">
+                <div class="col-sm-12 text-center">
+                    <p class="help-block">All fields are required</p>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

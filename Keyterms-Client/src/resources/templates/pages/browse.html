@@ -1,0 +1,209 @@
+<!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<style>
+    .browse-terms {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        display: flex;
+    }
+
+    .browse-terms > .side-panel {
+        padding-top: 6px;
+        flex: 2;
+        /*border: 1px solid red;*/
+        position: relative;
+    }
+
+    .browse-terms > .side-panel .controls-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+    }
+
+    .browse-terms > .side-panel > .controls-wrapper .filter-controls,
+    .browse-terms > .side-panel .filter-controls {
+        position: fixed;
+        min-height: 250px;
+        min-width: 97px;
+        max-width: 20vw;
+        width: 100%;
+    }
+
+    .browse-terms > .main-panel {
+        flex: 7;
+        margin-left: 20px;
+
+    }
+
+    .browse-terms > .main-panel > .row > div {
+        padding-right: 5px;
+        padding-left: 5px;
+        margin-bottom: 5px;
+    }
+
+    .browse-terms > .main-panel .term-display {
+        /*border: 1px solid #666666;*/
+        padding: 4px 3px;
+        position: relative;
+        display: flex;
+        cursor: pointer;
+    }
+
+    .browse-terms > .main-panel .term-display.selected {
+        /*border: 1px solid darkred;*/
+        padding: 4px 3px;
+        position: relative;
+        display: flex;
+        cursor: pointer;
+    }
+
+    .browse-terms > .main-panel > .row.selected {
+        /*border: 1px solid darkred;*/
+        padding-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .browse-terms > .main-panel .term-display > .term-wrapper {
+        flex: 1 0;
+        position: relative;
+    }
+
+    .browse-terms > .main-panel .term-display > .term-wrapper > .term-preview {
+        position: absolute;
+        top: 0; bottom: 0;
+        left: 0; right: 0;
+        white-space: nowrap;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .browse-terms > .main-panel .term-display > .badge-wrapper {
+        position: relative;
+        vertical-align: middle;
+    }
+
+    .browse-terms > .main-panel .term-display > .badge-wrapper > span.badge {
+        margin-top: -3px;
+    }
+
+    .browse-terms > .main-panel .term-entries-display > div {
+        margin-top: 8px;
+    }
+
+    .browse-terms > .main-panel .term-entries-display p {
+        margin: 0;
+    }
+
+    .browse-terms .term-header {
+        padding: 5px !important;
+        border: 1px solid transparent;
+    }
+
+    .browse-terms .term-header.selected {
+        border-top: 1px solid #e2e2e2;
+        border-right: 1px solid #e2e2e2;
+        border-left: 1px solid #e2e2e2;
+        border-bottom: none !important;
+    }
+
+    .browse-terms .term-list-item {
+        border: 1px solid lightgray;
+        padding-left: 16px;
+    }
+
+    .browse-terms .col-lg-12.col-md-12.col-sm-12.col-xs-12.term-entries-display.ng-scope {
+        border-right: 1px solid #e2e2e2;
+        border-left: 1px solid #e2e2e2;
+        border-bottom: 1px solid #e2e2e2;
+        padding: 10px;
+        margin-bottom: 13px;
+    }
+
+    .browse-terms .selected .term-header {
+        border-bottom: 1px solid #e2e2e2;
+    }
+
+    .scroll-loading-icon {
+        padding-top: 20px;
+        min-height: 30px;
+        text-align: center;
+    }
+</style>
+
+<div class="template-container">
+<!-- <div class="alert alert-warning" role="alert"><strong>Warning!</strong> This page is still under construction!</div> -->
+    <div class="browse-terms">
+        <div class="side-panel">
+            <div class="filter-controls panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Controls</h4>
+                </div>
+                <div class="panel-body">
+                    <form>
+                        <div class="form-group">
+                            <label>Language</label>
+                            <lang-code-dropdown binding="selectedLanguage" default="'und'"></lang-code-dropdown>
+                        </div>
+                        <button type="submit" class="btn btn-default pull-right" ng-click="filterTerms()">Filter</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="main-panel">
+            <div>
+                <!--<div ng-repeat="displayList in loadedTerms">-->
+                <div class="row no-gutters" ng-repeat="agg in displayList" ng-init="selected = null" ng-class="{'selected': selected != null}">
+                    <div class="col-xs-4 term-header" ng-class="{'selected': selected == agg[0]}" ><div class="well" browse-term-display="agg[0]"></div></div>
+                    <div class="col-xs-4 term-header" ng-class="{'selected': selected == agg[1]}" ><div class="well" browse-term-display="agg[1]"></div></div>
+                    <div class="col-xs-4 term-header" ng-class="{'selected': selected == agg[2]}" ><div class="well" browse-term-display="agg[2]"></div></div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 term-entries-display" ng-if="selected != null">
+                        <div>&nbsp;
+                            <p class="pull-left text-muted">Related Entry List</p>
+                            <!--<span class="pull-right pointer" ng-click="$parent.selected = null"><i class="fa fa-times"></i></span>-->
+                        </div>
+                        <div>
+                            <display-entry-list entries="selected.entries" show-checkboxes="false"></display-entry-list>
+                        </div>
+                    </div>
+                    <!--</div>-->
+                    <!--<new-items-indicator ng-if="!initialLoad && !loadingEvtFired"></new-items-indicator>-->
+                </div>
+                <div class="scroll-loading-icon">
+                    <span><i class="fa fa-5x fa-spin fa-refresh" ng-show="loadingEvtFired"></i></span>
+                </div>
+                <!--<button class="btn btn-default pull-left" ng-click="prevPage()">
+                    <i class="fa fa-fw fa-arrow-left"></i>Previous
+                </button>
+                <button class="btn btn-default pull-right" ng-click="nextPage()">
+                    Next<i class="fa fa-fw fa-arrow-right"></i>
+                </button>-->
+            </div>
+        </div>
+    </div>
+</div>

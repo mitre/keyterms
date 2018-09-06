@@ -1,0 +1,48 @@
+<html>
+<head>
+    <link rel="stylesheet" href="/libs/css/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="/libs/css/bootstrap/css/united.css" />
+</head>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="admin/home">KeyTerms Admin</a>
+        </div>
+        <ul class="nav navbar-nav navbar-left">
+            <!-- empty -->
+        </ul>
+    </div><!-- /.container-fluid -->
+</nav>
+<div style="width: 90%; margin: auto;">
+    <div class="panel panel-default login-panel" style="margin: 100px auto; max-width: 600px">
+        <div class="panel-heading text-center">
+            <h3>Login</h3>
+        </div>
+        <div class="panel-body">
+            <form id="login" action="/login" method="post">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input class="form-control" type="text" name="username"/><br/>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input class="form-control" type="password" name="password"/>
+                </div>
+                <% if(authFailure) { %>
+                <div class="form-group text-center">
+                    <p class="help-block text-danger"><%= errors %></p>
+                </div>
+                <% } %>
+                <div class="text-center">
+                    <input class="btn btn-primary" type="submit" value="Submit"/>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    // maintain url params, if any
+    document.getElementById('login').setAttribute('action', '/login' + location.search);
+</script>
+</body>
+</html>

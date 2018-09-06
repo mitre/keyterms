@@ -1,0 +1,278 @@
+/*
+ * NOTICE
+ * This software was produced for the U.S. Government and is subject to the
+ * Rights in Data-General Clause 5.227-14 (May 2014).
+ * Copyright 2018 The MITRE Corporation. All rights reserved.
+ * Approved for Public Release; Distribution Unlimited. Case 18-2165
+ *
+ * This project contains content developed by The MITRE Corporation.
+ * If this code is used in a deployment or embedded within another project,
+ * it is requested that you send an email to opensource@mitre.org
+ * in order to let us know where this software is being used.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* ngAnimate Classes */
+.animate-repeat.ng-enter,
+.animate-repeat.ng-move,
+.animate-repeat.ng-leave {
+    transition: all linear 0.5s;
+}
+
+.animate-repeat.ng-leave.ng-leave-active,
+.animate-repeat.ng-move,
+.animate-repeat.ng-enter {
+    opacity: 0;
+}
+
+.animate-repeat.ng-leave,
+.animate-repeat.ng-move.ng-move-active,
+.animate-repeat.ng-enter.ng-enter-active {
+    opacity: 1;
+}
+
+.animate-langlist.ng-enter {
+    transition: all linear 0.75s;
+}
+
+.animate-langlist.ng-leave {
+    transition: all linear 0.5s;
+}
+
+.animate-langlist.ng-enter {
+    background-color: #3366ff;
+}
+
+.animate-langlist.ng-enter.ng-enter-active {
+    background-color: inherit;
+}
+
+.animate-langlist.ng-leave.ng-leave-active {
+    opacity: 0;
+}
+
+.animate-langlist.ng-leave {
+    opacity: 1;
+}
+
+.animate-msg.ng-leave {
+    transition: all linear 1s;
+    opacity: 1;
+}
+
+.animate-msg.ng-leave.ng-leave-active {
+    opacity: 0;
+}
+/* End of ngAnimate Classes */
+
+body {
+    padding: 0;
+    margin: 0;
+}
+
+div.content {
+    margin-top: 70px;
+}
+
+div.left-panel {
+    position: relative;
+    float: left;
+    display: inline-block;
+    padding: 15px;
+    width: 19%;
+}
+div.right-panel {
+    position: relative;
+    float: right;
+    display: inline-block;
+    padding: 15px;
+    width: 79%;
+}
+
+form .form-group span {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.text-bold {
+    font-weight: bold;
+}
+
+p.loading {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.filter-controls {
+    margin-top: 25px;
+}
+
+.checkbox input[type="checkbox"] {
+    margin-left: 0;
+    margin-top: 2px;
+}
+
+.lang-list {
+    display: inline-block;
+    width: 45%;
+}
+
+.lang-list ul {
+    min-height: 120px;
+    max-height: 120px;
+    height: 120px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    background-color: #FFFFFF;
+    overflow-y: scroll;
+    padding: 0;
+}
+
+.lang-list ul li {
+    padding: 2px 0;
+    padding-left: 10px;
+    line-height: 18px;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.lang-list ul li .bull {
+    text-align: center;
+    padding: 0 5px;
+    margin-top: 1px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.lang-list ul li .list-code {
+    display: inline-block;
+    min-width: 30px;
+    margin-right: 2px;
+    background-color: inherit;
+}
+
+.i-btn {
+    cursor: pointer;
+    opacity: 1.0 !important;
+}
+
+.i-btn.disabled {
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+}
+
+.lang-list .i-btn {
+    float: right !important;
+    margin-right: 8px;
+    line-height: inherit;
+}
+
+.row.row-no-margins {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.popover {
+    background-color: #0e0e0e;
+    color: #cccccc;
+}
+.popover.bottom > .arrow {
+    border-bottom-color: #0e0e0e;
+}
+.popover.bottom > .arrow:after {
+    border-bottom-color: #0e0e0e;
+}
+
+.help-popover {
+    z-index: 50;
+    clear: both;
+    position: absolute;
+}
+
+.member-list .member-item.danger {
+    text-decoration: line-through;
+}
+
+table.member-list tr.member-item:last-child {
+    border-bottom: 1px solid #dddddd;
+}
+
+nav .nav li.dropdown .dropdown-toggle {
+    cursor: pointer;
+}
+
+.modal-body .add-user-modal-btn {
+    min-width: 180px;
+    display: inline-block;
+    border: 3px solid #e95420;
+    border-radius: 4px;
+    padding: 60px 30px;
+    margin: 8px;
+    color: #e95420;
+    font-weight: bold;
+}
+
+.modal-body .add-user-modal-btn:hover {
+    cursor: pointer;
+    color: #ac3911;
+    border-color: #ac3911;
+    background-color: #f7bfab;
+}
+
+.modal-body .add-user-modal-btn:hover > span {
+    text-decoration: underline;
+}
+
+.modal-body .add-user-modal-btn i.fa {
+    display: block;
+    text-decoration: none;
+    margin: 0 auto;
+}
+
+.modal-body .add-user-modal-btn i.fa:hover {
+    text-decoration: none;
+}
+
+.modal-body .add-user-switch-null {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.table.kt-users-list {
+    max-height: 160px;
+    overflow-y: scroll;
+}
+
+tr.user-deactivated td {
+    color: grey;
+}
+
+span.deactivated-tag {
+    font-size: 10px;
+    color: grey;
+    text-decoration: none !important;
+}
+
+table.white-bg {
+    background-color: #ffffff;
+    border-collapse: separate;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.manage-btns .btn {
+    min-width: 120px;
+    margin: 0 4px;
+}

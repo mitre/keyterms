@@ -1,0 +1,120 @@
+<!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<style>
+	.form .form-group .help-block {
+		color: #959595;
+	}
+	.tag-display .tag-list-item {
+		display: inline-block;
+		padding: 8px 10px;
+		margin:  0px 3px;
+		border-radius: 8px;
+		background-color: #62c462;
+	}
+	.tag-display .tag-list-item span {
+		color: #FFF;
+		font-size: 16px;
+	}
+	.tag-display .tag-list-item button {
+		color: #000;
+		margin-left: 5px;
+		padding: 0;
+		font-size: 21px;
+		font-weight: bold;
+		line-height: 1;
+		text-shadow: 0 1px 0 #FFF;
+		opacity: 0.2;
+		background: transparent;
+		border: 0;
+		position: relative;
+		top: -6px;
+		right: -4px;
+	}
+	hr {
+		border-color: #c8c8c8;
+	}
+</style>
+<div class="modal-header">
+	<h3 class="modal-title">Bulk Nominate Tags</h3>
+</div>
+<div ng-switch="entries.length > 0">
+	<div ng-switch-when="true">
+		<div class="modal-body" ng-if="!spinner">
+			<label>Entries to be tagged:</label>
+			<ul>
+				<li ng-repeat="entry in entries">
+					<span ng-repeat="term in entry.terms">{{ ::term.termText }}{{ ::$last ? '' : ', ' }}</span>
+				</li>
+			</ul>
+			<label ng-show="tagIntersection.length > 0">Current Tags <span ng-show="entries.length >= 2">in common:</span></label>
+			<ul>
+				<li ng-repeat="tag in tagIntersection">{{ tag }}</li>
+			</ul>
+			<div class="well form-tab">
+				<span class="h4">Tags to be added</span>
+				<div class="tag-display text-center">&nbsp;
+					<div class="tag-list-item" ng-repeat="tag in tagData.toAdd">
+						<span>{{ ::tag }}</span>&nbsp;<button ng-click="removeTag($index)">x</button>
+					</div>
+				</div>
+				<hr class="buffer-top">
+				<form class="form form-inline text-center" name="tagForm" novalidate>
+					<div class="form-group">
+						<p class="help-block">Enter a comma separated list to enter multiple tags at once</p>
+						<label>Tag</label>
+						<input type="text" name="tagInput" class="form-control" ng-model="tagData.tagText" ng-pattern="cslRegex" required>
+						<i class="fa fa-fw fa-lg" ng-class="{'fa-check text-success': tagForm.tagInput.$valid,
+				'fa-times text-danger' : tagForm.tagInput.$invalid}" aria-hidden="true"></i>
+						<button class="btn btn-info" ng-disabled="tagForm.tagInput.$invalid" ng-click="addTags()">Add Tag(s)</button>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="modal-body text-center" ng-if="spinner">
+			<p class="text-enhanced" style="font-size:18px;">
+				<i class="fa fa-fw fa-lg" ng-class="{'fa-circle-o-notch fa-spin' : resStatus == 'pending', 'fa-check text-success' : resStatus == 'success', 'fa-times text-danger' : resStatus == 'error' }" aria-hidden="true"></i>
+				Tagging...
+			</p>
+		</div>
+		<div class="modal-body text-center">
+			<p class="text-danger" ng-show="!isCorrectOrg()">Entries that don't belong to your current Organization will not be tagged</p>
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-warning" type="button" ng-click="ok(true)" ng-if="!isApproveOnly" ng-disabled="tagData.toAdd.length < 1">Nominate Tags</button>
+			<button class="btn btn-warning" type="button" ng-click="ok(false)" ng-if="isApproveOnly || isOrgQC" ng-disabled="tagData.toAdd.length < 1">Tag</button>
+			<button class="btn btn-primary" type="button" ng-click="cancel()">Cancel</button>
+		</div>
+	</div>
+	<div ng-switch-when="false">
+		<div class="modal-body">
+			<p>No entries have been selected.</p>
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-primary" type="button" ng-click="cancel()">Cancel</button>
+		</div>
+	</div>
+</div>
+<!-- </script> -->

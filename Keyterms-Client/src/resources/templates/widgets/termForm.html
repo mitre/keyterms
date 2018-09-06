@@ -1,0 +1,87 @@
+<!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="panel panel-default term-form">
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-xs-8 text-enhanced">Term</div>
+            <div class="col-xs-2 text-enhanced">Lang</div>
+            <div class="col-xs-2 text-enhanced"></div>
+        </div>
+    </div>
+    <div class="panel-body term-container" ng-show="entryData.terms.length > 0">
+        <div class="row term-row" ng-repeat="(index,term) in entryData.terms" ng-class="{'invis': term._flash, 'has-comments': term.notes.length > 0, 'comments-showing': term.isNotesShowing}">
+            <div class="col-xs-8">
+                <div class="text-enhanced term-text" ng-class="{'term-label': term.isLabel}">
+                    <button class="btn btn-sm make-label" uib-tooltip="Make Label" ng-class="{active: term.isLabel}" ng-click="makeLabel($index)">
+                        <i class="fa fa-star" aria-hidden="true"></i>
+                    </button>
+                    <div class="term-index text-muted" ng-if="term.src != 'nlp'">{{index + 1}}</div>
+                    <term-badge term="term" index="index"></term-badge> {{ term.termText }}
+                    <term-comment-button term="term" fixed="true" is-editable="true"></term-comment-button>
+                </div>
+            </div>
+            <div class="col-xs-2 text-enhanced">{{ term.langCode.name }} <span class="text-muted term-variety">{{ term.variety }}</span></div>
+            <div class="col-xs-2 text-enhanced">
+
+                <button class="btn btn-primary btn-sm" uib-tooltip="Edit Term" ng-click="editTerm($index)">
+                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                </button>
+                <button class="btn btn-primary btn-sm" uib-tooltip="Delete Term" ng-click="removeTerm($index)">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
+            </div>
+            <term-comment-container class="col-xs-12" term="term" is-editable="true"></term-comment-container>
+        </div>
+    </div>
+    <div class="panel-body" ng-show="entryData.terms.length < 1">
+        <div class="col-xs-12 text-center">There no terms currently associated with this Entry</div>
+    </div>
+</div>
+<div class="form form-inline text-center">
+    <div class="form-group">
+        <label class="control-label">Term</label>
+        <input type="text" class="form-control" ng-model="termData.termText" ng-enterkey="addTerm()" name="termText">
+        <label class="control-label icon-label">
+            <i class="fa fa-fw fa-lg" ng-class=" { 'fa-check text-success' : !!termData.termText, 'fa-times text-danger' : !termData.termText }" aria-hidden="true">&nbsp;</i>
+        </label>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Select Language</label>
+        <lang-code-dropdown binding="termData.langCode"></lang-code-dropdown>
+    </div>
+    <br>
+    <a ng-click="showTermType = true" ng-show="!showTermType" class="add-variety">(add a term variety)</a>
+    <div class="form-group" ng-if="showTermType">
+        <label class="control-label">Term Variety</label>
+        <input type="text" class="form-control" ng-model="termData.variety" ng-enterkey="addTerm()" name="termType">
+    </div>
+    <br><p class="text-danger">&nbsp;<span ng-show="!!termHint">{{ termHint }}</span></p>
+    <button class="btn btn-info" ng-disabled="!isTermValid()" ng-click="addTerm()">Add Term</button><br>
+    <p class="buffer-top" ng-show="entryData.terms.length < 1">
+        <i class="fa fa-exclamation-circle fa-fw fa-lg text-danger" aria-hidden="true"></i>
+        Entry must contain at least 1 Term
+    </p>
+</div>

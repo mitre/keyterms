@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta charset="utf-8"/>
+
+	<link href="resources/css/normalize.css" rel="stylesheet" type="text/css">
+	<link href="../resources/css/libs/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">
+	<link href="../resources/css/libs/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css">
+	<link href="resources/css/keytermsClient-info.css" rel="stylesheet" type="text/css">
+
+	 <script src="resources/js/jquery-2.2.4.min.js"></script>
+	<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>-->
+	<script src="../resources/css/libs/bootstrap/js/bootstrap.js"></script>
+
+	<title>KeyTerms Info Site</title>
+	<base href="/keyterms/info/" />
+</head>
+<body>
+	<div id="keytermsClient-info">
+		<div class="header-wrapper">
+			<nav class="navbar navbar-default">
+			  	<div class="container-fluid">
+		      		<a class="navbar-brand" href="../info">KeyTerms</a>
+		     	 	<ul class="nav navbar-nav navbar-left" style="margin-left:10%">
+				      	<!-- Navigation Links go here -->
+				        <li class="active"><a href="../info">Home</a></li>
+				        <li><a href="#services">Services</a></li>
+				        <li><a href="#screenshots">Screenshots</a></li>
+				        <li><a id="mailtolink" href="mailto:{{email}}">Contact</a></li>
+				        <li><a href="../">Use</a></li>
+			      	</ul>
+			  	</div>
+			</nav>
+		</div>
+		<div class="carousel-wrapper">
+			<div id="bs-carousel" class="carousel slide" data-ride="carousel">
+				<!-- Overlay -->
+				<div class="overlay"></div>
+
+				<!-- Indicators -->
+				<ol class="carousel-indicators">
+					<li data-target="#bs-carousel" data-slide-to="0" class="active"></li>
+					<li data-target="#bs-carousel" data-slide-to="1"></li>
+				</ol>
+
+			<!-- Wrapper for slides -->
+			<div class="carousel-inner" role="listbox">
+				<div class="item active">
+					<div class="title-wrapper">
+						<p class="title">Manage Terms</p>
+						<p class="sub-title">Consolidate all your disparate term lists and make them easier to manage, vet, update and share.</p>
+					</div>
+				</div>
+				<div class="item">
+					<div class="title-wrapper">
+						<p class="title">Share Terms</p>
+						<p class="sub-title">Share some, all or none of your terms. You decide!<br>Term lists are shareable Component terms and private User terms.</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Controls -->
+			<a class="left carousel-control" href="#bs-carousel" role="button" data-slide="prev">
+				<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+				<span class="sr-only">Previous</span>
+			</a>
+			<a class="right carousel-control" href="#bs-carousel" role="button" data-slide="next">
+				<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+				<span class="sr-only">Next</span>
+			</a>
+			</div>
+		</div>
+		<!-- comment -->
+		<div class="content-wrapper">
+			<div id="services" class="content">
+				<h1 class="vert-gap">Services</h1>
+				<h4 class="vert-gap-2">Through a RESTful Application Programming Interface (API), any client may interface with the KeyTerms to access and manage your Component's vetted terms or personal terms.</h4>
+				<div class="row vert-gap">
+					<div class="col-xs-4 text-center">
+						<p style="color:red">
+							<span class="fa-stack fa-3x">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-search fa-stack-1x fa-inverse"></i>
+							</span>
+						</p>
+						<h4>Search Terms</h4>
+						<p>Any organization may create lists of "terms" (specialized subject matter including formulaic phraseology, organizations, etc that do not typically appear in dictionaries).</p>
+					</div>
+					<div class="col-xs-4 text-center">
+						<p style="color:green">
+							<span class="fa-stack fa-3x">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-pencil fa-stack-1x fa-inverse"></i>
+							</span>
+						</p>
+						<h4>Share Terms</h4>
+						<p>Shareable lists allow individuals organizations to maintain authoritative control over their own terminology and easily import and export terms from other organizations that share their lists.</p>
+					</div>
+					<div class="col-xs-4 text-center">
+						<p style="color:blue">
+							<span class="fa-stack fa-3x">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-thumbs-up fa-stack-1x fa-inverse"></i>
+							</span>
+						</p>
+						<h4>Nominate Terms</h4>
+						<p>Improve translation consistency in an organization by establishing a process of nominations of terms from personal use up to the Component's use.</p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-4 text-center">
+						<p style="color:purple">
+							<span class="fa-stack fa-3x">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-user fa-stack-1x fa-inverse"></i>
+							</span>
+						</p>
+						<h4>Manage User Terms</h4>
+						<p>Not ready to share your term with your organization? Keep your individual terms in the KeyTerms and improve it until you're ready.</p>
+					</div>
+					<div class="col-xs-4 text-center">
+						<p style="color:teal">
+							<span class="fa-stack fa-3x">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-tag fa-stack-1x fa-inverse"></i>
+							</span>
+						</p>
+						<h4>Tag Terms</h4>
+						<p>Organized by domains, the terms are domain tagged by the same users who use them</p>
+					</div>
+					<div class="col-xs-4 text-center">
+						<p style="color:navy">
+							<span class="fa-stack fa-3x">
+								<i class="fa fa-circle fa-stack-2x"></i>
+								<i class="fa fa-stack-1x fa-inverse icon-fix">A</i>
+							</span>
+						</p>
+						<h4>Add Senses</h4>
+						<p>One term may have multiple sense and vice-versa, the KeyTerms helps to manage them explicitlly</p>
+					</div>
+				</div>
+			</div>
+			<div id="screenshots" class="content">
+				<h1 class="vert-gap">Screenshots</h1>
+				<h4 class="vert-gap-2">The following screenshots demonstrate the use of the web interface for the terminology management system.</h4>
+				<div class="row vert-gap">
+					<div class="col-xs-3 ss">
+						<div>
+							<div class="img-holder">
+								Screenshot Here
+							</div>
+							<p class="img-label">User Terms</p>
+						</div>
+					</div>
+					<div class="col-xs-3 ss">
+						<div>
+							<div class="img-holder">
+								Screenshot Here
+							</div>
+							<p class="img-label">Search Target Language</p>
+						</div>
+					</div>
+					<div class="col-xs-3 ss">
+						<div>
+							<div class="img-holder">
+								Screenshot Here
+							</div>
+							<p class="img-label">Search Native Language</p>
+						</div>
+					</div>
+					<div class="col-xs-3 ss">
+						<div>
+							<div class="img-holder">
+								Screenshot Here
+							</div>
+							<p class="img-label">Edit Terms</p>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-3 ss">
+						<div>
+							<div class="img-holder">
+								Screenshot Here
+							</div>
+							<p class="img-label">Domain Tags</p>
+						</div>
+					</div>
+					<div class="col-xs-3 ss">
+						<div>
+							<div class="img-holder">
+								Screenshot Here
+							</div>
+							<p class="img-label">Approve Modifications</p>
+						</div>
+					</div>
+					<div class="col-xs-3 ss">
+						<div>
+							<div class="img-holder">
+								Screenshot Here
+							</div>
+							<p class="img-label">Apporval Queue</p>
+						</div>
+					</div>
+					<div class="col-xs-3 ss">
+						<div>
+							<div class="img-holder">
+								Screenshot Here
+							</div>
+							<p class="img-label">Draft Terms</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="../config.js"></script>
+	<script>
+		$(document).ready( function () {
+			var mailLink = "mailto:{{email}}".replace('{{email}}', window.mailto);
+
+			$("#mailtolink").attr("href", mailLink);
+		});
+
+		// matches the highlight nav tab with the current hash value
+		function onHashChange(event) {
+			var hashVal = location.hash || '/info';
+
+			$(".navbar .navbar-nav li.active").removeClass("active");
+			$(".navbar .navbar-nav li a[href='" + hashVal+ "']")
+				.parent().addClass("active");
+		};
+		// fixes initial page load, just in case a hash value is loaded
+		onHashChange();
+
+		// highlights the correct nav tab on hash change
+		window.addEventListener("hashchange", onHashChange, false);
+	</script>
+</body>
+</html>

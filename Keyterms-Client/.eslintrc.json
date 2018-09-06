@@ -1,0 +1,92 @@
+{
+  "extends": "standard",
+  "extends": "secure",
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
+  "rules": {
+    // Use of semicolons at the end of statements is inconsistent. This should be fixed.
+    //      "semi": ["error", "always"],
+    "semi": 0,
+
+    // Use of spaces and tabs for indentation is inconsistent. This should be fixed.
+    //      "indent": ["error", "tab"],
+    "indent": 0,
+    "no-mixed-spaces-and-tabs": 0,
+
+    // Style issues - rules not needed
+    "no-tabs": 0,
+    "space-in-parens": 0,
+    "padded-blocks": 0,
+    "space-before-function-paren": 0,
+    "template-curly-spacing": 0,
+    "keyword-spacing": 0,
+    "brace-style": 0,
+    "space-before-blocks": 0,
+    "no-multiple-empty-lines": 0,
+    "spaced-comment": 0,             // This is complicated rule with a lot of options, but don't really need it.
+
+    // They use a tab on blank lines, which eslint counts as a trailing space by default. Not important, but need to adjust the rule.
+    "no-trailing-spaces": [
+      "error",
+      {
+        "skipBlankLines": true
+      }
+    ],
+
+    // Keep this rule as it might indicate a logic error.
+    "no-extra-boolean-cast": 0,
+
+    // Keep this rule as errors should be handled in callbacks.
+    "handle-callback-err": [
+      "error",
+      "^(err|error)$"
+    ],
+
+    // Keep this rule and strengthen it, so curly braces should always be used.
+    "curly": [
+      "error",
+      "all"
+    ],
+
+    // Keep this rules and strengthen it, so that constructors must start with capital letters, and must be called.
+    "new-cap": [
+      "error",
+      {
+        "capIsNew": false,
+        "newIsCap": true
+      }
+    ],
+
+    // Keep this as is, but I am not sure about it. Might be stylistic, but probabaly should use only one convention for quotes.
+    "quotes": [
+      "error",
+      "single",
+      {
+        "avoidEscape": true,
+        "allowTemplateLiterals": true
+      }
+    ],
+
+    // Keep this rule as it can catch potential errors, e.g., confusion over prefix or postfix operators, etc.
+    "space-infix-ops": "error",
+
+    // Keep this rule as errors can arise from creating file paths by concatenation. Use path.join() or path.resolve() instead.
+    "no-path-concat": "error",
+
+    // Keep this rule as it is a good idea. In 'app.js' there is an instance of this,
+    //   but it can be modified to get rid of the problem.
+    "no-redeclare": "error",
+
+    // Keep this rule and strenthen it, so that it checks for all unused variable everywhere.
+    "no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "args": "after-used",
+        "ignoreRestSiblings": false
+      }
+    ]
+  }
+
+}

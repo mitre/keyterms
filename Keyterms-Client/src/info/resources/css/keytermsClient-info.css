@@ -1,0 +1,105 @@
+body {
+	height: 100%;
+	background-color: #EAEAEA;
+	color: #777;
+}
+
+.navbar.navbar-default .nav.navbar-nav > li.active > a {
+	background-color: rgb(46, 168, 229);
+	color: white;
+}
+
+.header-wrapper {
+	position: fixed;
+	top: 0;
+	left: 5%;
+	right: 5%;
+	z-index: 50;
+	width: 90%;
+	margin: 0 auto;
+	text-align: center;
+}
+.carousel-wrapper {
+	position: relative;
+	margin: 0;
+}
+
+.content-wrapper .content {
+	position: relative;
+	width: 90%;
+	margin: 0 auto;
+	text-align: center;
+	padding: 60px 40px;
+}
+
+.content-wrapper .vert-gap {
+	margin-bottom: 20px;
+}
+
+.content-wrapper .vert-gap-2 {
+	margin-bottom: 40px;
+}
+
+#services {
+	background-color: white;
+	margin-top: -5px;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+}
+
+#screenshots {
+	background-color: #F5F5F5;
+}
+
+#screenshots .ss > div {
+	background-color: white;
+	padding: 8px;
+	border-radius: 3px;
+	padding-bottom: 4px;
+}
+
+#screenshots .ss .img-holder {
+	border: 1px solid black;
+	height: 200px;
+}
+
+#screenshots .ss .img-label {
+	margin: 0;
+	padding: 0;
+}
+
+#contact {
+	background-color: black;
+	text-align: left;
+	color: white;
+}
+
+.icon-fix {
+	font-family: Arial !important;
+	font-weight: bold !important;
+}
+
+#bs-carousel {
+	position: relative;
+	height: 550px;
+	background-color: black;
+}
+
+#bs-carousel .carousel-inner .item .title-wrapper {
+	height: 550px;
+	min-height: 550px;
+	max-height: 550px;
+	overflow: hidden;
+	padding-top: 200px;
+	display: block;
+	text-align: center;
+	color: #FFF;
+}
+
+#bs-carousel .carousel-inner .item .title-wrapper .title {
+	font-size: 72px;
+}
+
+#bs-carousel .carousel-inner .item .title-wrapper .sub-title {
+	font-size: 24px;
+}

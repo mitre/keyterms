@@ -1,0 +1,135 @@
+<div>
+    <!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+    <p class='banner-heading heading-top'>{{ ::entry.bannerText || entry.org.name }}</p>
+    <p class='pending-nominations text-center mod-noms' ng-if="::entry.modNoms > 0">
+        <span>Modifications have been nominated for this entry.</span>
+    </p>
+    <p class='pending-nominations text-center del-noms' ng-if="::entry.delNoms > 0" >
+        This entry has been nominated for deletion.
+    </p>
+    <div class="panel-body text-enhanced view-entry">
+        <div class="entry-section">
+            <h4 class="section-label">Terms</h4>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-2">Term</div>
+                        <div class="col-xs-2">Link Type</div>
+                        <div class="col-xs-6">Linked Term</div>
+                        <div class="col-xs-2">Language</div>
+                    </div>
+                </div>
+                <div class="panel-body term-container" ng-class="{'has-labels': entry.labels.length > 0}" ng-show="entry.terms.length > 0">
+                    <!--Apply a class to the entire row if the term itself is nominated for deletion-->
+                   <display-terms terms="entry.terms" ></display-terms>
+                   <display-terms class='add' terms="delta.terms.add" new-term="true" index-offset="entry.terms.length"></display-terms>
+                </div>
+                <div class="panel-body" ng-show="entry.terms.length < 1">
+                    <div class="text-center">There are no terms associated with this Entry</div>
+                </div>
+            </div>
+        </div>
+        <div class="entry-section">
+            <div class="entry-tags" ng-if="::entry.tags.length + delta.tags.add.length > 0">
+                <span class="h4 field-label">Tags</span>
+                <display-tags tags="entry.tags"></display-tags>
+                <span class="separator" ng-if="::entry.tags.length > 0 && delta.tags.add.length > 0">, </span>
+                <display-tags tags="delta.tags.add" new-tag="true" class="add"></display-tags>
+                <!--<span style="padding-left: 30px;">{{ entry.tags.join(', ') }}</span>-->
+            </div>
+            <div ng-if="::entry.tags.length + delta.tags.add.length < 1">
+                <h4 class="section-label">Tags</h4>
+                <p class="text-muted none-msg" >There are no tags associated with this Entry</p>
+            </div>
+        </div>
+        <div class="entry-section">
+            <h4 class="section-label">Notes</h4>
+            <div class="panel panel-default notes" ng-if="::entry.notes.length + delta.notes.add.length > 0">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">Type</div>
+                        <div class="col-xs-9">Note</div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <display-notes notes="entry.notes"></display-notes>
+                    <display-notes notes="delta.notes.add" new-note="true" class="add"></display-notes>
+                </div>
+            </div>
+            <p class="text-muted none-msg" ng-if="::entry.notes.length + delta.notes.add.length < 1">There are no notes associated with this Entry</p>
+        </div>
+        <div class="entry-section entry-data" ng-if="!!entry.createdBy">
+            <h4 class="section-label">Entry Data</h4>
+            <ul class="fa-ul">
+                <li>
+                    <i class="fa fa-sitemap fa-li"></i>
+                    <label>Organization:</label>
+                    <div class="content">{{ ::entry.org.name }}</div>
+                </li>
+                <li>
+                    <i class="fa fa-eye fa-li"></i>
+                    <label>Visible To:</label>
+                    <div class="content" ng-class="::{'del-value': !!delta.entry.viewScope}">{{ ::entry.viewScope.name }}</div>
+                    <div class="content add" ng-if="::delta.entry.viewScope">{{ ::delta.entry.viewScope.name }}</div>
+                </li>
+                <li>
+                    <i class="fa fa-pencil fa-li"></i>
+                    <label>Editable By:</label>
+                    <div class="content" ng-class="::{'del-value': !!delta.entry.editScope}">{{ ::entry.editScope.name }}</div>
+                    <div class="content add" ng-if="::delta.entry.editScope">{{ ::delta.entry.editScope.name }}</div>
+
+                </li>
+                <li>
+                    <i class="fa fa-li fa-square"></i>
+                    <label>Entry Type:</label>
+                    <div class="content" ng-class="::{'del-value': !!delta.entry.type}">{{ ::entry.type.name }}</div>
+                    <div class="content add" ng-if="::delta.entry.type">{{ ::entryTypeMap[delta.entry.type].name }}</div>
+                </li>
+                <li ng-if="::!nomination || nomination.type != 'add'">
+                    <i class="fa fa-li fa-square"></i>
+                    <label>Created By:</label> <div class="content"> {{ ::entry.createdBy.fullName }} ({{ ::entry.createdBy.email }})</div>
+                </li>
+                <li ng-if="::!nomination || nomination.type != 'add'">
+                    <i class="fa fa-li fa-square"></i>
+                    <label>Created On:</label> <div class="content"> {{ ::entry.creationDate | date: 'medium' }}</div>
+                </li>
+                <li ng-if="::!!nomination.createdBy && !!nomination.createdBy.fullName" class="add">
+                    <i class="fa fa-li fa-square"></i>
+                    <label>Nominated By:</label> <div class="content add"> {{ ::nomination.createdBy.fullName }} ({{ ::nomination.createdBy.email }})</div>
+                </li>
+                <li ng-if="::!!nomination.creationDate" class="add">
+                    <i class="fa fa-li fa-square"></i>
+                    <label>Nominated On:</label> <div class="content add"> {{ ::nomination.creationDate | date: 'medium' }}</div>
+                </li>
+                <li ng-if="::entry.modificationDate">
+                    <i class="fa fa-li fa-square"></i>
+                    <label>Last Modified On:</label> <div class="content"> {{ ::entry.modificationDate | date: 'medium' }}</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <p class='banner-heading heading-bot'>{{ ::entry.bannerText || entry.org.name }}</p>
+</div>

@@ -1,0 +1,87 @@
+<!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div id="review" class="template-container">
+	<div>
+		<a href="#/approvals" class="btn btn-info">
+			<i class="fa fa-fw fa-lg fa-arrow-left" aria-hidden="true"></i> Back to List
+		</a>
+	</div>
+	<h3 class="text-warning">Nomination: {{ ::desc || 'Addition' }}</h3>
+	<div class="footer-text">{{::statusMessage}}</div>
+	<div class="nom-comments well well-sm" ng-if="nomination.comments.length > 0">
+		<p class="comments-user">{{ ::nomination.createdBy.fullName }} ({{ ::nomination.createdBy.email }}) noted:</p>
+		<p class="comments-display"><i class="fa fa-2x fa-quote-left"></i>{{ ::nomination.comments }}</p>
+	</div>
+	<div ng-class="nomType" class="nomination-container">
+		<display-entry entry="current" delta="delta" nom-type="nomType" nomination="nomination"></display-entry>
+	</div>
+	<div class="footer-container">
+		<div class="row">
+			<div class="bottom-button-wrapper col-xs-12" ng-if="::canApprove">
+				<div class="text-center" ng-if="::!nomination.isGarbage">
+					<button class="btn btn-success" ng-click="approve()">
+						<i class="fa fa-fw fa-lg fa-check" aria-hidden="true"></i> Approve {{::buttonText}}
+					</button>
+					<button class="btn btn-danger" ng-click="reject()">
+						<i class="fa fa-fw fa-lg fa-times" aria-hidden="true"></i> Reject {{::buttonText}}
+					</button>
+
+<!--				<button class="btn btn-success" ng-click="approve()">
+					<i class="fa fa-fw fa-lg fa-check" aria-hidden="true"></i> Approve All Remaining Changes
+					</button>
+					<button class="btn btn-success" ng-click="approve()">
+						<i class="fa fa-fw fa-lg fa-check" aria-hidden="true"></i> Save Accepted Changes
+					</button>
+					<button class="btn btn-danger" ng-click="reject()">
+						<i class="fa fa-fw fa-lg fa-times" aria-hidden="true"></i> Reject Entire Nomination
+					</button>-->
+				</div>
+				<div class="text-center" ng-if="::nomination.isGarbage">
+					<button class="btn btn-success" ng-click="reject()">Remove Nomination</button>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12">
+			<div class="footer-text" >
+				{{::statusMessage}}
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Confirmation Icon Modal Template -->
+<script type="text/ng-template" id="confirmationModal.html">
+    <div class="modal-header">
+        <h2 class="modal-title">{{ message | capitalize }}</h2>
+    </div>
+    <div class="modal-body">
+		<p>Are you sure you would like to {{ message }} the nominated changes?</p>
+    </div>
+    <div class="modal-footer">
+    	<button class="btn btn-success" type="button" ng-click="yes()">Confirm</button>
+        <button class="btn btn-danger" type="button" ng-click="no()">Cancel</button>
+    </div>
+</script>

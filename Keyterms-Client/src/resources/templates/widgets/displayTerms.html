@@ -1,0 +1,61 @@
+<div>
+    <!--
+      ~ NOTICE
+      ~ This software was produced for the U.S. Government and is subject to the
+      ~ Rights in Data-General Clause 5.227-14 (May 2014).
+      ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+      ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+      ~
+      ~ This project contains content developed by The MITRE Corporation.
+      ~ If this code is used in a deployment or embedded within another project,
+      ~ it is requested that you send an email to opensource@mitre.org
+      ~ in order to let us know where this software is being used.
+      ~
+      ~ Licensed under the Apache License, Version 2.0 (the "License");
+      ~ you may not use this file except in compliance with the License.
+      ~ You may obtain a copy of the License at
+      ~
+      ~ http://www.apache.org/licenses/LICENSE-2.0
+      ~
+      ~ Unless required by applicable law or agreed to in writing, software
+      ~ distributed under the License is distributed on an "AS IS" BASIS,
+      ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      ~ See the License for the specific language governing permissions and
+      ~ limitations under the License.
+      -->
+
+    <div class="row term-row" ng-repeat-start="(index, term) in ::terms" ng-if="term.src !== 'nlp' || !!delta.terms.mod[term._id]"
+        ng-class="{'term-del': !!delta.terms.del && delta.terms.del.includes(term._id), 'has-comments': term.notes.length > 0 || delta.terms.mod[term._id].notes.add.length > 0, 'comments-showing': term.isNotesShowing}"
+    ><!-- long ng-class definition -->
+        <div class="col-xs-10">
+            <div class="text-enhanced term-text" ng-class="{'term-label': term.isLabel || delta.terms.mod[term._id].isLabel}" term-text >
+                <div class="term-index text-muted">{{::index + indexOffset + 1}}</div>
+                <!--Restyle if completely deleting term -->
+                <span ng-class="::{'del-value': !!delta.terms.mod[term._id].termText}">{{ ::term.termText }}</span>
+                <!--Display new term text if it exists -->
+                <span ng-if="::nomType == 'mod' && !!delta.terms.mod[term._id].termText" class="mod-value">{{::delta.terms.mod[term._id].termText}}</span>
+                <!--Display badge if the label status has changed -->
+                <span ng-if="::nomType == 'mod'  && delta.terms.mod[term._id] !== undefined && delta.terms.mod[term._id].isLabel !== undefined">
+                    <sup ng-if="::delta.terms.mod[term._id].isLabel" class="new-label label-badge" >new label</sup>
+                    <sup ng-if="::!delta.terms.mod[term._id].isLabel" class="old-label label-badge">old label</sup>
+                </span> <!--todo: create nice looking badge -->
+                <term-comment-button term="term" ng-if="term.notes.length > 0 || delta.terms.mod[term._id].notes" has-changes="{{delta.terms.mod[term._id].notes.add.length > 0 || delta.terms.mod[term._id].notes.del.length > 0}}"></term-comment-button>
+            </div>
+        </div>
+        <div class="col-xs-2">
+            <span ng-class="::{'del-value': !!delta.terms.mod[term._id].langCode}">{{ ::term.langCode.name }} <span class="text-muted term-variety">{{::term.variety}}</span></span>
+            <span ng-if="::nomType == 'mod'">
+                <span ng-if="::!!delta.terms.mod[term._id].langCode" class="mod-value">{{::delta.terms.mod[term._id].termText}}</span>
+            </span>
+            <div class='nomination-button-container' ng-if="::delta.terms.mod[term._id] !== undefined || delta.terms.del.includes(term._id) || newTerm">
+                <nomination-buttons></nomination-buttons>
+            </div>
+        </div>
+        <term-comment-container class="col-xs-12" term="term" delta="delta.terms.mod[term._id]" is-editable="false" ng-if="term.notes.length > 0 || delta.terms.mod[term._id].notes"></term-comment-container>
+    </div>
+    <!--List Links ng-repeat -->
+    <!--Apply a class to the entire row if the link is nominated for deletion-->
+    <display-links links="entry.termLinks"></display-links>
+    <display-links links="delta.termLinks.add" class="add"></display-links>
+    <span style="display: none;" ng-repeat-end></span>
+</div>

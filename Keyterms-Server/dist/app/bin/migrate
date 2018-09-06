@@ -1,0 +1,511 @@
+/*
+ * NOTICE
+ * This software was produced for the U.S. Government and is subject to the
+ * Rights in Data-General Clause 5.227-14 (May 2014).
+ * Copyright 2018 The MITRE Corporation. All rights reserved.
+ * Approved for Public Release; Distribution Unlimited. Case 18-2165
+ *
+ * This project contains content developed by The MITRE Corporation.
+ * If this code is used in a deployment or embedded within another project,
+ * it is requested that you send an email to opensource@mitre.org
+ * in order to let us know where this software is being used.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#!/usr/bin/env node
+
+var mongodb = require('mongodb').MongoClient; // use standard mongo driver for old schema
+var mongoose = require('mongoose');			// use mongoose API for current schema and mongo db
+var targetDb = require('../db');
+var Promise = require('bluebird');
+
+var elastic = require('../utils/elasticSearch');
+
+var sourceUri = process.argv[2];
+
+var Organization = mongoose.model('Organization');
+var User = mongoose.model('User');
+var Term = mongoose.model('Term');
+var Entry = mongoose.model('Entry');
+var $Entry = targetDb.interfaces.$Entry;
+
+if (!sourceUri) {
+	throw new Error('Missing command-line param: Source Mongo Uri. Exiting...');
+}
+
+// class ConversionError extends Error {
+// 	constructor (old, error) {
+// 		super();
+//
+// 		this.sourceDocRef = old._id ||
+//
+// 		// TODO: review format
+// 		ConversionError.errors.push(this);
+// 	}
+//
+// 	static errors = [];
+// }
+
+var orgMap = {};
+var userMap = {};
+var tbToEntryMap = {};
+var ERRORS = [];
+
+/**
+ * TODO: Figure out what versions are being used in production
+ */
+
+var createConnections = function () {
+	return targetDb.init({performCheck: false})
+	.then( function () {
+		return mongodb.connect(sourceUri, {promiseLibrary: Promise})
+	});
+};
+
+createConnections()
+.then( function (srcDb) {
+	console.log(`Connection established with ${sourceUri}`);
+
+// Convert all Components to Organizations
+	return convertComponentToOrg(srcDb)
+	.then( function (orgs) {
+		// Place each org in a map for easy access. 
+		// Keyed by Component.Path or Component.Abbreviation (each are used interchangeably into old version)
+
+		orgs.forEach( function (org) {
+			if (!(org.path in orgMap))
+				orgMap[org.path] = org;
+
+			if (!(org.abbreviation in orgMap))
+				orgMap[org.abbreviation] = org;
+		});
+
+// Convert all 'Users' to Users
+		return convertUserToUser(srcDb);
+	})
+	.then( function (users) {
+		// Place each user in a map for easy access.
+		// Keyed by email, because emails *should* be unique. (Ignore possibility of multiple accounts)
+		users.forEach( function (user) {
+			if (!(user.email in userMap))
+				userMap[user.email] = user;
+		});
+
+// Convert all Keyterms documents to Entries
+		return convertKeytermsToEntry(srcDb);
+	})
+	.then( function () {
+		console.log('\n\nDone.');
+		return true;
+	})
+	.catch( function (err) {
+		console.error('Catch all fired!');
+		console.error(err.message);
+		console.log('\n\n');
+		console.error(err);
+	})
+	.finally( function () {
+		mongoose.disconnect();
+		srcDb.close();
+		console.log('Data Migration Complete!\n\n');
+	});
+});
+
+
+var convertComponentToOrg = function (srcDb) {
+	var col = srcDb.collection('Components');
+
+	return col.find().toArray()
+	.then( function (docs) {
+		console.log(`Number of Components: ${docs.length}`);
+
+		return Promise.mapSeries(docs, function (old) {
+			console.log(`Converting Component: ${old._id}`);
+
+			var org = new Organization();
+			org.name = old.FullName;
+			org.path = old._id.toString();
+			org.abbreviation = old.Abbreviation;
+			org.globalBlock = old.GlobalBlock;
+			org.lastModified = old.LastModified;
+			org.langList = old.ToLangList.concat(old.FromLangList);
+
+			//console.log(org);
+			return org.save()
+			.catch( function (err) {
+				// FOR DEV ONLY
+				if (err.code == 11000) {
+					console.log('skipping dup error for development...');
+					return Organization.findOne({abbreviation: old.Abbreviation});
+				}
+				else {
+					throw err;
+				}
+			})
+		});
+	})
+	.catch( function (err) {
+		console.error('CRITICAL ERROR IN `convertComponentToOrg`...');
+
+		throw err;
+	});
+};
+
+var convertUserToUser = function (srcDb) {
+	var col = srcDb.collection('Users');
+
+	return col.find().toArray()
+	.then( function (docs) {
+		console.log(`Number of Users: ${docs.length}`);
+
+		return Promise.mapSeries(docs, function (old) {
+			console.log(`Converting User: ${old._id}`);
+
+			var user = new User();
+			user.username = old.Email;
+			user.email = old.Email;
+			user.password = (new mongoose.Types.ObjectId()).toString(); // generate random password
+			user.fullName = old.FullName;
+			user.certOnly = true; // turns off username/password authenticate for this user
+			user.organizations.push(orgMap[old.ComponentId]._id);
+			user.currentOrg = user.organizations[0]._id;
+
+			var async = Promise.resolve();
+
+			if (old.isAdmin && !!orgMap[old.ComponentId]) {
+				var org = orgMap[old.ComponentId];
+				org.qcs.push(user._id);
+				org.admins.push(user._id);
+				async = org.save();
+			}
+
+			return async
+			.then( function () {
+				return user.save();
+			})
+			.catch( function (err) {
+				// FOR DEV ONLY
+				if (err.code == 11000) {
+					console.log('skipping dup error for development...');
+					return User.findOne({email: old.Email});
+				}
+				else {
+					throw err;
+				}
+			});
+		});
+	})
+	.catch( function (err) {
+		console.error('CRITICAL ERROR IN `convertUserToUser`...');
+
+		throw err;
+	});
+};
+
+var resolvePersonSchemaAsUserRef = function (person) {
+	// This should be enough to get a reference to a user
+	var ref = userMap[person.Email];
+	//console.log('Ref: ', ref);
+	return ref._id.toString();
+};
+
+var convertTransliterationToUserTerm = function (translit, parent, isAsync) {
+	isAsync = (isAsync == undefined) ? false : isAsync;
+
+	var termData = {};
+
+	termData.termText = translit.Text;
+	termData.langCode = parent.langCode;
+	termData.indexText = translit.TextIndex;
+	termData.originalText = parent.originalText;
+	termData.variety = translit.TransformType;
+	termData.preferenceOrder = translit.Order;
+	termData.isSrcScript = translit.isSrcScript;
+	termData.script = translit.script;
+
+	termData.src = 'user';
+	termData.createdBy = parent.createdBy;
+	termData.creationDate = parent.creationDate;
+	termData.modificationDate = parent.modificationDate;
+
+	return (isAsync) ? Term.create(termData) : termData;
+};
+
+var convertOrthographyToTerm = function (entry, ortho) {
+	if ( !(ortho instanceof Array) ) {
+		ortho = [ortho];
+	}
+
+	return Promise.mapSeries(ortho, function (oldDoc) {
+		// TODO: review this - oldDoc.OrthographyType	ignore for now???
+
+		var termText = (oldDoc.TextOriginal).toString('utf8');
+
+		return $Entry.callNLPService({termText: termText, langCode: oldDoc.LanguageCode})
+		.then( function (nlpResponse) {
+			// nlpResponse.term === termData need to create the Term
+			var termData = nlpResponse.term;
+			termData.preferenceOrder = oldDoc.PreferenceOrder;		// maintain old system's preference order
+			termData.creationDate = entry.creationDate;
+			termData.modificationDate = entry.modificationDate;
+			termData.createdBy = entry.createdBy;
+
+			//var term = new Term(termData);
+			var translits = [];
+
+			// nlpResponse.nlpAdditions: NLP-generated transliterations
+			var nlpTranslits = nlpResponse.nlpAdditions;
+
+			if (oldDoc.TransliterationList.length > 1 && nlpTranslits.length > 1) {
+				// compare transliterations
+				var translitMap = nlpTranslits.reduce((acc, t) => {acc[t.termText] = t; return acc}, {});
+
+				oldDoc.TransliterationList.forEach( function (ts) {
+					var nlp = translitMap[ts.Text];
+
+					if ( nlp == undefined || (ts.Text != nlp.termText || ts.TransformType != nlp.variety) ) {
+						translits.push(convertTransliterationToUserTerm(ts, termData));
+					}
+				});
+
+				translits = translits.concat(nlpTranslits);
+			}
+			else if (oldDoc.TransliterationList.length > 1) {
+				// only old transliterations exist
+
+				translits = oldDoc.TransliterationList.map(ts => {
+					return convertTransliterationToUserTerm(ts, termData);
+				});
+			}
+			else if (nlpTranslits.length > 1) {
+				// only new transliterations exist
+
+				translits = nlpTranslits;
+			}
+
+			return Term.create([termData].concat(translits));
+		})
+		.then( function (termDocs) {
+			var mainTerm = termDocs[0];
+
+			entry.terms = entry.terms.concat(termDocs);
+			entry.termLinks = entry.termLinks.concat($Entry.processNlpLinks(mainTerm, termDocs.slice(1)));
+		})
+		.catch( function (err) {
+			console.error(`Failed to convert: Orthography [${termText} - ${oldDoc.LangCode}] to Term`);
+
+			// TODO: capture err.message
+			// console.log(err.message);
+
+			return null;		// don't fail entire Promise.map call
+		});
+	})
+	.then( function () {
+		//return nlpLinks;
+		return entry;
+	})
+	.catch( function (err) {
+		console.error('CRITICAL ERROR IN `convertOrthographyToTerm`...');
+
+		throw err;
+	});
+};
+
+/**
+ * Keyterms Status Reference
+ *
+ * ''		== 		Approved Org Entry
+ * 'usr' 	== 		"My Entries" (old behavior)
+ * 'dft'	==		Entry Draft
+ * 'dep'	==		Deprecated (what do???)
+ *
+ * 'add'	==		Addition Nomination
+ * 'del'	==		Deletion Nomination
+ * 'mod'	==		Modification Nomination
+ *
+ */
+
+var NOMINATION_STATUSES = ['add', 'del', 'mod'];
+
+var convertTBv2ToEntry = function (oldDoc) {
+	console.log(`Converting Entries: ${oldDoc._id.toString()}`);
+	
+	// TODO: ignore 'dep' Entries
+
+	// Return resolved promise so all errors/exceptions get caught auto-magically
+	return Promise.resolve()
+	.then( function () {
+		var data = {};
+		var msg = '';
+		var org = orgMap[oldDoc.ComponentId];
+
+		if (org == undefined) {
+			msg = 'Keyterms object\'s ComponentId doesn\'t exist';
+			ERRORS.push({
+				message: msg,
+				doc: 'Keyterms',
+				identifier: oldDoc._id.toString()
+			});
+			console.error(msg + ', skipping...');
+			return null;
+		}
+
+		/** Base Schema Fields **/
+		// Status					[Ignore]
+
+		data.createdBy = resolvePersonSchemaAsUserRef(oldDoc.CreatedBy);
+		if (!!oldDoc.NominatedBy)
+			data.nominatedBy = resolvePersonSchemaAsUserRef(oldDoc.NominatedBy);
+		if (!!oldDoc.ApprovedBy)
+			data.approvedBy = resolvePersonSchemaAsUserRef(oldDoc.ApprovedBy);
+
+		/** Keyterms Schema Fields **/
+
+		// SchemaVersion			[Ignore]
+
+		// ComponentId				[Convert "path" string to Org Ref]
+		data.org = org._id.toString();
+
+		// CreationDate				[camelCase]
+		data.creationDate = new Date(oldDoc.CreationDate);
+
+		// ModificationDate			[camelCase]
+		data.modificationDate = new Date(oldDoc.ModificationDate);
+
+		// EntryType				[change to 'type']
+		data.type = oldDoc.EntryType;
+
+		// original_id				[Unneeded? Ignore?]
+
+		// associated_id			[Unneeded? Ignore?]
+
+		// imported_id				[Unneeded? Ignore?]
+
+		// Label					[Ignore]
+
+		// TagList					[Convert string to Tag (or let Entry Interface handle?)]
+
+		// NoteList					[Convert noteSchema to Note]
+		data.notes = oldDoc.NoteList.map( function (n) {
+			var note = {};
+			//var cb = null;
+
+			try {
+				var cb = resolvePersonSchemaAsUserRef(n.CreatedBy);
+			}
+			catch (e) {
+				if (e instanceof TypeError) {
+					cb = data.createdBy;
+				}
+				else
+					throw e;
+			}
+
+			note.type = n.NoteType;
+			note.text = n.NoteText;
+			note.createdBy = cb;
+			note.creationDate = new Date(oldDoc.CreationDate);
+
+			return note;
+		});
+
+		// isShared					[ViewScope/EditScope??? Ignore]
+		if (oldDoc.Status == 'dft' || oldDoc.Status == 'usr') {
+			data.viewScope = 'me';
+			data.editScope = 'me';
+		}
+		else {
+			data.viewScope = (org.globalBlock) ? 'org' : 'any';
+			data.editScope = 'org';
+		}
+		data.isDraft = oldDoc.Status == 'dft';
+
+		// isDeprecated				[Don't Change]
+		data.isDeprecated = oldDoc.isDeprecated;
+
+		// Moved to bottom of method to due the requirement for async operations
+		data.terms = [];
+		data.termLinks = [];
+		
+		// _id						[Don't Change?]
+
+		var entry = new Entry(data);
+		tbToEntryMap[oldDoc._id.toString()] = entry._id.toString();
+
+		return convertOrthographyToTerm (entry, oldDoc.srcTermList)
+		.then( function () {
+			return convertOrthographyToTerm (entry, oldDoc.trgTermList);
+		})
+		.then( function () {
+			return entry.save();
+		})
+		.then( function (entry) {
+			return org.addEntry(entry._id)
+			.then( function () {
+				return elastic.indexEntry(entry, org._id);
+			})
+			.then( function () {
+				return entry;
+			});
+		});
+	})
+	.catch( function (err) {
+		// TODO: flesh out the error handling
+
+		console.error('CRITICAL ERROR IN `convertTBv2ToEntry`...');
+
+		throw err;
+	});
+};
+
+var version2Regex = /^2\./i;			// Keeping at higher scope because Regex are expensive to build
+
+// TODO: adjust this in Prod
+var KeytermsQuery = {Status: {$nin: NOMINATION_STATUSES}, 'CreatedBy.Email': 'user@foo.bar'};
+
+var convertKeytermsToEntry = function (db) {
+	var col = db.collection('Keyterms');
+
+	// first find all Entries with status == "" (aka 'org' Entries)
+	return col.find(KeytermsQuery).toArray()
+	.then( function (docs) {
+		console.log(`Number of Entries: ${docs.length}`);
+
+		var skipped = 0;
+
+		return Promise.mapSeries(docs, function (old) {
+			if (version2Regex.test(old.SchemaVersion) && old.Status != 'dep') {
+				return convertTBv2ToEntry(old);
+			}
+			else {
+				// TODO: log error
+				console.log(`Skipped over Keyterms Object: ${old.SchemaVersion} - ${old.Status}`);
+
+				skipped++;
+
+				return Promise.resolve(null);
+			}
+		})
+		.then( function (entries) {
+
+			console.log('\n************************************\n');
+			console.log(`Number of Keyterms Objects: ${docs.length}\n`);
+			console.log(`${entries.filter(e => !!e).length} were processed without error`);
+			console.log(`${entries.filter(e => !e).length} failed due to errors`);
+			console.log(`${skipped} Keyterms objects were skipped`);
+
+			return entries;
+		})
+	})
+};

@@ -1,0 +1,119 @@
+<!--
+  ~ NOTICE
+  ~ This software was produced for the U.S. Government and is subject to the
+  ~ Rights in Data-General Clause 5.227-14 (May 2014).
+  ~ Copyright 2018 The MITRE Corporation. All rights reserved.
+  ~ Approved for Public Release; Distribution Unlimited. Case 18-2165
+  ~
+  ~ This project contains content developed by The MITRE Corporation.
+  ~ If this code is used in a deployment or embedded within another project,
+  ~ it is requested that you send an email to opensource@mitre.org
+  ~ in order to let us know where this software is being used.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<style>
+	#search-bar-container .extra-padding {
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
+	.lc-dropdown-wrapper {
+		display: inline-block;
+		border: 2px solid transparent;
+		border-radius: 4px;
+		padding: 3px 10px;
+	}
+	.lc-dropdown-wrapper.lc-blink {
+		border-color: red;
+	}
+	h4.search-message {
+		padding-top: 5%;
+	}
+	button.search-button {
+		width: 100%
+	}
+</style>
+<div id="search" class="template-container">
+	<div id="search-bar-container">
+		<form class="form-inline text-center">
+			<div class="form-group">
+				<div class="lc-dropdown-wrapper" lc-blink="noSelectedLC">
+					<label class="control-label">Language:&nbsp;&nbsp;</label>
+					<lang-code-dropdown binding="searchTerm.langCode" default="'und'"></lang-code-dropdown>
+				</div>
+			</div>
+			<div class="form-group">
+				<input tabindex="1" type="text" class="form-control" placeholder="Search Term or Acronym" ng-model="searchTerm.term" ng-enterkey="searchTerm.onClick()" size="34">
+				<i class="fa fa-times" id="clear-search" ng-click="searchTerm.term = null" ng-show="searchTerm.term"></i>
+			</div>
+			<div class="form-group">
+				<button type="submit" class="btn btn-success search-button" ng-click="searchTerm.onClick()">
+					<i class="fa fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Submit
+				</button>
+			</div>
+			<!-- This functionality will be added soon -->
+	  		<!--<div class="form-group">-->
+				<!--<div class="col-xs-4 col-xs-offset-8 text-center">-->
+					<!--<a class="btn btn-link" ng-click="showAdvanced = !showAdvanced">{{ ::(showAdvanced) ? 'Hide' : 'Show' }} Advanced Search</a>-->
+				<!--</div>-->
+			<!--</div>-->
+	  		<!--<div class="form-group text-center buffer-bottom" ng-show="showAdvanced">-->
+				<!--<h1>TODO: Add this feature</h1>-->
+			<!--</div>-->
+	  	</form>
+	</div> <!-- End of #search-bar-contrainer -->
+	<div class="buffer-top buffer-2x" ng-show="searchResults.length < 1 && !querying && !initialQuery">
+		<div class="text-center">
+			<h4>No Results Found</h4>
+			<p><a href="#/addentry?term={{encode(lastSearch.term)}}&langCode={{lastSearch.langCode.value}}">Make a new entry for "{{lastSearch.term}}"</a></p>
+		</div>
+	</div>
+	<h4 class="text-center search-message" ng-show="querying"><i class="fa fa-refresh fa-spin fa-3x"></i></h4>
+	<div ng-hide="querying || searchResults.length == 0">
+		<div class="control-button-container row" style="margin-top:35px !important;">
+			<div ng-class="{ 'invisible' : searchResults.length < 1 }">
+				<button class="btn btn-primary btn-sm" ng-click="selectAllBtn.onClick()">{{ selectAllBtn.name }}</button>
+				<button class="btn btn-primary btn-sm" ng-disabled="!anyChecked()" ng-click="openTagModal()" uib-tooltip="Nominate selected terms to have new tags" tooltip-animation="false" tooltip-placement="bottom">Tag</button>
+				<button class="btn btn-primary btn-sm" ng-disabled="!anyChecked()" ng-click="openDeleteModal()" uib-tooltip="Nominate selected terms to be deleted" tooltip-animation="false" tooltip-placement="bottom">Delete</button>
+				<button class="btn btn-primary btn-sm" ng-disabled="!anyChecked()" ng-click="exportSelected()" uib-tooltip="Export selected terms" tooltip-animation="false" tooltip-placement="bottom">Export</button>
+			</div>
+		</div>
+		<div id="results-container" class="term-list-container">
+			<display-entry-list entries="filteredResults" istextsearch="true"></display-entry-list>
+		</div>
+		<div id="pagination-container" ng-hide="searchResults.length < 1">
+			<uib-pagination ng-model="currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" total-items="totalItems" max-size="3" force-ellipses="true" rotate="true" ng-change="setPage(currentPage)" items-per-page="itemsPerPage"></uib-pagination>
+		</div>
+	</div>
+</div>
+<!--this will be removed for now - I personally don't like it-->
+<!--<div class="template-container" ng-show="initialQuery">-->
+	<!--<div id="init-query">-->
+		<!--<h1>KeyTerms</h1>-->
+		<!--<form class="form">-->
+	    	<!--<div class="form-group">-->
+	    		<!--<input id="init-search-bar" type="text" class="form-control" ng-model="searchTerm.term" ng-enterkey="searchTerm.onClick()">-->
+	      	<!--</div>-->
+	      	<!--<div>-->
+	      		<!--<button type="submit" class="btn btn-lg btn-primary" ng-click="searchTerm.onClick()">-->
+	      			<!--<i class="fa fa-search" aria-hidden="true"></i>&nbsp;&nbsp;KeyTerms Search-->
+	      		<!--</button>-->
+	      		<!--<span style="padding:0 10px;">&nbsp;</span>-->
+	      		<!--<button type="submit" class="btn btn-lg btn-primary" ng-click="advSearch()">-->
+	      			<!--<i class="fa fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Advanced Search-->
+	      		<!--</button>-->
+	  		<!--</div>-->
+	  	<!--</form>-->
+  	<!--</div>-->
+<!--</div>-->
