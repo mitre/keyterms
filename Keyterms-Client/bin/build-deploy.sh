@@ -3,6 +3,9 @@
 client_root=$(cd "$(dirname $0)/.."; pwd)
 zip_file="keyterms-client.tgz"
 
+echo "Running npm install..."
+npm install
+
 echo 'Building public directory...'
 cd $client_root
 read -p 'Compile code to ES5? (y|N) ' choice
@@ -14,9 +17,6 @@ case "$choice" in
         npm run build-es6
         ;;
 esac
-
-echo "Running npm install..."
-npm install
 
 echo "Creating deploy directory..."
 rm -rf deploy
