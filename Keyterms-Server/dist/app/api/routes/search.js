@@ -242,8 +242,8 @@ var executeDefaultSearch = function (req) {
 						if(!entryIds[key].highlightTermText.hasOwnProperty(termKey)) continue;
 
 						// Find/Replace the {{{em}}} tags that indicate a search match from elastic search
-						entryIds[key].highlightTermText[termKey] = entryIds[key].highlightTermText[termKey].replace('{{{em}}}', '<b class="search-hit">');
-						entryIds[key].highlightTermText[termKey] = entryIds[key].highlightTermText[termKey].replace('{{{/em}}}', '</b>');
+						entryIds[key].highlightTermText[termKey] = entryIds[key].highlightTermText[termKey].replace(new RegExp('{{{em}}}', 'g') , '<b class="search-hit">');
+						entryIds[key].highlightTermText[termKey] = entryIds[key].highlightTermText[termKey].replace(new RegExp('{{{/em}}}', 'g'), '</b>');
 					}
 				}
 				return processMongoQuery(entries, entryIds);
