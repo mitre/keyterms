@@ -31,12 +31,12 @@
         <div class="col-xs-11">
             <div class="labels-container">
                 <span ng-repeat="label in entry.terms | filter: {isLabel: true}" >
-                    <span ng-if="$parent.$parent.isTextSearch" ng-bind-html="::label.termText"></span>
-                    <span ng-if="!$parent.$parent.isTextSearch">{{label.termText}}</span>
+                    <span ng-if="!!label.highlightTermText" ng-bind-html="::label.highlightTermText"></span>
+                    <span ng-if="!label.highlightTermText">{{label.termText}}</span>
                 </span>
             </div>
             <div class="terms">
-                <span ng-repeat="term in entry.terms | filter: { src : '!nlp', isLabel: false }" ><span ng-if="!$parent.$parent.isTextSearch">{{::term.termText}}</span><span ng-bind-html="::term.termText" ng-if="$parent.$parent.isTextSearch"></span>{{::$last ? '' : ', ' }} </span>
+                <span ng-repeat="term in entry.terms | filter: { src : '!nlp', isLabel: false }" ><span ng-if="!term.highlightTermText">{{::term.termText}}</span><span ng-bind-html="::term.highlightTermText" ng-if="!!term.highlightTermText"></span>{{::$last ? '' : ', ' }} </span>
             </div>
             <div class="entry-info">
                 <span class="org-name"   tooltip-placement="bottom" uib-tooltip="Organization: {{::entry.org.name}}"><i class="fa fa-sitemap"></i> {{::entry.org.name}}</span>

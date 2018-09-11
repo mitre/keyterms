@@ -144,12 +144,11 @@ var processMongoQuery = function (entries, entryDict) {
 
 			var termId = term._id.toString();
 
+			// If we've got a highlight text, populate that onto the term itself
 			if (!!entryDict[entry._id].highlightTermText[termId]) {
-				term.termText = entryDict[entry._id].highlightTermText[termId];
-			} else {
-				// Other terms must have their text escaped manually
-				term.termText = escape(term.termText);
+				term.highlightTermText = entryDict[entry._id].highlightTermText[termId];
 			}
+
 		});
 	});
 
@@ -242,7 +241,8 @@ var executeDefaultSearch = function (req) {
 						if(!entryIds[key].highlightTermText.hasOwnProperty(termKey)) continue;
 
 						// Find/Replace the {{{em}}} tags that indicate a search match from elastic search
-						entryIds[key].highlightTermText[termKey] = entryIds[key].highlightTermText[termKey].replace(new RegExp('{{{em}}}', 'g') , '<b class="search-hit">');
+						// Escape HTML characters before the first regex replace
+						entryIds[key].highlightTermText[termKey] = escape(entryIds[key].highlightTermText[termKey]).replace(new RegExp('{{{em}}}', 'g') , '<b class="search-hit">');
 						entryIds[key].highlightTermText[termKey] = entryIds[key].highlightTermText[termKey].replace(new RegExp('{{{/em}}}', 'g'), '</b>');
 					}
 				}
