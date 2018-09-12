@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Check if npm-bundle is installed
-if [ -z "$(which npm-bundle)" ]; then
+if ! npm list -g npm-bundle; then
     echo 'You must install npm-bundle for this script to work. Run `sudo npm install -g npm-bundle` to install.'
     exit 0
 fi

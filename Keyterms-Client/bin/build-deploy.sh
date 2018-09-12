@@ -4,10 +4,10 @@ client_root=$(cd "$(dirname $0)/.."; pwd)
 zip_file="keyterms-client.tgz"
 
 echo "Running npm install..."
+cd $client_root
 npm install
 
 echo 'Building public directory...'
-cd $client_root
 read -p 'Compile code to ES5? (y|N) ' choice
 case "$choice" in
     y|Y)
