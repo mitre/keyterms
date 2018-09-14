@@ -146,9 +146,10 @@ case "$choice" in
         cp -R $CLIENT_DIR/public/keyterms/* $CLIENT_TOMCAT_DIR
         chown -R $TOMCAT_USER:$APP_GROUP $CLIENT_TOMCAT_DIR
 
-        echo "... KeyTerms client has been placed into $CATALINA_HOME/webapps/ROOT"
+        echo "... KeyTerms client has been placed into $CLIENT_TOMCAT_DIR"
+        cp $CONF_DIR/client-config.js $CLIENT_TOMCAT_DIR/config.js
         serverURL="$SV_PROTOCOL://$fqdn:$SV_PORT/"
-        sed -i -e "s|myServerLocation|${serverURL}|g" $CATALINA_HOME/webapps/ROOT/config.js
+        sed -i -e "s|myServerLocation|${serverURL}|g" $CLIENT_TOMCAT_DIR/config.js
         echo "USER ATTENTION REQUIRED: If you are having problems with the client under tomcat, please verify the server location setting in $CATALINA_HOME/webapps/ROOT/keyterms/config.js"
         ;;
     *)
