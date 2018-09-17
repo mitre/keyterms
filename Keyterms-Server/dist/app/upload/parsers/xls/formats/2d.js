@@ -27,42 +27,43 @@ var xlsParser = require('./../xlsAbstract');
 var log = require('../../includes').log;
 
 class XLS2D extends xlsParser {
-	parse () {
-		var self = this;
-		var termMap = {};
-		var lastEntryId = 0;
+    parse () {
+        var self = this;
+        var termMap = {};
+        var lastEntryId = 0;
 
-		return new Promise( function( resolve ) {
+        return new Promise( function( resolve ) {
 
-			self.ws.eachRow( function (row, rowNum) {
-				log.verbose('Parsing row #', rowNum);
-				if (rowNum < 2) { return; }
+            self.ws.eachRow( function (row, rowNum) {
+                log.verbose('Parsing row #', rowNum);
+                if (rowNum < 2) { return; }
 
-				// handy shortcut function that references the header map
-				// and returns the value of the row's cell via column name
-				var extract = function (field) {
-					return row.values[self.headerPos[field]];
-				};
+                // handy shortcut function that references the header map
+                // and returns the value of the row's cell via column name
+                var extract = function (field) {
+                    return row.values[self.headerPos[field]];
+                };
 
-				var entry = self.entries[self.headers[1]];
-				if (entry === undefined) {
-					// this means a new entry is being processed
+                var entry = self.entries[extract(self.headers[1])];
+                if (entry === undefined) {
+                    // this means a new entry is being processed
 
-					// add entry to import queue
-					if (lastEntryId > 0) {
+                    // add entry to import queue
+                    if (lastEntryId > 0) {
                         self.queueEntry(lastEntryId);
                     }
-					// reset parser variables
-					termMap = {}; // reset term map
-					entry = self.createEntry();
-                    lastEntryId = extract(self.headers[1]);
-				}
+                    // reset parser variables
+                    termMap = {}; // reset term map
+                    entry = self.createEntry();
 
-				switch (extract('FIELD_TYPE')) {
-					case 'TERM':
-					case 'Term':
-					case 'term':
-						var term = {};
+                    lastEntryId = extract(self.headers[1]);
+                }
+
+                switch (extract(self.headers[2])) {
+                    case 'TERM':
+                    case 'Term':
+                    case 'term':
+                        var term = {};
                         term.termText = extract(self.headers[3]);
                         term.langCode = extract(self.headers[5]);
                         term.variety = extract(self.headers[6]);
@@ -72,19 +73,19 @@ class XLS2D extends xlsParser {
 
                         if( extract(self.headers[10]) ) {
                             var posNote = {};
-                            posNote.text = extract('Term note_pos');
+                            posNote.text = extract(self.headers[10]);
                             posNote.type = 'pos';
                             tempArr.push(posNote);
                         }
 
-                        if( extract(self.headers[11]) ) {
+                        if (extract(self.headers[11])) {
                             var exampleNote = {};
                             exampleNote.text = extract(self.headers[11]);
                             exampleNote.type = 'example';
                             tempArr.push(exampleNote);
                         }
 
-                        if( extract(self.headers[12]) ) {
+                        if (extract(self.headers[12])) {
                             var usageNote = {};
                             usageNote.text = extract(self.headers[12]);
                             usageNote.type = 'usage';
@@ -92,52 +93,52 @@ class XLS2D extends xlsParser {
                         }
 
                         if ( tempArr.length > 0) {
-							term.notes = [];
-							term.notes = tempArr;
+                            term.notes = [];
+                            term.notes = tempArr;
 
-						}
+                        }
 
-						entry.terms.push(term);
+                        entry.terms.push(term);
 
-						// maps FIELD_ID to array index for Term Link referencing
+                        // maps FIELD_ID to array index for Term Link referencing
                         termMap[entry.terms.length] = entry.terms[entry.terms.length - 1];
 
-						// is linked?
-						if (!!extract('TermLinkedFrom')) {
-							var link = {};
+                        // is linked?
+                        if (!!extract(self.headers[8])) {
+                            var link = {};
                             link.lhs = entry.terms[entry.terms.length - 1];
                             link.rhs = termMap[extract(self.headers[8])];
                             link.relationType = extract(self.headers[9]);
 
                             entry.termLinks.push(link);
-						}
+                        }
 
-						break;
-					case 'TAG':
-					case 'Tag':
+                        break;
+                    case 'TAG':
+                    case 'Tag':
+					case 'tag':
                         entry.tags.push(extract(self.headers[3]));
 
-						break;
-					case 'NOTE':
-					case 'Note':
-						var note = {};
+                        break;
+                    case 'NOTE':
+                    case 'Note':
+                        var note = {};
                         note.text = extract(self.headers[3]);
                         note.type = extract(self.headers[10]) || 'general';
-
                         entry.notes.push(note);
 
-						break;
-					default:
-						break; // skip this FIELD_TYPE
-				}
+                        break;
+                    default:
+                        break; // skip this FIELD_TYPE
+                }
 
-				// update entry within entries map
+                // update entry within entries map
                 self.entries[extract(self.headers[1])] = entry;
-			});
+            });
 
-			self.queueLastEntry(lastEntryId, resolve);
-		});
-	}
+            self.queueLastEntry(lastEntryId, resolve);
+        });
+    }
 }
 
 module.exports = XLS2D;
