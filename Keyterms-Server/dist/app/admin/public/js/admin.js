@@ -370,6 +370,9 @@
 
 					ApiSvc.updateOrg(angular.copy($scope.org))
 					.then( function (resp) {
+						return ApiSvc.updateMembers($scope.org._id, $scope.users);
+					})
+					.then( function (resp) {
 						$location.path('/orgs');
 					});
 				};
@@ -847,33 +850,37 @@
 			template: '<span title="Remove user from this organization"><div class="btn btn-sm btn-primary" ng-click="__rmOrgUser(user)"><i class="fa fa-fw fa-lg fa-trash text-danger i-btn" style="color:white;"></i></div></span>',
 			scope: {
 				'user': '=user',
-				'form': '=form'
+				'form': '=form',
+				'orgid': '=orgid'
 			},
 			link: function (scope, elem) {
-				scope.user.__marked = false;
+				scope.user.marked = false;
+				scope.user.__orgsToRemove = [];
 				scope.form = scope.form || {$setDirty: angular.noop};
 
 				scope.__rmOrgUser = function (user) {
 					var tr = elem.parent().parent();
 
-					if (!scope.user.__marked) {
+					if (!scope.user.marked) {
 						tr.addClass('danger text-muted');
 						tr.find('input').attr('disabled', 'true');
 						tr.find('i').css('opacity', 0.6);
 						elem.find('i').removeClass('fa-ban text-danger').addClass('fa-undo text-info');
 						elem.find('span').attr('title', 'Undo remove user from this organization');
 
+						scope.user.marked = true;
 						scope.user.__orgsToRemove.push(scope.orgid);
 						scope.form.$setDirty();		// causes the save button to "unable disable" once a user has been marked for removal
 					}
 					else {
 						tr.removeClass('danger text-muted');
-						tr.find('input').attr('disabled', 'false');
+						tr.find('input').removeAttr('disabled');
 						tr.find('i').css('opacity', 1);
 						elem.find('i').removeClass('fa-undo text-info').addClass('fa-ban text-danger');
 						elem.find('span').attr('title', 'Remove user from this organization');
 
-						scope.user.__orgsToRemove.splice(removeIndex);
+						scope.user.marked = false;
+						scope.user.__orgsToRemove.splice(scope.user.__orgsToRemove.indexOf(scope.orgid));
 					}
 				}
 			}
