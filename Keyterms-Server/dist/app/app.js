@@ -314,6 +314,7 @@ Promise.resolve()
 
 	var server = app;
 
+	var secure = false;
 	if (config.useHTTPS) {
 		var TLSOptions = config.TLSOptions;
 		TLSOptions.key = fs.readFileSync(config.SSLCerts.key);
@@ -322,13 +323,13 @@ Promise.resolve()
 
 		port = portConfig.https;
 		server = https.createServer(TLSOptions, app);
-
+		secure = true;
 	}
 
 	var listener = server.listen(port, function () {
 		var host = listener.address().address;
 		var port = listener.address().port;
-		onStartUp(host, port);
+		onStartUp(host, port, secure);
 	});
 });
 
