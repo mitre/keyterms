@@ -94,12 +94,12 @@
 				$scope.errors = res.data;
 				$scope.loading = false;
 				if ($scope.isEmpty(res.data)) {
-					$scope.msg.text = 'Upload successful with no errors';
+					$scope.msg.text = 'Upload successful';
 					$scope.msg.format = 'text-success';
 					$scope.msg.show = true;
 				}
 				else {
-					$scope.msg.text = 'Upload successful, except for a few errors (list below)';
+					$scope.msg.text = 'Upload complete with errors, see list below.';
 					$scope.msg.format = 'text-danger';
 					$scope.msg.show = true;
 				}

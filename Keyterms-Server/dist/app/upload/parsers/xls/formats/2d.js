@@ -41,10 +41,10 @@ class XLS2D extends xlsParser {
 				// handy shortcut function that references the header map
 				// and returns the value of the row's cell via column name
 				var extract = function (field) {
-					return row.values[self.headers[field]];
+					return row.values[self.headerPos[field]];
 				};
 
-				var entry = self.entries[extract('ENTRY_ID')];
+				var entry = self.entries[self.headers[1]];
 				if (entry === undefined) {
 					// this means a new entry is being processed
 
@@ -55,7 +55,7 @@ class XLS2D extends xlsParser {
 					// reset parser variables
 					termMap = {}; // reset term map
 					entry = self.createEntry();
-					lastEntryId = extract('ENTRY_ID');
+                    lastEntryId = extract(self.headers[1]);
 				}
 
 				switch (extract('FIELD_TYPE')) {
@@ -63,30 +63,30 @@ class XLS2D extends xlsParser {
 					case 'Term':
 					case 'term':
 						var term = {};
-						term.termText = extract('Value');
-						term.langCode = extract('Term language');
-						term.variety = extract('Term variety');
-						term.script = extract('Term script');
+                        term.termText = extract(self.headers[3]);
+                        term.langCode = extract(self.headers[5]);
+                        term.variety = extract(self.headers[6]);
+                        term.script = extract(self.headers[7]);
 
-						var tempArr = [];
+                        var tempArr = [];
 
-						if( extract('Term note_pos') ) {
+                        if( extract(self.headers[10]) ) {
                             var posNote = {};
                             posNote.text = extract('Term note_pos');
                             posNote.type = 'pos';
                             tempArr.push(posNote);
                         }
 
-                        if (extract('Term note_example')) {
+                        if( extract(self.headers[11]) ) {
                             var exampleNote = {};
-                            exampleNote.text = extract('Term note_example');
+                            exampleNote.text = extract(self.headers[11]);
                             exampleNote.type = 'example';
                             tempArr.push(exampleNote);
                         }
 
-						if (extract('Term note_usage')) {
+                        if( extract(self.headers[12]) ) {
                             var usageNote = {};
-                            usageNote.text = extract('Term note_usage');
+                            usageNote.text = extract(self.headers[12]);
                             usageNote.type = 'usage';
                             tempArr.push(usageNote);
                         }
@@ -100,29 +100,31 @@ class XLS2D extends xlsParser {
 						entry.terms.push(term);
 
 						// maps FIELD_ID to array index for Term Link referencing
-						termMap[extract('FIELD_ID')] = entry.terms.length - 1;
+                        termMap[entry.terms.length] = entry.terms[entry.terms.length - 1];
 
 						// is linked?
 						if (!!extract('TermLinkedFrom')) {
 							var link = {};
-							link.lhs = termMap[extract('TermLinkedFrom')];
-							link.rhs = entry.terms.length - 1;
-							link.relationType = extract('LinkType');
-							entry.termLinks.push(link);
+                            link.lhs = entry.terms[entry.terms.length - 1];
+                            link.rhs = termMap[extract(self.headers[8])];
+                            link.relationType = extract(self.headers[9]);
+
+                            entry.termLinks.push(link);
 						}
 
 						break;
 					case 'TAG':
 					case 'Tag':
-						entry.tags.push(extract('FIELD_TEXT'));
+                        entry.tags.push(extract(self.headers[3]));
 
 						break;
 					case 'NOTE':
 					case 'Note':
 						var note = {};
-						note.text = extract('FIELD_TEXT');
-						note.type = extract('NoteType') || 'general';
-						entry.notes.push(note);
+                        note.text = extract(self.headers[3]);
+                        note.type = extract(self.headers[10]) || 'general';
+
+                        entry.notes.push(note);
 
 						break;
 					default:
@@ -130,7 +132,7 @@ class XLS2D extends xlsParser {
 				}
 
 				// update entry within entries map
-				self.entries[extract('ENTRY_ID')] = entry;
+                self.entries[extract(self.headers[1])] = entry;
 			});
 
 			self.queueLastEntry(lastEntryId, resolve);
