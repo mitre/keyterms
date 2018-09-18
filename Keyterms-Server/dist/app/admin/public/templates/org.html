@@ -85,7 +85,7 @@
                         <td>{{ :: user.email }}</td>
                         <td><input type="checkbox" ng-model="user.qc" ng-change="userUpdate(user)"></td>
                         <td><input type="checkbox" ng-model="user.admin" ng-change="userUpdate(user)"></td>
-                        <td><rm-org-user user="user" form="orgForm"></rm-org-user></td>
+                        <td><rm-org-user user="user" form="orgForm" orgid="org._id"></rm-org-user></td>
                     </tr>
                 </table>
             </div>
