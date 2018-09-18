@@ -27,4 +27,4 @@
 
 var mailto = 'example@email.com';
 
-var apiUrl = 'http://localhost:4000/';
+var apiUrl = 'myServerLocation';
