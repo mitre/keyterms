@@ -887,13 +887,16 @@
 			templateUrl:  __templatePath + '/langSelect.html',
 			link: function ($scope, elem, attrs) {
 				$scope.addLang = function (code) {
-					if ($scope.org.langList.indexOf(code) == -1)
+					if ($scope.org.langList.indexOf(code) == -1) {
 						$scope.org.langList.push(code);
+						$scope.orgForm.$setDirty();
+					}
 				};
 
 				$scope.rmLang = function (code) {
 					var index = $scope.org.langList.indexOf(code);
 					$scope.org.langList.splice(index, 1);
+					$scope.orgForm.$setDirty();
 				};
 			}
 		};
