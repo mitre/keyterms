@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-client_root=$(cd "$(dirname $0)/.."; pwd)
+client_root="$(cd "$(dirname $0)/.."; pwd)"
 zip_file="keyterms-client.tgz"
 
 echo "Running npm install..."
