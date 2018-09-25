@@ -36,9 +36,12 @@ cp $client_root/deploy/keyterms-client.tgz $proj_root/deploy/keyterms-complete/l
 cd $proj_root/lib
 
 # Tomcat
-read -p "Include packaged Tomcat (v$SUPPORTED_TOMCAT_VERSION)? (y|N) " tomcatchoice
+read -p "Include packaged Tomcat (v$SUPPORTED_TOMCAT_VERSION)? (Y|n) " tomcatchoice
 case "$tomcatchoice" in
-    y|Y)
+    n|N)
+        echo 'Skipping Tomcat download.'
+        ;;
+    *)
         MAJ_VER=$(echo $SUPPORTED_TOMCAT_VERSION | cut -c1-1)
         wget https://archive.apache.org/dist/tomcat/tomcat-$MAJ_VER/v$SUPPORTED_TOMCAT_VERSION/bin/apache-tomcat-$SUPPORTED_TOMCAT_VERSION.tar.gz
         if [ $? -ne 0 ]; then
@@ -47,13 +50,13 @@ case "$tomcatchoice" in
             echo 'Tomcat download successful.'
         fi
         ;;
-    *)
-        echo 'Skipping Tomcat download.'
-        ;;
 esac
-read -p "Include packaged Node.js (v$SUPPORTED_NODEJS_VERSION)? (y|N) " nodechoice
+read -p "Include packaged Node.js (v$SUPPORTED_NODEJS_VERSION)? (Y|n) " nodechoice
 case "$nodechoice" in
-    y|Y)
+    n|N)
+        echo 'Skipping Node.js download.'
+        ;;
+    *)
         wget https://nodejs.org/download/release/v$SUPPORTED_NODEJS_VERSION/node-v$SUPPORTED_NODEJS_VERSION-linux-x64.tar.gz
         if [ $? -ne 0 ]; then
             echo 'Download failed. Node.js will not be included.'
@@ -61,13 +64,13 @@ case "$nodechoice" in
             echo 'Node.js download successful.'
         fi
         ;;
-    *)
-        echo 'Skipping Node.js download.'
-        ;;
 esac
-read -p "Include packaged mongodb (v$SUPPORTED_MONGODB_VERSION)? (y|N) " mongochoice
+read -p "Include packaged mongodb (v$SUPPORTED_MONGODB_VERSION)? (Y|n) " mongochoice
 case "$mongochoice" in
-    y|Y)
+    n|N)
+        echo 'Skipping mongodb download.'
+        ;;
+    *)
         VER="${SUPPORTED_MONGODB_VERSION%.*}"
         FULL_VER=$SUPPORTED_MONGODB_VERSION
         # Write the repo file if it doesn't exist
@@ -93,22 +96,19 @@ EOL
         echo '... mongo download complete.'
         cd ..
         ;;
-    *)
-        echo 'Skipping mongodb download.'
-        ;;
 esac
-read -p "Include packaged elasticsearch (v$SUPPORTED_ELASTIC_VERSION)? (y|N) " elasticchoice
+read -p "Include packaged elasticsearch (v$SUPPORTED_ELASTIC_VERSION)? (Y|n) " elasticchoice
 case "$elasticchoice" in
-    y|Y)
+    n|N)
+        echo 'Skipping elasticsearch download.'
+        ;;
+    *)
         wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$SUPPORTED_ELASTIC_VERSION.rpm
         if [ $? -ne 0 ]; then
             echo 'Download failed. Elasticsearch will not be included.'
         else
             echo 'Elasticsearch download successful.'
         fi
-        ;;
-    *)
-        echo 'Skipping elasticsearch download.'
         ;;
 esac
 

@@ -137,9 +137,12 @@ cp $LIB_DIR/$NLP_WAR $CATALINA_HOME/webapps
 echo "... deployed under $CATALINA_HOME/webapps"
 
 # Deploy client (if desired)
-read -p 'Deploy Keyterms client under Tomcat? (y|N) ' choice
+read -p 'Deploy Keyterms client under Tomcat? (Y|n) ' choice
 case "$choice" in
-    y|Y ) echo '... deploying Keyterms client to Tomcat ...'
+    n|N)
+        echo '... skipping Keyterms client installation.'
+        ;;
+    *) echo '... deploying Keyterms client to Tomcat ...'
         mv $CATALINA_HOME/webapps/ROOT $CATALINA_HOME/webapps/ROOT_BAK
         CLIENT_TOMCAT_DIR=$CATALINA_HOME/webapps/ROOT
         mkdir -p $CLIENT_TOMCAT_DIR
@@ -151,9 +154,6 @@ case "$choice" in
         sed -i -e "s|myServerLocation|${serverURL}|g" $CATALINA_HOME/webapps/ROOT/config.js
         echo "USER ATTENTION REQUIRED: If you are having problems with the client under tomcat, please verify the server location setting in $CATALINA_HOME/webapps/ROOT/keyterms/config.js"
         ;;
-    *)
-        echo '... skipping Keyterms client installation.'
-        ;;
 esac
 
 # Restart Tomcat
@@ -164,13 +164,13 @@ systemctl enable $TOMCAT_DAEMON
 
 # Run init-cli script
 echo ' '
-read -p 'Installation complete. Run database initialization script? (y|N) ' dbChoice
+read -p 'Installation complete. Run database initialization script? (Y|n) ' dbChoice
 case $dbChoice in
-    y|Y)
-        cd $SERVER_DEPLOY_DIR
-        npm run init-cli
+    n|N)
         ;;
     *)
+        cd $SERVER_DEPLOY_DIR
+        npm run init-cli
         ;;
 esac
 

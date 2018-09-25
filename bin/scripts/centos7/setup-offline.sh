@@ -82,9 +82,13 @@ if [ -n "$CATALINA_HOME" ]; then
     echo ' '
     sh $CATALINA_HOME/bin/version.sh
 else
-    read -p "... Tomcat installation not found. If Tomcat has been installed, make sure CATALINA_HOME is exported. If not, install Tomcat (v$SUPPORTED_TOMCAT_VERSION) now? (y|N) " tomcatchoice
+    read -p "... Tomcat installation not found. If Tomcat has been installed, make sure CATALINA_HOME is exported. If not, install Tomcat (v$SUPPORTED_TOMCAT_VERSION) now? (Y|n) " tomcatchoice
     case "$tomcatchoice" in
-        y|Y)
+        n|N)
+            echo '... Tomcat will not be installed at this time, but setup cannot continue without Tomcat.'
+            echo 'Exiting'; exit 0
+            ;;
+        *)
             ARCHIVE="apache-tomcat-$SUPPORTED_TOMCAT_VERSION"
             mkdir -p $APP_DIR/tomcat
             cd $APP_DIR/tomcat
@@ -107,10 +111,6 @@ else
 
              echo "... Tomcat setup finished. CATALINA_HOME is $CATALINA_HOME"
             ;;
-        *)
-            echo '... Tomcat will not be installed at this time, but setup cannot continue without Tomcat.'
-            echo 'Exiting'; exit 0
-            ;;
     esac
 fi
 
@@ -131,9 +131,13 @@ if [ -e /etc/systemd/system/$TOMCAT_DAEMON ]; then
 echo ' '; echo '---------------------------------------------------------------'
 echo 'Checking for Node.js installation...'
 if ! [ -x "$(command -v node)" ] | [ -x "$(command -v nodejs)" ]; then
-    read -p "... Node.js not installed. Install Node.js (v$SUPPORTED_NODEJS_VERSION) now? (y|N) " nodechoice
+    read -p "... Node.js not installed. Install Node.js (v$SUPPORTED_NODEJS_VERSION) now? (Y|n) " nodechoice
     case "$nodechoice" in
-        y|Y)
+        n|N)
+            echo '... Node.js will not be installed at this time, but setup cannot continue without Node.js.'
+            echo 'Exiting'; exit 0
+            ;;
+        *)
             ARCHIVE="node-v$SUPPORTED_NODEJS_VERSION-linux-x64"
             mkdir -p $APP_DIR/nodejs
             cd $APP_DIR/nodejs
@@ -167,10 +171,6 @@ if ! [ -x "$(command -v node)" ] | [ -x "$(command -v nodejs)" ]; then
 
             echo "... nodejs installed in $APP_DIR/nodejs/$ARCHIVE"
             ;;
-        *)
-            echo '... Node.js will not be installed at this time, but setup cannot continue without Node.js.'
-            echo 'Exiting'; exit 0
-            ;;
     esac
 else
     if [ -x "$(command -v node)" ]; then
@@ -202,9 +202,12 @@ echo ' '; echo '---------------------------------------------------------------'
 echo 'Checking mongo installation ...'
 if ! [ -x "$(command -v mongo)" ] | [ -x "$(command -v mongod)" ] ; then
     echo "... mongo is not installed. If you choose not to install mongo, you must later configure KeyTerms to point to an external mongo server."
-    read -p "... Install mongo (v$SUPPORTED_MONGODB_VERSION) now? (y|N) " mongochoice
+    read -p "... Install mongo (v$SUPPORTED_MONGODB_VERSION) now? (Y|n) " mongochoice
     case "$mongochoice" in
-        y|Y)
+        n|N)
+            echo '... skipping mongo installation.'
+            ;;
+        *)
             MONGO_LIB=$LIB_DIR/mongodb
             VER=$SUPPORTED_MONGODB_VERSION
             RPM_BASE="$MONGO_LIB/mongodb-org-$VER.rpm"
@@ -237,9 +240,6 @@ if ! [ -x "$(command -v mongo)" ] | [ -x "$(command -v mongod)" ] ; then
             systemctl start mongod.service
             systemctl enable mongod.service
             ;;
-        *)
-            echo '... skipping mongo installation.'
-            ;;
     esac
 else
     if [ -x "$(command -v mongo)" ]; then
@@ -266,9 +266,12 @@ if [ ${ELASTIC_SYSTEMCTL_LIST_STAT} ] || yum list installed elasticsearch >/dev/
     echo "... elasticsearch v${ES_INSTALLED_VERSION} is already installed."
 else
     echo "... elasticsearch installation not found. If you choose not to install elasticsearch, you must later configure KeyTerms to point to an external elasticsearch instance."
-    read -p "... Install elasticsearch (v$SUPPORTED_ELASTIC_VERSION) now? (y|N) " elasticchoice
+    read -p "... Install elasticsearch (v$SUPPORTED_ELASTIC_VERSION) now? (Y|n) " elasticchoice
     case "$elasticchoice" in
-        y|Y)
+        n|N)
+            echo '... skipping elasticsearch installation.'
+            ;;
+        *)
             ARCHIVE="elasticsearch-$SUPPORTED_ELASTIC_VERSION"
 
             # Check if elasticsearch was bundled
@@ -285,9 +288,6 @@ else
             systemctl start elasticsearch.service
             systemctl enable elasticsearch.service
             ;;
-        *)
-            echo '... skipping elasticsearch installation.'
-            ;;
     esac
 fi
 
@@ -297,12 +297,12 @@ fi
 
 cd $PROJ_DIR
 echo ' '
-read -p 'Setup finished. Run installer now? (y|N) ' choice
+read -p 'Setup finished. Run installer now? (Y|n) ' choice
 case "$choice" in
-    y|Y)
-        sh $SCRIPTS_DIR/chosen-os/install.sh
+    n|N)
+        echo 'Exiting.'
         ;;
     *)
-        echo 'Exiting.'
+        sh $SCRIPTS_DIR/chosen-os/install.sh
         ;;
 esac
