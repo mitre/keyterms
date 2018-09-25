@@ -35,6 +35,22 @@ cp $client_root/deploy/keyterms-client.tgz $proj_root/deploy/keyterms-complete/l
 # Download third-party dependencies as packages
 cd $proj_root/lib
 
+# Java
+read -p "Include packaged Java (v10.0.2)? (Y|n) " javachoice
+case "$javachoice" in
+    n|N)
+        echo 'Skipping Java download.'
+        ;;
+    *)
+        wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jdk-10.0.2_linux-x64_bin.rpm
+        if [ $? -ne 0 ]; then
+            echo 'Download failed. Tomcat will not be included.'
+        else
+            echo 'Tomcat download successful.'
+        fi
+        ;;
+esac
+
 # Tomcat
 read -p "Include packaged Tomcat (v$SUPPORTED_TOMCAT_VERSION)? (Y|n) " tomcatchoice
 case "$tomcatchoice" in
@@ -51,6 +67,8 @@ case "$tomcatchoice" in
         fi
         ;;
 esac
+
+# Node
 read -p "Include packaged Node.js (v$SUPPORTED_NODEJS_VERSION)? (Y|n) " nodechoice
 case "$nodechoice" in
     n|N)
@@ -65,6 +83,8 @@ case "$nodechoice" in
         fi
         ;;
 esac
+
+# Mongo
 read -p "Include packaged mongodb (v$SUPPORTED_MONGODB_VERSION)? (Y|n) " mongochoice
 case "$mongochoice" in
     n|N)
@@ -97,6 +117,8 @@ EOL
         cd ..
         ;;
 esac
+
+# ElasticSearch
 read -p "Include packaged elasticsearch (v$SUPPORTED_ELASTIC_VERSION)? (Y|n) " elasticchoice
 case "$elasticchoice" in
     n|N)

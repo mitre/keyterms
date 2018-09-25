@@ -71,6 +71,81 @@ tar -xf $LIB_DIR/keyterms-client.tgz && mv keyterms-client Keyterms-Client
 ################################################################################
 
 echo ' '; echo '---------------------------------------------------------------'
+echo 'Checking for Java installation ...'
+# really 1.9 - java versioning problematic
+MIN_JAVA=9
+if [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]; then
+    echo "... found java executable in JAVA_HOME: $JAVA_HOME"
+    _java="$JAVA_HOME/bin/java"
+elif type -p java; then
+    echo '... found java executable in PATH'
+    _java=java
+     JAVA_HOME=$(type -p java)
+    echo "... java location is: $JAVA_HOME"
+else
+    read -p '... java is not installed. You will not be able to continue the KeyTerms installation without java. Install now? (Y|n) ' javachoice
+    case "$javachoice" in
+        n|N)
+            echo 'Java will not be installed. Exiting installation.'
+            exit 0
+            ;;
+        *)
+            ARCHIVE="jdk-10.0.2_linux-x64_bin"
+
+            # Check if Java was bundled
+            if ! [ -e $LIB_DIR/$ARCHIVE.rpm ]; then
+                echo '... Java was not bundled with KeyTerms, and cannot be installed.'
+                echo 'Exiting.'; exit 0
+            fi
+
+            echo '... installing Java ...'
+            rpm --install $ARCHIVE.rpm
+            JAVA_HOME=$(type -p java)
+            echo "JAVA_HOME is now $JAVA_HOME"
+            ;;
+    esac
+fi
+
+if [[ "$_java" ]]; then
+    version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
+    #echo version "$version"
+    onedot_version=$(echo $version | sed -r "s/^1\.//")
+    major_version=$(echo $onedot_version | sed -r "s/^([0-9]{1,3})\..+/\1/")
+    #echo major version $major_version
+    #if [[ "$major_version" > "$MIN_JAVA" ]]; then
+    if (( "$major_version" > "$MIN_JAVA" )); then
+        echo "... installed version $major_version is greater than the minimum required version $MIN_JAVA. Proceeding with KeyTerms installation."
+    else
+        echo "... installed version $major_version is less than the minimum required version $MIN_JAVA."
+        #echo "please update java to $MIN_VERSION or later and re-run this script to install KeyTerms."
+        #JAVA_INSTALLER=`ls $INST_THIRDPARTY_DIR | grep jre`
+        read -p "Would you like to install a newer version of Java? (Y|n) " choice
+        case "$choice" in
+            n|N ) echo "... skipping java installation. Tomcat and ElasticSearch will not work without java. KeyTerms-NLP requires java 1.9 or later. Exiting installer."
+                exit 0
+                ;;
+            *)
+                ARCHIVE="jdk-10.0.2_linux-x64_bin"
+
+                # Check if Java was bundled
+                if ! [ -e $LIB_DIR/$ARCHIVE.rpm ]; then
+                    echo '... Java was not bundled with KeyTerms, and cannot be installed.'
+                    echo 'Exiting.'; exit 0
+                fi
+
+                echo '... installing Java ...'
+                rpm --install $ARCHIVE.rpm
+                JAVA_HOME=$(type -p java)
+                echo "JAVA_HOME is now $JAVA_HOME"
+                ;;
+        esac
+    fi
+fi
+
+################################################################################
+# Check for Tomcat installation
+################################################################################
+
 echo 'Checking for Tomcat installation ...'
 if [ -n "$CATALINA_HOME" ]; then
     export TOMCAT_USER=$(stat -c '%U' $CATALINA_HOME)
