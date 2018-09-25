@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 client_root="$(cd "$(dirname $0)/.."; pwd)"
-zip_file="keyterms-client.tgz"
+zip_file="keyterms-client-$(date +%Y-%m-%d.%H-%M).tgz"
 
 echo "Running npm install..."
 cd $client_root
