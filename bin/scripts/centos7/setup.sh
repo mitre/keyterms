@@ -69,7 +69,7 @@ elif type -p java; then
     echo '... found java executable in PATH'
     _java=java
     _binary=$(which java)
-    JAVA_HOME=$(echo $_binary | sed "s|\/bin\/java||g")
+    JAVA_HOME=$(readlink -f $_binary | sed "s|\/bin\/java||g")
     echo "... java location is: $JAVA_HOME"
 else
     read -p '... java is not installed. You will not be able to continue the KeyTerms installation without java. Install now? (Y|n) ' javachoice
@@ -88,7 +88,7 @@ else
             echo '... installing Java ...'
             rpm --install jre-10.0.2_linux-x64_bin.rpm
             _binary=$(which java)
-            JAVA_HOME=$(echo $_binary | sed "s|\/bin\/java||g")
+            JAVA_HOME=$(readlink -f $_binary | sed "s|\/bin\/java||g")
             echo "JAVA_HOME is now $JAVA_HOME"
             ;;
     esac
@@ -122,7 +122,7 @@ if [[ "$_java" ]]; then
                 echo '... installing Java ...'
                 rpm --install jre-10.0.2_linux-x64_bin.rpm
                 _binary=$(which java)
-                JAVA_HOME=$(echo $_binary | sed "s|\/bin\/java||g")
+                JAVA_HOME=$(readlink -f $_binary | sed "s|\/bin\/java||g")
                 echo "JAVA_HOME is now $JAVA_HOME"
                 rm jre-10.0.2_linux-x64_bin.rpm
                 ;;
