@@ -112,16 +112,16 @@ if [[ "$_java" ]]; then
                 ;;
             *)
                 echo "... downloading Java 10 ..."
-                wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jdk-10.0.2_linux-x64_bin.tar.gz
-                rpm --install $INST_THIRDPARTY_DIR/$JAVA_INSTALLER
+                wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jdk-10.0.2_linux-x64_bin.rpm
                 if [ $? -ne 0 ]; then
                     echo '... download failed.'
                     echo 'Exiting'; exit 0
                 fi
                 echo '... installing Java ...'
-                rpm --install jdk-10.0.2_linux-x64_bin.tar.gz
+                rpm --install jdk-10.0.2_linux-x64_bin.rpm
                 JAVA_HOME=$(type -p java)
                 echo "JAVA_HOME is now $JAVA_HOME"
+                rm jdk-10.0.2_linux-x64_bin.rpm
                 ;;
         esac
     fi
