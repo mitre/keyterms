@@ -68,7 +68,8 @@ if [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]; then
 elif type -p java; then
     echo '... found java executable in PATH'
     _java=java
-     JAVA_HOME=$(type -p java)
+    _binary=$(which java)
+    JAVA_HOME=$(echo $_binary | sed "s|\/bin\/java||g")
     echo "... java location is: $JAVA_HOME"
 else
     read -p '... java is not installed. You will not be able to continue the KeyTerms installation without java. Install now? (Y|n) ' javachoice
@@ -79,14 +80,15 @@ else
             ;;
         *)
             echo "... downloading Java 10 ..."
-            wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jdk-10.0.2_linux-x64_bin.rpm
+            wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jre-10.0.2_linux-x64_bin.rpm
             if [ $? -ne 0 ]; then
                 echo '... download failed.'
                 echo 'Exiting'; exit 0
             fi
             echo '... installing Java ...'
-            rpm --install jdk-10.0.2_linux-x64_bin.rpm
-            JAVA_HOME=$(type -p java)
+            rpm --install jre-10.0.2_linux-x64_bin.rpm
+            _binary=$(which java)
+            JAVA_HOME=$(echo $_binary | sed "s|\/bin\/java||g")
             echo "JAVA_HOME is now $JAVA_HOME"
             ;;
     esac
@@ -112,16 +114,17 @@ if [[ "$_java" ]]; then
                 ;;
             *)
                 echo "... downloading Java 10 ..."
-                wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jdk-10.0.2_linux-x64_bin.rpm
+                wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jre-10.0.2_linux-x64_bin.rpm
                 if [ $? -ne 0 ]; then
                     echo '... download failed.'
                     echo 'Exiting'; exit 0
                 fi
                 echo '... installing Java ...'
-                rpm --install jdk-10.0.2_linux-x64_bin.rpm
-                JAVA_HOME=$(type -p java)
+                rpm --install jre-10.0.2_linux-x64_bin.rpm
+                _binary=$(which java)
+                JAVA_HOME=$(echo $_binary | sed "s|\/bin\/java||g")
                 echo "JAVA_HOME is now $JAVA_HOME"
-                rm jdk-10.0.2_linux-x64_bin.rpm
+                rm jre-10.0.2_linux-x64_bin.rpm
                 ;;
         esac
     fi
@@ -335,7 +338,7 @@ if [ ${ELASTIC_SYSTEMCTL_LIST_STAT} ] || yum list installed elasticsearch >/dev/
     echo "... elasticsearch v${ES_INSTALLED_VERSION} is already installed."
 else
     echo "... elasticsearch installation not found. If you choose not to install elasticsearch, you must later configure KeyTerms to point to an external elasticsearch instance."
-    read -p "... Install elasticsearch (v$SUPPORTED_ELASTIC_VERSION) now? (y|N) " elasticchoice
+    read -p "... Install elasticsearch (v$SUPPORTED_ELASTIC_VERSION) now? (Y|n) " elasticchoice
     case "$elasticchoice" in
         n|N)
             echo '... skipping elasticsearch installation.'

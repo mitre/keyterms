@@ -42,7 +42,7 @@ case "$javachoice" in
         echo 'Skipping Java download.'
         ;;
     *)
-        wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jdk-10.0.2_linux-x64_bin.rpm
+        wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jre-10.0.2_linux-x64_bin.rpm
         if [ $? -ne 0 ]; then
             echo 'Download failed. Tomcat will not be included.'
         else

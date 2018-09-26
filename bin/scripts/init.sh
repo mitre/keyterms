@@ -29,10 +29,17 @@ read -p 'If you are behind an http proxy, please enter the proxy URL (press ente
 if [ -n "$proxyhttp" ]; then
     export http_proxy=$proxyhttp
 fi
-read -p 'If you are behind an https proxy, please enter the proxy URL (press enter if no proxy): ' proxyhttps
-if [ -n "$proxyhttps" ]; then
-    export https_proxy=$proxyhttps
-fi
+read -p 'If you are behind an https proxy, please enter the proxy URL (press enter if no proxy, or enter "same" if same as http proxy): ' proxyhttps
+case "$proxyhttps" in
+    same|Same|SAME)
+        export https_proxy=$proxyhttp
+        ;;
+    *)
+        if [ -n "$proxyhttps" ]; then
+            export https_proxy=$proxyhttps
+        fi
+        ;;
+esac
 
 # Prompt for local or offline install
 read -p 'Install locally or prepare offline deployment? (LOCAL|offline) ' envchoice

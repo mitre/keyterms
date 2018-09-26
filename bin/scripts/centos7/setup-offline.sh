@@ -80,7 +80,8 @@ if [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]; then
 elif type -p java; then
     echo '... found java executable in PATH'
     _java=java
-     JAVA_HOME=$(type -p java)
+    _binary=$(which java)
+    JAVA_HOME=$(echo $_binary | sed "s|\/bin\/java||g")
     echo "... java location is: $JAVA_HOME"
 else
     read -p '... java is not installed. You will not be able to continue the KeyTerms installation without java. Install now? (Y|n) ' javachoice
@@ -90,7 +91,7 @@ else
             exit 0
             ;;
         *)
-            ARCHIVE="jdk-10.0.2_linux-x64_bin"
+            ARCHIVE="jre-10.0.2_linux-x64_bin"
 
             # Check if Java was bundled
             if ! [ -e $LIB_DIR/$ARCHIVE.rpm ]; then
@@ -100,7 +101,8 @@ else
 
             echo '... installing Java ...'
             rpm --install $ARCHIVE.rpm
-            JAVA_HOME=$(type -p java)
+            _binary=$(which java)
+            JAVA_HOME=$(echo $_binary | sed "s|\/bin\/java||g")
             echo "JAVA_HOME is now $JAVA_HOME"
             ;;
     esac
@@ -125,7 +127,7 @@ if [[ "$_java" ]]; then
                 exit 0
                 ;;
             *)
-                ARCHIVE="jdk-10.0.2_linux-x64_bin"
+                ARCHIVE="jre-10.0.2_linux-x64_bin"
 
                 # Check if Java was bundled
                 if ! [ -e $LIB_DIR/$ARCHIVE.rpm ]; then
