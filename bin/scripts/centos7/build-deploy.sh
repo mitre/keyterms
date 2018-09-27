@@ -33,7 +33,7 @@ sh $client_root/bin/build-deploy.sh
 cp $client_root/deploy/keyterms-client.tgz $proj_root/deploy/keyterms-complete/lib/
 
 # Download third-party dependencies as packages
-cd $proj_root/lib
+cd $proj_root/deploy/keyterms-complete/lib/
 
 # Java
 read -p "Include packaged Java (v10.0.2)? (Y|n) " javachoice
@@ -136,6 +136,7 @@ esac
 
 # Include packaged http-server
 echo 'Bundling http-server...'
+cd $proj_root
 npm install http-server
 npm-bundle http-server
 mv http-server-*.tgz $proj_root/deploy/keyterms-complete/lib/
