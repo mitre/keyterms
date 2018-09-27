@@ -182,14 +182,14 @@ else
             cd $APP_DIR/tomcat
 
             # Check if Tomcat was bundled
-            if ! [ -e "$LIB_DIR/$ARCHIVE.rpm" ]; then
+            if ! [ -e "$LIB_DIR/$ARCHIVE.tar.gz" ]; then
                 echo '... Tomcat was not bundled with KeyTerms, and cannot be installed.'
                 echo 'Exiting.'; exit 0
             fi
 
             echo '... unpacking Tomcat ...'
-            tar -xf $LIB_DIR/$ARCHIVE.rpm
-            rm -f $LIB_DIR/$ARCHIVE.rpm
+            tar -xf $LIB_DIR/$ARCHIVE.tar.gz
+            rm -f $LIB_DIR/$ARCHIVE.tar.gz
             export CATALINA_HOME="$APP_DIR/tomcat/$ARCHIVE"
 
             echo '... creating Tomcat user ...'
@@ -298,19 +298,19 @@ if ! [ -x "$(command -v mongo)" ] | [ -x "$(command -v mongod)" ] ; then
         *)
             MONGO_LIB=$LIB_DIR/mongodb
             VER=$SUPPORTED_MONGODB_VERSION
-            RPM_BASE="$MONGO_LIB/mongodb-org-$VER.rpm"
-            RPM_SERVER="$MONGO_LIB/mongodb-org-server-$VER.rpm"
-            RPM_SHELL="$MONGO_LIB/mongodb-org-shell-$VER.rpm"
-            RPM_MONGOS="$MONGO_LIB/mongodb-org-mongos-$VER.rpm"
-            RPM_TOOLS="$MONGO_LIB/mongodb-org-tools-$VER.rpm"
+            RPM_BASE="$MONGO_LIB/mongodb-org-$VER-*.rpm"
+            RPM_SERVER="$MONGO_LIB/mongodb-org-server-$VER-*.rpm"
+            RPM_SHELL="$MONGO_LIB/mongodb-org-shell-$VER-*.rpm"
+            RPM_MONGOS="$MONGO_LIB/mongodb-org-mongos-$VER-*.rpm"
+            RPM_TOOLS="$MONGO_LIB/mongodb-org-tools-$VER-*.rpm"
 
             # Install mongo packages if they're provided
             echo '... installing mongo ...'
-            test -e $RPM_BASE && rpm -U $RPM_BASE
             test -e $RPM_SERVER && rpm -U $RPM_SERVER
             test -e $RPM_SHELL && rpm -U $RPM_SHELL
             test -e $RPM_MONGOS && rpm -U $RPM_MONGOS
             test -e $RPM_TOOLS && rpm -U $RPM_TOOLS
+            test -e $RPM_BASE && rpm -U $RPM_BASE
             echo '... mongo installation complete.'
 
             echo '... setting up mongo service ...'
