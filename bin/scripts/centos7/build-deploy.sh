@@ -7,7 +7,7 @@ if ! npm list -g npm-bundle; then
 fi
 
 proj_root=$(cd "$(dirname $0)/../../.."; pwd)
-zip_file="keyterms-complete.tgz"
+zip_file="keyterms.tgz"
 
 # Get supported dependency versions
 source $proj_root/bin/scripts/supported-dependencies
@@ -15,25 +15,25 @@ source $proj_root/bin/scripts/supported-dependencies
 # Create deploy folder and copy top-level content over
 echo 'Creating deploy directory...'
 cd $proj_root
-mkdir -p deploy/keyterms-complete
-cp -r ./bin/ ./deploy/keyterms-complete/bin/
-cp -r ./lib/ ./deploy/keyterms-complete/lib/
-cp ./package.json ./deploy/keyterms-complete/package.json
+mkdir -p deploy/keyterms
+cp -r ./bin/ ./deploy/keyterms/bin/
+cp -r ./lib/ ./deploy/keyterms/lib/
+cp ./package.json ./deploy/keyterms/package.json
 
 # Prepare server
 echo 'Preparing server deployment...'
 server_root=$(cd Keyterms-Server; pwd)
 sh $server_root/bin/build-deploy.sh
-cp $server_root/deploy/keyterms-server.tgz $proj_root/deploy/keyterms-complete/lib/
+cp $server_root/deploy/keyterms-server.tgz $proj_root/deploy/keyterms/lib/
 
 # Prepare client
 echo 'Preparing client deployment...'
 client_root=$(cd Keyterms-Client; pwd)
 sh $client_root/bin/build-deploy.sh
-cp $client_root/deploy/keyterms-client.tgz $proj_root/deploy/keyterms-complete/lib/
+cp $client_root/deploy/keyterms-client.tgz $proj_root/deploy/keyterms/lib/
 
 # Download third-party dependencies as packages
-cd $proj_root/deploy/keyterms-complete/lib/
+cd $proj_root/deploy/keyterms/lib/
 
 # Java
 read -p "Include packaged Java (v10.0.2)? (Y|n) " javachoice
@@ -139,13 +139,13 @@ echo 'Bundling http-server...'
 cd $proj_root
 npm install http-server
 npm-bundle http-server
-mv http-server-*.tgz $proj_root/deploy/keyterms-complete/lib/
+mv http-server-*.tgz $proj_root/deploy/keyterms/lib/
 
 # Compress entire deployment
 echo "Compressing deployment..."
 cd $proj_root/deploy
-tar -czf $zip_file ./keyterms-complete/
+tar -czf $zip_file ./keyterms/
 
 # Clean up deploy folder
 echo "Cleaning up..."
-rm -rf ./keyterms-complete/
+rm -rf ./keyterms/

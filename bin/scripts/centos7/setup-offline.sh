@@ -306,11 +306,11 @@ if ! [ -x "$(command -v mongo)" ] | [ -x "$(command -v mongod)" ] ; then
 
             # Install mongo packages if they're provided
             echo '... installing mongo ...'
-            test -e RPM_BASE && rpm -U RPM_BASE
-            test -e RPM_SERVER && rpm -U RPM_SERVER
-            test -e RPM_SHELL && rpm -U RPM_SHELL
-            test -e RPM_MONGOS && rpm -U RPM_MONGOS
-            test -e RPM_TOOLS && rpm -U RPM_TOOLS
+            test -e $RPM_BASE && rpm -U $RPM_BASE
+            test -e $RPM_SERVER && rpm -U $RPM_SERVER
+            test -e $RPM_SHELL && rpm -U $RPM_SHELL
+            test -e $RPM_MONGOS && rpm -U $RPM_MONGOS
+            test -e $RPM_TOOLS && rpm -U $RPM_TOOLS
             echo '... mongo installation complete.'
 
             echo '... setting up mongo service ...'
