@@ -22,7 +22,7 @@ if [ -z "$(find $SCRIPT_DIR -mindepth 1 -maxdepth 1 -type d -name $oschoice)" ];
     exit 0
 fi
 CHOSEN_OS=$SCRIPT_DIR/$oschoice
-ln -s "$CHOSEN_OS" "$SCRIPT_DIR/chosen-os"
+ln -fs "$CHOSEN_OS" "$SCRIPT_DIR/chosen-os"
 
 # Prompt for proxy settings
 read -p 'If you are behind an http proxy, please enter the proxy URL (press enter if no proxy): ' proxyhttp

@@ -91,16 +91,16 @@ else
             exit 0
             ;;
         *)
-            ARCHIVE="jre-10.0.2_linux-x64_bin"
+            ARCHIVE="$LIB_DIR/jre-10.0.2_linux-x64_bin.rpm"
 
             # Check if Java was bundled
-            if ! [ -e $LIB_DIR/$ARCHIVE.rpm ]; then
+            if ! [ -e $ARCHIVE ]; then
                 echo '... Java was not bundled with KeyTerms, and cannot be installed.'
                 echo 'Exiting.'; exit 0
             fi
 
             echo '... installing Java ...'
-            rpm --install $ARCHIVE.rpm
+            rpm --install $ARCHIVE
             _binary=$(which java)
             JAVA_HOME=$(readlink -f $_binary | sed "s|\/bin\/java||g")
             echo "JAVA_HOME is now $JAVA_HOME"
@@ -127,16 +127,16 @@ if [[ "$_java" ]]; then
                 exit 0
                 ;;
             *)
-                ARCHIVE="jre-10.0.2_linux-x64_bin"
+                ARCHIVE="$LIB_DIR/jre-10.0.2_linux-x64_bin.rpm"
 
                 # Check if Java was bundled
-                if ! [ -e $LIB_DIR/$ARCHIVE.rpm ]; then
+                if ! [ -e $ARCHIVE ]; then
                     echo '... Java was not bundled with KeyTerms, and cannot be installed.'
                     echo 'Exiting.'; exit 0
                 fi
 
                 echo '... installing Java ...'
-                rpm --install $ARCHIVE.rpm
+                rpm --install $ARCHIVE
                 _binary=$(which java)
                 JAVA_HOME=$(readlink -f $_binary | sed "s|\/bin\/java||g")
                 echo "JAVA_HOME is now $JAVA_HOME"
@@ -155,6 +155,7 @@ sed -i -e "s|\/usr\/lib\/jvm\/jre|${JAVA_HOME}|g" $SERVICES_DIR/$TOMCAT_DAEMON
 
 echo 'Checking for Tomcat installation ...'
 if [ -n "$CATALINA_HOME" ]; then
+    echo "... CATALINA_HOME is $CATALINA_HOME"
     export TOMCAT_USER=$(stat -c '%U' $CATALINA_HOME)
     echo "... Tomcat user is $TOMCAT_USER"
     if ! id -Gn $TOMCAT_USER | grep -q -c $APP_GROUP; then
@@ -163,6 +164,11 @@ if [ -n "$CATALINA_HOME" ]; then
     fi
     echo ' '
     sh $CATALINA_HOME/bin/version.sh
+elif [ -e /etc/systemd/system/$TOMCAT_DAEMON ]; then
+    export CATALINA_HOME=$(cat /etc/systemd/system/$TOMCAT_DAEMON | grep "CATALINA_HOME" | cut -c27-)
+    echo "... CATALINA_HOME is $CATALINA_HOME"
+    export TOMCAT_USER=$(stat -c '%U' $CATALINA_HOME)
+    echo "... Tomcat user is $TOMCAT_USER"
 else
     read -p "... Tomcat installation not found. If Tomcat has been installed, make sure CATALINA_HOME is exported. If not, install Tomcat (v$SUPPORTED_TOMCAT_VERSION) now? (Y|n) " tomcatchoice
     case "$tomcatchoice" in
@@ -176,14 +182,14 @@ else
             cd $APP_DIR/tomcat
 
             # Check if Tomcat was bundled
-            if ! [ -e $LIB_DIR/$ARCHIVE.tar.gz ]; then
+            if ! [ -e "$LIB_DIR/$ARCHIVE.rpm" ]; then
                 echo '... Tomcat was not bundled with KeyTerms, and cannot be installed.'
                 echo 'Exiting.'; exit 0
             fi
 
             echo '... unpacking Tomcat ...'
-            tar -xf $ARCHIVE.tar.gz
-            rm -f $ARCHIVE.tar.gz
+            tar -xf $LIB_DIR/$ARCHIVE.rpm
+            rm -f $LIB_DIR/$ARCHIVE.rpm
             export CATALINA_HOME="$APP_DIR/tomcat/$ARCHIVE"
 
             echo '... creating Tomcat user ...'
@@ -231,8 +237,8 @@ if ! [ -x "$(command -v node)" ] | [ -x "$(command -v nodejs)" ]; then
             fi
 
             echo '... unpacking nodejs ...'
-            tar -xf $ARCHIVE.tar.gz
-            rm -f $ARCHIVE.tar.gz
+            tar -xf $LIB_DIR/$ARCHIVE.tar.gz
+            rm -f $LIB_DIR/$ARCHIVE.tar.gz
 
             # Set up symlinks
             if [ -L /usr/bin/node ]; then rm -rf /usr/bin/node; fi
@@ -363,7 +369,7 @@ else
             fi
 
             echo '... installing elasticsearch ...'
-            rpm --install "./$ARCHIVE.rpm"
+            rpm --install $LIB_DIR/$ARCHIVE.rpm
             echo '... elasticsearch install finished.'
 
             echo '... starting elasticsearch service ...'

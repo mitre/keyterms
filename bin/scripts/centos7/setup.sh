@@ -140,6 +140,7 @@ sed -i -e "s|\/usr\/lib\/jvm\/jre|${JAVA_HOME}|g" $SERVICES_DIR/$TOMCAT_DAEMON
 
 echo 'Checking for Tomcat installation ...'
 if [ -n "$CATALINA_HOME" ]; then
+    echo "... CATALINA_HOME is $CATALINA_HOME"
     export TOMCAT_USER=$(stat -c '%U' $CATALINA_HOME)
     echo "... Tomcat user is $TOMCAT_USER"
     if ! id -Gn $TOMCAT_USER | grep -q -c $APP_GROUP; then
@@ -148,6 +149,11 @@ if [ -n "$CATALINA_HOME" ]; then
     fi
     echo ' '
     sh $CATALINA_HOME/bin/version.sh
+elif [ -e /etc/systemd/system/$TOMCAT_DAEMON ]; then
+    export CATALINA_HOME=$(cat /etc/systemd/system/$TOMCAT_DAEMON | grep "CATALINA_HOME" | cut -c27-)
+    echo "... CATALINA_HOME is $CATALINA_HOME"
+    export TOMCAT_USER=$(stat -c '%U' $CATALINA_HOME)
+    echo "... Tomcat user is $TOMCAT_USER"
 else
     read -p "... Tomcat installation not found. If Tomcat has been installed, make sure CATALINA_HOME is exported. If not, install Tomcat (v$SUPPORTED_TOMCAT_VERSION) now? (Y|n) " tomcatchoice
     case "$tomcatchoice" in
