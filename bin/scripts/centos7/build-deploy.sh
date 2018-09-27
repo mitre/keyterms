@@ -1,11 +1,5 @@
 #!/bin/sh
 
-# Check if npm-bundle is installed
-if ! npm list -g npm-bundle; then
-    echo 'You must install npm-bundle for this script to work. Run `sudo npm install -g npm-bundle` to install.'
-    exit 0
-fi
-
 proj_root=$(cd "$(dirname $0)/../../.."; pwd)
 zip_file="keyterms.tgz"
 
@@ -133,13 +127,6 @@ case "$elasticchoice" in
         fi
         ;;
 esac
-
-# Include packaged http-server
-echo 'Bundling http-server...'
-cd $proj_root
-npm install http-server
-npm-bundle http-server
-mv http-server-*.tgz $proj_root/deploy/keyterms/lib/
 
 # Compress entire deployment
 echo "Compressing deployment..."
