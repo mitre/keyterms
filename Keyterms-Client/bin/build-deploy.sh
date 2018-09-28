@@ -29,7 +29,6 @@ cd keyterms-client
 cp -r $client_root/public/ .
 
 echo "Packaging installation notes..."
-cd ..
 cp $client_root/install_notes.* .
 
 echo "Compressing client files..."
