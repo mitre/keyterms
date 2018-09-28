@@ -24,8 +24,8 @@ mkdir deploy
 cd deploy
 
 echo "Cloning public directory..."
-mkdir -p keyterms-client/dist
-cd keyterms-client/dist
+mkdir -p keyterms-client
+cd keyterms-client
 cp -r $client_root/public/ .
 
 echo "Packaging installation notes..."

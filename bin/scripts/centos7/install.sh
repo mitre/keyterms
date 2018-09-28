@@ -146,7 +146,7 @@ case "$choice" in
         mv $CATALINA_HOME/webapps/ROOT $CATALINA_HOME/webapps/ROOT_BAK
         CLIENT_TOMCAT_DIR=$CATALINA_HOME/webapps/ROOT
         mkdir -p $CLIENT_TOMCAT_DIR
-        cp -R $CLIENT_DIR/dist/public/keyterms/* $CLIENT_TOMCAT_DIR
+        cp -R $CLIENT_DIR/public/keyterms/* $CLIENT_TOMCAT_DIR
         chown -R $TOMCAT_USER:$APP_GROUP $CLIENT_TOMCAT_DIR
 
         echo "... KeyTerms client has been placed into $CATALINA_HOME/webapps/ROOT"
