@@ -44,7 +44,7 @@ exports.status = function (req, res, next) {
 	.then( function (data) {
 		res.json({
 			keyTermsVersion: data[2],					// corresponds to the currently running git commit
-			APIVersion: '3.1.0',						// corresponds to the currently running db/api schema
+			APIVersion: '0.1.0',						// corresponds to the currently running db/api schema
 			mongoDbVersion: data[0],
 			mode: process.env.NODE_ENV || 'DEVELOPMENT',
 			keyTermsEntries: data[1]
