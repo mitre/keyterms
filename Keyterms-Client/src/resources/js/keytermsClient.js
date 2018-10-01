@@ -32,7 +32,6 @@ if (!apiUrl.endsWith('/')) {
 	apiUrl = apiUrl + '/';
 }
 
-console.log(apiUrl);
 app.constant('ApiUrl', apiUrl);
 app.constant('AppVersion', gitHash);
 
