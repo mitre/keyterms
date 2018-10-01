@@ -10,8 +10,8 @@ source $proj_root/bin/scripts/supported-dependencies
 echo 'Creating deploy directory...'
 cd $proj_root
 mkdir -p deploy/keyterms
-cp -r ./bin/ ./deploy/keyterms/bin/
-cp -r ./lib/ ./deploy/keyterms/lib/
+cp -r ./bin/ ./deploy/keyterms/
+cp -r ./lib/ ./deploy/keyterms/
 cp ./package.json ./deploy/keyterms/package.json
 
 # Prepare server
