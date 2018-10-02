@@ -8,7 +8,7 @@ KeyTerms is a centralized terminology management tool.  It enables organizations
 The Quick Installer scripts will help you install all pre-requisites, initialize your mongoDB, set up your first admin account, and set up both the KeyTerms Client & Server to run as services
 
 1. Download the KeyTerms repo
-2. From the root of the repo run ```$ sudo sh bin\scripts\init.sh```
+2. From the root of the repo run ```$ sudo sh bin/scripts/init.sh```
 3. Follow the command-line prompts
 
 ## Manual Installation

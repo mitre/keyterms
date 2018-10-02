@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 server_root=$(cd "$(dirname $0)/.."; pwd)
-zip_file="keyterms-server.tgz"
+zip_file="keyterms-server-$(date +%Y-%m-%d.%H-%M).tgz"
 
 echo "Creating deploy directory..."
 cd $server_root

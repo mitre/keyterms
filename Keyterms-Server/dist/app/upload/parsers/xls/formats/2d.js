@@ -27,115 +27,118 @@ var xlsParser = require('./../xlsAbstract');
 var log = require('../../includes').log;
 
 class XLS2D extends xlsParser {
-	parse () {
-		var self = this;
-		var termMap = {};
-		var lastEntryId = 0;
+    parse () {
+        var self = this;
+        var termMap = {};
+        var lastEntryId = 0;
 
-		return new Promise( function( resolve ) {
+        return new Promise( function( resolve ) {
 
-			self.ws.eachRow( function (row, rowNum) {
-				log.verbose('Parsing row #', rowNum);
-				if (rowNum < 2) { return; }
+            self.ws.eachRow( function (row, rowNum) {
+                log.verbose('Parsing row #', rowNum);
+                if (rowNum < 2) { return; }
 
-				// handy shortcut function that references the header map
-				// and returns the value of the row's cell via column name
-				var extract = function (field) {
-					return row.values[self.headers[field]];
-				};
+                // handy shortcut function that references the header map
+                // and returns the value of the row's cell via column name
+                var extract = function (field) {
+                    return row.values[self.headerPos[field]];
+                };
 
-				var entry = self.entries[extract('ENTRY_ID')];
-				if (entry === undefined) {
-					// this means a new entry is being processed
+                var entry = self.entries[extract(self.headers[1])];
+                if (entry === undefined) {
+                    // this means a new entry is being processed
 
-					// add entry to import queue
-					if (lastEntryId > 0) {
+                    // add entry to import queue
+                    if (lastEntryId > 0) {
                         self.queueEntry(lastEntryId);
                     }
-					// reset parser variables
-					termMap = {}; // reset term map
-					entry = self.createEntry();
-					lastEntryId = extract('ENTRY_ID');
-				}
+                    // reset parser variables
+                    termMap = {}; // reset term map
+                    entry = self.createEntry();
 
-				switch (extract('FIELD_TYPE')) {
-					case 'TERM':
-					case 'Term':
-					case 'term':
-						var term = {};
-						term.termText = extract('Value');
-						term.langCode = extract('Term language');
-						term.variety = extract('Term variety');
-						term.script = extract('Term script');
+                    lastEntryId = extract(self.headers[1]);
+                }
 
-						var tempArr = [];
+                switch (extract(self.headers[2])) {
+                    case 'TERM':
+                    case 'Term':
+                    case 'term':
+                        var term = {};
+                        term.termText = extract(self.headers[3]);
+                        term.langCode = extract(self.headers[5]);
+                        term.variety = extract(self.headers[6]);
+                        term.script = extract(self.headers[7]);
 
-						if( extract('Term note_pos') ) {
+                        var tempArr = [];
+
+                        if( extract(self.headers[10]) ) {
                             var posNote = {};
-                            posNote.text = extract('Term note_pos');
+                            posNote.text = extract(self.headers[10]);
                             posNote.type = 'pos';
                             tempArr.push(posNote);
                         }
 
-                        if (extract('Term note_example')) {
+                        if (extract(self.headers[11])) {
                             var exampleNote = {};
-                            exampleNote.text = extract('Term note_example');
+                            exampleNote.text = extract(self.headers[11]);
                             exampleNote.type = 'example';
                             tempArr.push(exampleNote);
                         }
 
-						if (extract('Term note_usage')) {
+                        if (extract(self.headers[12])) {
                             var usageNote = {};
-                            usageNote.text = extract('Term note_usage');
+                            usageNote.text = extract(self.headers[12]);
                             usageNote.type = 'usage';
                             tempArr.push(usageNote);
                         }
 
                         if ( tempArr.length > 0) {
-							term.notes = [];
-							term.notes = tempArr;
+                            term.notes = [];
+                            term.notes = tempArr;
 
-						}
+                        }
 
-						entry.terms.push(term);
+                        entry.terms.push(term);
 
-						// maps FIELD_ID to array index for Term Link referencing
-						termMap[extract('FIELD_ID')] = entry.terms.length - 1;
+                        // maps FIELD_ID to array index for Term Link referencing
+                        termMap[entry.terms.length] = entry.terms[entry.terms.length - 1];
 
-						// is linked?
-						if (!!extract('TermLinkedFrom')) {
-							var link = {};
-							link.lhs = termMap[extract('TermLinkedFrom')];
-							link.rhs = entry.terms.length - 1;
-							link.relationType = extract('LinkType');
-							entry.termLinks.push(link);
-						}
+                        // is linked?
+                        if (!!extract(self.headers[8])) {
+                            var link = {};
+                            link.lhs = entry.terms[entry.terms.length - 1];
+                            link.rhs = termMap[extract(self.headers[8])];
+                            link.relationType = extract(self.headers[9]);
 
-						break;
-					case 'TAG':
-					case 'Tag':
-						entry.tags.push(extract('FIELD_TEXT'));
+                            entry.termLinks.push(link);
+                        }
 
-						break;
-					case 'NOTE':
-					case 'Note':
-						var note = {};
-						note.text = extract('FIELD_TEXT');
-						note.type = extract('NoteType') || 'general';
-						entry.notes.push(note);
+                        break;
+                    case 'TAG':
+                    case 'Tag':
+					case 'tag':
+                        entry.tags.push(extract(self.headers[3]));
 
-						break;
-					default:
-						break; // skip this FIELD_TYPE
-				}
+                        break;
+                    case 'NOTE':
+                    case 'Note':
+                        var note = {};
+                        note.text = extract(self.headers[3]);
+                        note.type = extract(self.headers[10]) || 'general';
+                        entry.notes.push(note);
 
-				// update entry within entries map
-				self.entries[extract('ENTRY_ID')] = entry;
-			});
+                        break;
+                    default:
+                        break; // skip this FIELD_TYPE
+                }
 
-			self.queueLastEntry(lastEntryId, resolve);
-		});
-	}
+                // update entry within entries map
+                self.entries[extract(self.headers[1])] = entry;
+            });
+
+            self.queueLastEntry(lastEntryId, resolve);
+        });
+    }
 }
 
 module.exports = XLS2D;

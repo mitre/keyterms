@@ -34,6 +34,7 @@ class xlsParser extends ImporterBase {
 
 		this.ws = ws;
 		this.headers = {};
+        this.headerPos = {};
 
 		this.parseHeader();
 	}
@@ -44,8 +45,10 @@ class xlsParser extends ImporterBase {
 		this.ws.getRow(1).values.forEach( function (val, index) {
 			// creates mapping of header names to their column position
 			if (index === 0) { return; }	// exceljs does not use the zero index
-			self.headers[val] = index;
-		});
+            self.headerPos[val] = index;
+            self.headers[index] = val;
+
+        });
 		log.verbose('headers: ', self.headers);
 	}
 

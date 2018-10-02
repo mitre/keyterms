@@ -126,6 +126,8 @@ entrySchema.virtual('labels').get(function () {
     return this.terms.filter(t => t.isLabel).map(t => t.termText);
 });
 
+entrySchema.path('terms').required(true);
+
 entrySchema.set('toObject', {getters: true, virtuals: true});
 entrySchema.set('toJSON', {getters: true, virtuals: true});
 
