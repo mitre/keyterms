@@ -92,7 +92,7 @@ config.db = {
 // NLP Services configurations
 config.nlp = {
 	// base url for the NLP Services server
-	url: 'http://localhost:8080/NLPServices/TextServices',
+	url: 'http://localhost:8080/NLPServices/svc',
 
 	// if false, http is used rather than https
 	useHTTPS: false,
