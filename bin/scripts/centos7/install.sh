@@ -125,7 +125,11 @@ else
     echo "USER ACTION REQUIRED: Be sure to configure Tomcat to use your SSL certificates."
     cp $CONF_DIR/server.xml.ssl $CATALINA_HOME/conf/server.xml
 fi
+
 # TODO: ADD BIT FOR SETTING HTTP.PROXY IN CONNECTORS IN SERVER.XML
+
+# Update tomcat service with installed version
+sed -i -e "s|TOMCATDIR|${CATALINA_HOME}|g" $SERVICES_DIR/$TOMCAT_DAEMON
 cp $SERVICES_DIR/$TOMCAT_DAEMON /etc/systemd/system/
 chown -R $TOMCAT_USER:$APP_GROUP $CATALINA_HOME
 systemctl daemon-reload
