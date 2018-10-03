@@ -74,8 +74,8 @@ serverLOC="$fqdn:$SV_PORT"
 sed -i -e "s|myServerLocation|${fqdn}|g" $SERVER_DEPLOY_DIR/config.js
 sed -i -e "s|myPort|${SV_PORT}|g" $SERVER_DEPLOY_DIR/config.js
 
-read -p "Would you like to use the default database name, \"KeyTerms\"? (Y|n) " choice
-case "$choice" in
+read -p "Would you like to use the default database name, \"KeyTerms\"? (Y|n) " dbchoice
+case "$dbchoice" in
     n|N )
         echo "Please enter a database name for the KeyTerms collection:"
         read dbname
@@ -137,8 +137,8 @@ cp $LIB_DIR/$NLP_WAR $CATALINA_HOME/webapps
 echo "... deployed under $CATALINA_HOME/webapps"
 
 # Deploy client (if desired)
-read -p 'Deploy Keyterms client under Tomcat? (Y|n) ' choice
-case "$choice" in
+read -p 'Deploy Keyterms client under Tomcat? (Y|n) ' clientchoice
+case "$clientchoice" in
     n|N)
         echo '... skipping Keyterms client installation.'
         ;;
@@ -165,16 +165,19 @@ systemctl enable $TOMCAT_DAEMON
 
 # Run init-cli script
 echo ' '
-read -p 'Installation complete. Run database initialization script? (Y|n) ' dbChoice
+read -p 'Component installation complete. Run database initialization script? (Y|n) ' dbChoice
 case $dbChoice in
     n|N)
         ;;
     *)
         cd $SERVER_DEPLOY_DIR
         npm run init-cli
+        echo 'Database initialization complete.'
         ;;
 esac
 
 chown -R $NODEJS_USER:$APP_GROUP $SERVER_DEPLOY_DIR
 systemctl restart ktserver
-echo ' '; echo 'Database initialization complete.'
+
+echo ' '
+echo "KeyTerms installation complete."

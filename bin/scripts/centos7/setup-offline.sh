@@ -38,7 +38,7 @@ fi
 ################################################################################
 
 # Create application group for KeyTerms if it doesn't exist.
-echo ' '; echo 'Setting up application group ...'
+echo ' '; echo 'Setting up KeyTerms application group ...'
 if [ $(getent group $APP_GROUP) ]; then
     echo "... $APP_GROUP group exists."
 else
@@ -48,22 +48,24 @@ else
 fi
 
 # Create application directory
-echo ' '; echo 'Setting up directory for KeyTerms ...'
+echo ' '; echo 'Setting up application directory for KeyTerms ...'
 mkdir -p $APP_DIR
 chown root:$APP_GROUP $APP_DIR
 chmod -R g+w $APP_DIR
 cd $APP_DIR
-echo "... application directory: $APP_DIR"
+echo "... application directory created: $APP_DIR"
 
 ################################################################################
 # Unpack KeyTerms server and client
 ################################################################################
 
 # Unpack server
+echo ' '; echo 'Unpacking server code...'
 cd $PROJ_DIR
 tar -xf $LIB_DIR/keyterms-server.tgz && mv keyterms-server Keyterms-Server
 
 # Unpack client
+echo 'Unpacking client code...'
 tar -xf $LIB_DIR/keyterms-client.tgz && mv keyterms-client Keyterms-Client
 
 ################################################################################
@@ -72,8 +74,10 @@ tar -xf $LIB_DIR/keyterms-client.tgz && mv keyterms-client Keyterms-Client
 
 echo ' '; echo '---------------------------------------------------------------'
 echo 'Checking for Java installation ...'
-# really 1.9 - java versioning problematic
+PROMPT_JAVA=0
 MIN_JAVA=9
+
+# Check for existing java binary
 if [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]; then
     echo "... found java executable in JAVA_HOME: $JAVA_HOME"
     _java="$JAVA_HOME/bin/java"
@@ -84,17 +88,36 @@ elif type -p java; then
     JAVA_HOME=$(readlink -f $_binary | sed "s|\/bin\/java||g")
     echo "... java location is: $JAVA_HOME"
 else
-    read -p '... java is not installed. You will not be able to continue the KeyTerms installation without java. Install now? (Y|n) ' javachoice
-    case "$javachoice" in
+    echo '... java is not installed. You will not be able to continue the KeyTerms installation without java.'
+    PROMPT_JAVA=1
+fi
+
+# If java is installed, confirm minimum version
+if [[ "$_java" ]]; then
+    version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
+    onedot_version=$(echo $version | sed -r "s/^1\.//")
+    major_version=$(echo $onedot_version | sed -r "s/^([0-9]{1,3})\..+/\1/")
+    if (( "$major_version" > "$MIN_JAVA" )); then
+        echo "... installed version $major_version is greater than the minimum required version $MIN_JAVA. Proceeding with KeyTerms installation."
+    else
+        echo "... installed version $major_version is less than the minimum required version $MIN_JAVA. You must install a newer version of java to continue KeyTerms installation."
+        PROMPT_JAVA=1
+    fi
+fi
+
+# If java is not installed or is old version, prompt to install
+if [ $PROMPT_JAVA -ne 0 ]; then
+    read -p "Install Java 10 now? (Y|n) " choice
+    case "$choice" in
         n|N)
-            echo 'Java will not be installed. Exiting installation.'
+            echo "... skipping java installation. Tomcat and ElasticSearch will not work without java. KeyTerms-NLP requires java 1.9 or later. Exiting installer."
             exit 0
             ;;
         *)
             ARCHIVE="$LIB_DIR/jre-10.0.2_linux-x64_bin.rpm"
 
             # Check if Java was bundled
-            if ! [ -e $ARCHIVE ]; then
+            if ! [ -f $ARCHIVE ]; then
                 echo '... Java was not bundled with KeyTerms, and cannot be installed.'
                 echo 'Exiting.'; exit 0
             fi
@@ -105,42 +128,6 @@ else
             JAVA_HOME=$(readlink -f $_binary | sed "s|\/bin\/java||g")
             echo "JAVA_HOME is now $JAVA_HOME"
             ;;
-    esac
-fi
-
-if [[ "$_java" ]]; then
-    version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
-    #echo version "$version"
-    onedot_version=$(echo $version | sed -r "s/^1\.//")
-    major_version=$(echo $onedot_version | sed -r "s/^([0-9]{1,3})\..+/\1/")
-    #echo major version $major_version
-    #if [[ "$major_version" > "$MIN_JAVA" ]]; then
-    if (( "$major_version" > "$MIN_JAVA" )); then
-        echo "... installed version $major_version is greater than the minimum required version $MIN_JAVA. Proceeding with KeyTerms installation."
-    else
-        echo "... installed version $major_version is less than the minimum required version $MIN_JAVA."
-        #echo "please update java to $MIN_VERSION or later and re-run this script to install KeyTerms."
-        #JAVA_INSTALLER=`ls $INST_THIRDPARTY_DIR | grep jre`
-        read -p "Would you like to install a newer version of Java? (Y|n) " choice
-        case "$choice" in
-            n|N ) echo "... skipping java installation. Tomcat and ElasticSearch will not work without java. KeyTerms-NLP requires java 1.9 or later. Exiting installer."
-                exit 0
-                ;;
-            *)
-                ARCHIVE="$LIB_DIR/jre-10.0.2_linux-x64_bin.rpm"
-
-                # Check if Java was bundled
-                if ! [ -e $ARCHIVE ]; then
-                    echo '... Java was not bundled with KeyTerms, and cannot be installed.'
-                    echo 'Exiting.'; exit 0
-                fi
-
-                echo '... installing Java ...'
-                rpm --install $ARCHIVE
-                _binary=$(which java)
-                JAVA_HOME=$(readlink -f $_binary | sed "s|\/bin\/java||g")
-                echo "JAVA_HOME is now $JAVA_HOME"
-                ;;
         esac
     fi
 fi
@@ -153,9 +140,12 @@ sed -i -e "s|\/usr\/lib\/jvm\/jre|${JAVA_HOME}|g" $SERVICES_DIR/$TOMCAT_DAEMON
 # Check for Tomcat installation
 ################################################################################
 
+echo ' '; echo '---------------------------------------------------------------'
 echo 'Checking for Tomcat installation ...'
+
+# Check for existing CATALINA_HOME
 if [ -n "$CATALINA_HOME" ]; then
-    echo "... CATALINA_HOME is $CATALINA_HOME"
+    echo "... Tomcat is installed. CATALINA_HOME is $CATALINA_HOME"
     export TOMCAT_USER=$(stat -c '%U' $CATALINA_HOME)
     echo "... Tomcat user is $TOMCAT_USER"
     if ! id -Gn $TOMCAT_USER | grep -q -c $APP_GROUP; then
@@ -164,13 +154,18 @@ if [ -n "$CATALINA_HOME" ]; then
     fi
     echo ' '
     sh $CATALINA_HOME/bin/version.sh
+
+# else check for existing Tomcat service file
 elif [ -e /etc/systemd/system/$TOMCAT_DAEMON ]; then
     export CATALINA_HOME=$(cat /etc/systemd/system/$TOMCAT_DAEMON | grep "CATALINA_HOME" | cut -c27-)
-    echo "... CATALINA_HOME is $CATALINA_HOME"
+    echo "... Tomcat is installed. CATALINA_HOME is $CATALINA_HOME"
     export TOMCAT_USER=$(stat -c '%U' $CATALINA_HOME)
     echo "... Tomcat user is $TOMCAT_USER"
+
+# else Tomcat is not installed; prompt for installation
 else
-    read -p "... Tomcat installation not found. If Tomcat has been installed, make sure CATALINA_HOME is exported. If not, install Tomcat (v$SUPPORTED_TOMCAT_VERSION) now? (Y|n) " tomcatchoice
+    echo "... Tomcat installation not found. If Tomcat has been installed, make sure CATALINA_HOME is exported."
+    read -p "... Tomcat installation is required for KeyTerms. If you choose not to install, this setup will terminate. Install Tomcat (v$SUPPORTED_TOMCAT_VERSION) now? (Y|n) " tomcatchoice
     case "$tomcatchoice" in
         n|N)
             echo '... Tomcat will not be installed at this time, but setup cannot continue without Tomcat.'
@@ -219,7 +214,7 @@ if [ -e /etc/systemd/system/$TOMCAT_DAEMON ]; then
 echo ' '; echo '---------------------------------------------------------------'
 echo 'Checking for Node.js installation...'
 if ! [ -x "$(command -v node)" ] | [ -x "$(command -v nodejs)" ]; then
-    read -p "... Node.js not installed. Install Node.js (v$SUPPORTED_NODEJS_VERSION) now? (Y|n) " nodechoice
+    read -p "... Node.js not installed. Node.js installation is required for KeyTerms. If you choose not to install, this setup will terminate. Install Node.js (v$SUPPORTED_NODEJS_VERSION) now? (Y|n) " nodechoice
     case "$nodechoice" in
         n|N)
             echo '... Node.js will not be installed at this time, but setup cannot continue without Node.js.'
