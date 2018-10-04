@@ -12,6 +12,7 @@ rm -rf deploy
 mkdir deploy
 
 echo 'Building public directory...'
+mkdir public/keyterms
 read -p 'Compile code to ES5? (y|N) ' choice
 case "$choice" in
     y|Y)
