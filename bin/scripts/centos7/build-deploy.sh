@@ -1,7 +1,7 @@
 #!/bin/sh
 
 proj_root=$(cd "$(dirname $0)/../../.."; pwd)
-zip_file="keyterms.tgz"
+zip_file="keyterms-$(date +%Y-%m-%d.%H-%M).tgz"
 
 # Get supported dependency versions
 source $proj_root/bin/scripts/supported-dependencies
@@ -19,14 +19,14 @@ echo ' '; echo '---------------------------------------------------------------'
 echo 'Preparing server deployment...'
 server_root=$(cd Keyterms-Server; pwd)
 sh $server_root/bin/build-deploy.sh
-cp $server_root/deploy/keyterms-server.tgz $proj_root/deploy/keyterms/lib/
+cp $server_root/deploy/keyterms-server*.tgz $proj_root/deploy/keyterms/lib/
 
 # Prepare client
 echo ' '; echo '---------------------------------------------------------------'
 echo 'Preparing client deployment...'
 client_root=$(cd Keyterms-Client; pwd)
 sh $client_root/bin/build-deploy.sh
-cp $client_root/deploy/keyterms-client.tgz $proj_root/deploy/keyterms/lib/
+cp $client_root/deploy/keyterms-client*.tgz $proj_root/deploy/keyterms/lib/
 
 # Download third-party dependencies as packages
 echo ' '; echo '---------------------------------------------------------------'

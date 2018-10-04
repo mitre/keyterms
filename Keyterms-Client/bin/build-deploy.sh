@@ -7,6 +7,10 @@ echo "Running npm install..."
 cd $client_root
 npm install
 
+echo "Creating deploy directory..."
+rm -rf deploy
+mkdir deploy
+
 echo 'Building public directory...'
 read -p 'Compile code to ES5? (y|N) ' choice
 case "$choice" in
@@ -18,13 +22,9 @@ case "$choice" in
         ;;
 esac
 
-echo "Creating deploy directory..."
-rm -rf deploy
-mkdir deploy
-cd deploy
-
 echo "Cloning public directory..."
-mkdir -p keyterms-client
+cd deploy
+mkdir keyterms-client
 cd keyterms-client
 cp -r $client_root/public/ .
 

@@ -62,11 +62,11 @@ echo "... application directory created: $APP_DIR"
 # Unpack server
 echo ' '; echo 'Unpacking server code...'
 cd $PROJ_DIR
-tar -xf $LIB_DIR/keyterms-server.tgz && mv keyterms-server Keyterms-Server
+tar -xf $LIB_DIR/keyterms-server*.tgz && mv keyterms-server Keyterms-Server
 
 # Unpack client
 echo 'Unpacking client code...'
-tar -xf $LIB_DIR/keyterms-client.tgz && mv keyterms-client Keyterms-Client
+tar -xf $LIB_DIR/keyterms-client*.tgz && mv keyterms-client Keyterms-Client
 
 ################################################################################
 # Check for Tomcat installation
