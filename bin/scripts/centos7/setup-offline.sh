@@ -128,8 +128,7 @@ if [ $PROMPT_JAVA -ne 0 ]; then
             JAVA_HOME=$(readlink -f $_binary | sed "s|\/bin\/java||g")
             echo "JAVA_HOME is now $JAVA_HOME"
             ;;
-        esac
-    fi
+    esac
 fi
 
 # REPLACE JAVA SETTING IN TOMCAT.SERVICE with JAVA_HOME, back up the original just in case
