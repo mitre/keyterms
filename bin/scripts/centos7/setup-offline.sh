@@ -69,7 +69,7 @@ echo 'Unpacking client code...'
 tar -xf $LIB_DIR/keyterms-client*.tgz && mv keyterms-client* Keyterms-Client
 
 ################################################################################
-# Check for Tomcat installation
+# Check for Java installation
 ################################################################################
 
 echo ' '; echo '---------------------------------------------------------------'
@@ -107,14 +107,14 @@ fi
 
 # If java is not installed or is old version, prompt to install
 if [ $PROMPT_JAVA -ne 0 ]; then
-    read -p "Install Java 10 now? (Y|n) " choice
+    read -p "Install Java 11 now? (Y|n) " choice
     case "$choice" in
         n|N)
             echo "... skipping java installation. Tomcat and ElasticSearch will not work without java. KeyTerms-NLP requires java 1.9 or later. Exiting installer."
             exit 0
             ;;
         *)
-            ARCHIVE="$LIB_DIR/jre-10.0.2_linux-x64_bin.rpm"
+            ARCHIVE="$LIB_DIR/jdk-11_linux-x64_bin.rpm"
 
             # Check if Java was bundled
             if ! [ -f $ARCHIVE ]; then

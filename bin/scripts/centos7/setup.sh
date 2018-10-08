@@ -93,16 +93,16 @@ fi
 
 # If java is not installed or is old version, prompt to install
 if [ $PROMPT_JAVA -ne 0 ]; then
-    read -p "Install Java 10 now? (Y|n) " choice
+    read -p "Install Java 11 now? (Y|n) " choice
     case "$choice" in
         n|N)
             echo "... skipping java installation. Tomcat and ElasticSearch will not work without java. KeyTerms-NLP requires java 1.9 or later. Exiting installer."
             exit 0
             ;;
         *)
-            java_rpm=jre-10.0.2_linux-x64_bin.rpm
-            echo "... downloading Java 10 ..."
-            curl -# -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/$java_rpm -O
+            java_rpm=jdk-11_linux-x64_bin.rpm
+            echo "... downloading Java 11 ..."
+            curl -# -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/11+28/55eed80b163941c8885ad9298e6d786a/$java_rpm -O
             if [ $? -ne 0 ]; then
                 echo '... download failed.'
                 echo 'Exiting'; exit 0
