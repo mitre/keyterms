@@ -69,9 +69,9 @@ else
 fi
 
 # Set URLs for server config
-read -p 'Please enter the fully qualified domain name of your server (e.g. keyterms.mycompany.com): ' fqdn
-serverLOC="$fqdn:$SV_PORT"
-sed -i -e "s|myServerLocation|${fqdn}|g" $SERVER_DEPLOY_DIR/config.js
+hostname="$(hostname -f)"
+serverLOC="$hostname:$SV_PORT"
+sed -i -e "s|myServerLocation|${hostname}|g" $SERVER_DEPLOY_DIR/config.js
 sed -i -e "s|myPort|${SV_PORT}|g" $SERVER_DEPLOY_DIR/config.js
 
 read -p "Would you like to use the default database name, \"KeyTerms\"? (Y|n) " dbchoice
@@ -155,7 +155,7 @@ case "$clientchoice" in
 
         echo "... KeyTerms client has been placed into $CLIENT_TOMCAT_DIR"
         cp $CONF_DIR/client-config.js $CLIENT_TOMCAT_DIR/config.js
-        serverURL="$SV_PROTOCOL://$fqdn:$SV_PORT/"
+        serverURL="$SV_PROTOCOL://$hostname:$SV_PORT/"
         sed -i -e "s|myServerLocation|${serverURL}|g" $CLIENT_TOMCAT_DIR/config.js
         echo "USER ATTENTION REQUIRED: If you are having problems with the client under tomcat, please verify the server location setting in $CATALINA_HOME/webapps/ROOT/keyterms/config.js"
         ;;
