@@ -40,7 +40,7 @@ var normalizeTerm = function (term, nlp) {
 	term.script = nlp.Script;
 	term.isSrcScript = nlp.isSrcScript;
 	term.indexText = nlp.TextIndex;
-	//term.variety = term.variety || nlp.TransformType;		// user user-entered variety, else default to NLP
+	term.variety = term.variety || nlp.TransformType;		// user user-entered variety, else default to NLP
 	term.preferenceOrder = nlp.Order;
 
 	return term;
@@ -75,6 +75,7 @@ var callNLP = function (term) {
 				var t = {};
 				t.termText = term.termText;			// gets set to 'originalText' during normalization
 				t.langCode = term.langCode;			// all translits are of the same language (hence translit)
+
 				t.fromNLP = true;
 				t.src = 'nlp';
 				resp.nlpAdditions.push(normalizeTerm(t, nlp));
