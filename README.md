@@ -34,12 +34,12 @@ To run KeyTerms in development mode:
 1. Download the KeyTerms repo
 2. Go into to the ```KeyTerms-Server/dist/``` directory
 3. Run ```npm install```
-4. Copy config-default.js to config.js, and adjust config.js appropriately
+4. Copy ```config-default.js``` to ```config.js```, and adjust ```config.js``` appropriately
 5. Run ```npm start```
 
 For the client:
 
 1. Go into the ```KeyTerms-Client``` directory
 2. Run ```npm install```
-3. Adjust the config settings in ```src/config.js``` as needed
+3. In the ```src``` directory, copy ```config-default.js``` to ```config.js```, and adjust ```config.js``` appropriately
 4. Start the client by using http-server (install via ```npm install http-server -g```) by running ```http-server``` from within the ```src``` directory

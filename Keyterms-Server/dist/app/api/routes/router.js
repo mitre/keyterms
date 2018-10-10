@@ -46,7 +46,7 @@ var auth = require('../../auth').middleware;
 /////////////////////////////// System Endpoints ////////////////////////////////////
 
 // Redirects GET /api to /api/status
-router.get('/', (req, res) => res.redirect('/api/status'));
+router.get('/', (req, res) => res.redirect('/admin'));
 
 // Redirects GET /api/api to /docs
 router.get('/api', (req, res) => res.redirect('/docs'));

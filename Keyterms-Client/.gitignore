@@ -16,3 +16,6 @@ node_modules
 package-lock.json
 
 deploy
+
+# Ignore non-default config.js
+src/config.js
