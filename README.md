@@ -19,8 +19,13 @@ The Quick Installer scripts will help you install all pre-requisites, initialize
 * Node (~v6.14.3)
 * ElasticSearch (~5.6.9)
 
-## Configuration
---Coming Soon--
+## Client Configuration
+All KeyTerms client configuration settings can be found in `$KTCLIENT_BASE/config.js` The configuration settings include:
+
+1. **apiUrl** - The URL of the KeyTerms server instance that this client should interface with.  The URL should specify the appropriate protocol, URL and port for the intended KeyTerms server instance.
+    * Example: `http://keyterms.mycompany.net:4000/`
+2. **mailto** - The email address the "Contact" tab should send users to for KeyTerms questions and support.
+    * Example: `KEYTERMS_SUPPORT@mycompany.net`
 
 ## Development Mode
 
