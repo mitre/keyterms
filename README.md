@@ -19,8 +19,25 @@ The Quick Installer scripts will help you install all pre-requisites, initialize
 * Node (~v6.14.3)
 * ElasticSearch (~5.6.9)
 
-## Configuration
---Coming Soon--
+# Configuration
+Both the client and the server come packaged with default configuration files named `config-default.js`. The quick-installer creates an active copy of these default files called `config.js` and updates the values based on user input during the installer step.
+
+For manual installation these files can be copied, renamed to `config.js` and edited manually.  
+
+## Server Configuration
+KeyTerms server configuration settings can be found in `[keyterms-server install dir]/dist/config.js`.
+
+See comments in the above mentioned file for further documentation.
+
+## Client Configuration
+KeyTerms client configuration settings can be found in `[keyterms-client install dir]/config.js` 
+
+
+The configuration settings include:
+1. **apiUrl** - The URL of the KeyTerms server instance that this client should interface with.  The URL should specify the appropriate protocol, URL and port for the intended KeyTerms server instance.
+    * Example: `http://keyterms.mycompany.net:4000/`
+2. **mailto** - The email address the "Contact" tab should send users to for KeyTerms questions and support.
+    * Example: `KEYTERMS_SUPPORT@mycompany.net`
 
 ## Development Mode
 
