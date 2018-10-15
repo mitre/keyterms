@@ -131,7 +131,8 @@ describe("07-01 Testing Search API", function() {
 			expect(res.body).to.be.an('array');
 			expect(res.body.length).to.be(1);
 			expect(res.body[0]).to.have.property('terms');
-			expect(res.body[0].terms[0]).to.have.property('termText', '<b class="search-hit">' + term.termText + '</b>');
+			expect(res.body[0].terms[0]).to.have.property('termText', term.termText);
+			expect(res.body[0].terms[0]).to.have.property('highlightTermText', '<b class="search-hit">' + term.termText + '</b>');
 		})
 		.end(function(err, res) {
 			done(err);
@@ -148,7 +149,8 @@ describe("07-01 Testing Search API", function() {
 			expect(res.body).to.be.an('array');
 			expect(res.body.length).to.be(1);
 			expect(res.body[0]).to.have.property('terms');
-			expect(res.body[0].terms[0]).to.have.property('termText', '<b class="search-hit">' + term.termText + '</b>');
+			expect(res.body[0].terms[0]).to.have.property('termText', term.termText);
+			expect(res.body[0].terms[0]).to.have.property('highlightTermText', '<b class="search-hit">' + term.termText + '</b>');
 		})
 		.end(function(err, res) {
 			done(err);

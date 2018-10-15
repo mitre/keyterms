@@ -233,6 +233,24 @@ var indexTerms = function (entry, orgId) {
 	});
 };
 
+var deindexTerms = function (terms, orgId) {
+	var actions = [];
+
+	terms.forEach(function (term) {
+		// Push an action to delete the index for each requested term
+		actions.push({
+			delete: {
+				_index: 'kt_' + orgId,
+				_type: 'term',
+				_id: term
+			}
+		});
+	});
+	return client.bulk({
+		body: actions
+	});
+};
+
 /* eslint-disable no-unused-vars */
 var indexTags = function (entry, orgId) {
 	// TODO: write this function
@@ -244,17 +262,18 @@ var indexNotes = function (entry, orgId) {
 /* eslint-enable no-unused-vars */
 
 // NOTE: Running index on the same _id will "replace" the old document in the index
-exports.indexEntry = function (entry, orgId) {
+exports.indexEntry = function (entry, orgId, delTerms) {
 	// resolve the embedded docs within the entry via doc.populate
 	return entry.populate('terms')
 	// .execPopulate() is to .populate()'s as .exec() is to queries (.find(), etc)
 	.execPopulate()
 	.then( function (entry) {
-		return Promise.all([
-			indexTerms(entry, orgId)
-			//, indexTags(entry.tags, orgId)
-			//, indexNotes(entry.notes, orgId)
-		]);
+		var promiseArray = [indexTerms(entry, orgId)];
+		if (!!delTerms && delTerms.length > 0 ) {
+			promiseArray.push(deindexTerms(delTerms, orgId));
+		}
+
+		return Promise.all(promiseArray);
 	})
 	.then( function (resp) {
 

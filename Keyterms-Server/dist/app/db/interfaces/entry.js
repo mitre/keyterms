@@ -399,7 +399,7 @@ var applyDelta = function (entry, delta, orgId) {
 	// Re-indexes the entry into Elastic
 	.then( function () {
 		// Interfaces with ElasticSearch and indexes the Entry to later be searchable
-		return elastic.indexEntry(entry, orgId)
+		return elastic.indexEntry(entry, orgId, delta.terms.del)
 		.then( function () {
 			return entry;
 		});

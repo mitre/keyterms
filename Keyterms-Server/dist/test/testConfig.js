@@ -38,7 +38,7 @@ if (/prod/i.test(env))
 
 // Database (Mongo) configurations
 testConfig.db = {
-	host: 'keyterms.mitre.org',
+	host: 'kttest02.mitre.org',
 	port: 27017,
 	db: 'KeyTermsTest',
 	secured: false,		// set to true if Mongo instance is username/password protected
