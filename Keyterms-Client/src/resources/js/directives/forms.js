@@ -35,13 +35,14 @@ app.directive('termForm', ['components.term', '$uibModal',
 				$scope.termHint = '';
 				$scope.count = 0;
 
-				var dupCheck = function (localScope) {
+				var dupCheck = function (localScope, index) {
 					localScope = localScope || $scope;
 
 					return $scope.entryData.terms.some( function (term, j) {
-						if (term.termText === localScope.termData.termText && term.langCode.value === localScope.termData.langCode.value) {
-							localScope.termHint = 'No duplicate terms allowed';
-							return true;
+						if (j != index && term.termText === localScope.termData.termText && term.langCode.value === localScope.termData.langCode.value) {
+
+                                localScope.termHint = 'No duplicate terms allowed';
+                                return true;
 						}
 						else {
 							localScope.termHint = '';
@@ -169,7 +170,7 @@ app.directive('termForm', ['components.term', '$uibModal',
 						// };
 
 						$modal.save = function () {
-							if (!dupCheck($modal)) {
+							if (!dupCheck($modal, $index)) {
                                 if(term.src === 'nlp'){
 
                                     $modal.termData.isEdit = true;
