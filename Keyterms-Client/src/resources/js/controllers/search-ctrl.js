@@ -33,7 +33,8 @@ function ($scope, $location, fnFactory, KeytermsClientInt, isInitQuery) {
 	$scope.initialQuery = isInitQuery;
 	//$scope.initialQuery = false;
 	isInitQuery = false;
-
+	$scope.glossScope = 'currentGloss';
+	$scope.glossScopes = ['currentGloss', 'My Glossaries', 'All Glossaries'];
 	$scope.encode = encodeURIComponent;
 
 	$scope.searchTerm = {
@@ -66,6 +67,10 @@ function ($scope, $location, fnFactory, KeytermsClientInt, isInitQuery) {
 			});
 		}
 	};
+
+	$scope.setGlossScope = function (newGlossScope) {
+		$scope.glossScope = newGlossScope;
+    }
 
 	$scope.advSearch = function () {
 		$scope.initialQuery = false;
