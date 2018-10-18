@@ -215,11 +215,9 @@ exports.executeOrgSearch = executeOrgSearch;
 var executeDefaultSearch = function (req) {
 	log.info(`executing default search for terms with ${ req.ktSearchTerm }`);
 
-	console.log(req.body);
-
 	var glossScope = req.body.glossScope.value;
-	var userOrgs = reg.body.user.organizations;
-	var userCurrentOrg = req.body.user.currentOrg;
+	var userOrgs = req.user.organizations;
+	var userCurrentOrg = req.user.currentOrg;
 
 	var exactParam = (req.query.exact === 'true') || false;
 
