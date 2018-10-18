@@ -55,7 +55,7 @@
 <!-- Global Block -->
         <div class="form-group">
             <label class="col-sm-3 control-label">Global Block
-                <span uib-popover="Prevents all Entries of this Organization from being searchable by users outside of this Organization"
+                <span uib-popover="Prevents all Entries of this Glossary from being searchable by users outside of this Glossary"
                       popover-trigger="mouseenter" popover-placement="bottom" class="help-popover">
                     <i class="fa fa-fw fa-question-circle text-info"></i>
                 </span>
@@ -75,8 +75,8 @@
                         <tr>
                             <th>Full Name</th>
                             <th>Email</th>
-                            <th>Org QC</th>
-                            <th>Org Admin</th>
+                            <th>Glossary QC</th>
+                            <th>Glossary Admin</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -90,14 +90,14 @@
                 </table>
             </div>
             <div class="col-sm-6 text-center" ng-if="users.length < 1">&nbsp;
-                <h5>No users belong to this Organization</h5>
+                <h5>No users belong to this Glossary</h5>
                 <button class="btn btn-primary" role="button">Add Users</button>
             </div>
         </div>
         <div class="form-group" ng-switch-when="false">
             <label class="col-sm-3 control-label">Members</label>
             <div class="col-sm-6 text-center">&nbsp;
-                <p class="help-block">Cannot add, update or remove users until Organization is created</p>
+                <p class="help-block">Cannot add, update or remove users until Glossary is created</p>
             </div>
         </div>
 <!-- Submit Button -->
