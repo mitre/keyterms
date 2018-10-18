@@ -107,9 +107,8 @@ exports.searchTermParam = function (req, res, next) {
 };
 
 exports.glossScopeParam = function (req, res, next) {
-	var glossScope = null;
 
-	glossScope = req.body.glossScope;
+	req.glossScope = req.body.glossScope;
 	return next();
 
 };
@@ -216,6 +215,12 @@ exports.executeOrgSearch = executeOrgSearch;
 var executeDefaultSearch = function (req) {
 	log.info(`executing default search for terms with ${ req.ktSearchTerm }`);
 
+	console.log(req.body);
+
+	var glossScope = req.body.glossScope.value;
+	var userOrgs = reg.body.user.organizations;
+	var userCurrentOrg = req.body.user.currentOrg;
+
 	var exactParam = (req.query.exact === 'true') || false;
 
 	// Find all Organization's to check for the global block flag
@@ -225,16 +230,60 @@ var executeDefaultSearch = function (req) {
 		return elastic.searchDefault(req.ktSearchTerm, req.langCode, exactParam)
 		.then(function (resp) {
 			var entryIds = getIdDict(resp);
-			// $in > $or for value checks of the same field (https://stackoverflow.com/questions/14736656)
-			var searchQuery = {
-				_id: {$in: Object.keys(entryIds)},										// Entry has to have been returned from Elastic
-				 isDraft: false,														// Never return Entries that are Drafts
-				 $or: [
-					{org: {$nin: blocked}, viewScope: 'any'},							// Entry is in a non-blocked org and viewScope is anyone
-					 {org: req.org._id, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
-					 {org: req.org._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
-				]
-			};
+
+			switch (glossScope) {
+
+				case 'current':
+
+					var searchQuery = {
+						_id: {$in: Object.keys(entryIds)},
+						isDraft: false,
+                        $or: [
+                            {org: req.org._id, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
+                            {org: req.org._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
+                        ]
+					};
+					break;
+
+				case 'my':
+
+                    var searchQuery = {
+                        _id: {$in: Object.keys(entryIds)},
+                        isDraft: false,
+                        $or: [
+                            {org: {$in: userOrgs}, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
+                            {org: {$in: userOrgs}, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
+                        ]
+                    };
+                    break;
+
+				case 'all':
+
+                    var searchQuery = {
+                        _id: {$in: Object.keys(entryIds)},										// Entry has to have been returned from Elastic
+                        isDraft: false,														// Never return Entries that are Drafts
+                        $or: [
+                            {org: {$nin: blocked}, viewScope: 'any'},							// Entry is in a non-blocked org and viewScope is anyone
+                            {org: req.org._id, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
+                            {org: req.org._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
+                        ]
+                    };
+                    break;
+
+				default:
+					console.log("Error");
+			}
+
+			// // $in > $or for value checks of the same field (https://stackoverflow.com/questions/14736656)
+			// var searchQuery = {
+			// 	_id: {$in: Object.keys(entryIds)},										// Entry has to have been returned from Elastic
+			// 	 isDraft: false,														// Never return Entries that are Drafts
+			// 	 $or: [
+			// 		{org: {$nin: blocked}, viewScope: 'any'},							// Entry is in a non-blocked org and viewScope is anyone
+			// 		 {org: req.org._id, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
+			// 		 {org: req.org._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
+			// 	]
+			// };
 
 			return Entry.findAndPopulateForGui(searchQuery)
 			.then(function (entries) {

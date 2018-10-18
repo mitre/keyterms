@@ -58,11 +58,11 @@
 				<label class="control-label">Scope:&nbsp;&nbsp;</label>
 				<div class="select-tag btn-group" uib-dropdown keyboard-nav auto-close="outsideClick" is-open="isOpen" on-toggle="focusInput()">
 					<button type="button" class="btn btn-primary btn-select dropdown-selector" uib-dropdown-toggle ng-click="isOpen = true">
-						{{ glossScope }}&nbsp;<span class="caret" style=""></span>
+						{{ glossScope.name }}&nbsp;<span class="caret" style=""></span>
 					</button>
 					<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" >
 						<li role="menuitem" ng-repeat="glossScope in glossScopes">
-							<a ng-click="setGlossScope(glossScope)" href="">{{glossScope}}</a>
+							<a ng-click="setGlossScope(glossScope)" href="">{{glossScope.name}}</a>
 						</li>
 					</ul>
 				</div>

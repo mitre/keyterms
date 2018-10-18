@@ -34,7 +34,10 @@ function ($scope, $location, fnFactory, KeytermsClientInt, isInitQuery) {
 	//$scope.initialQuery = false;
 	isInitQuery = false;
 
-	$scope.glossScopes = ['Current Glossary', 'My Glossaries', 'All Glossaries'];
+	$scope.glossScopes = [	{name: 'Current Glossary', value: 'current'},
+							{name: 'My Glossaries', value: 'my'},
+							{name: 'All Glossaries', value: 'all'}];
+
     $scope.glossScope = $scope.glossScopes[0];
 
 	$scope.encode = encodeURIComponent;

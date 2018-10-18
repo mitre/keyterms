@@ -1251,7 +1251,7 @@ searchRouter.get('/org', search.langCodeParam, search.searchTermParam, search.se
 
 searchRouter.route('/default')
 .get(search.langCodeParam, search.searchTermParam, search.searchSharedEntries)
-.post(search.langCodeParam, search.searchTermParam, search.searchSharedEntries);
+.post(search.langCodeParam, search.searchTermParam, search.glossScopeParam, search.searchSharedEntries);
 
 router.use('/search', searchRouter);
 
