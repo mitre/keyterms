@@ -33,8 +33,10 @@ function ($scope, $location, fnFactory, KeytermsClientInt, isInitQuery) {
 	$scope.initialQuery = isInitQuery;
 	//$scope.initialQuery = false;
 	isInitQuery = false;
-	$scope.glossScope = 'currentGloss';
-	$scope.glossScopes = ['currentGloss', 'My Glossaries', 'All Glossaries'];
+
+	$scope.glossScopes = ['Current Glossary', 'My Glossaries', 'All Glossaries'];
+    $scope.glossScope = $scope.glossScopes[0];
+
 	$scope.encode = encodeURIComponent;
 
 	$scope.searchTerm = {
@@ -56,7 +58,7 @@ function ($scope, $location, fnFactory, KeytermsClientInt, isInitQuery) {
 			// store it locally
 			$scope.lastSearch = {term: this.term, langCode: this.langCode};
 			KeytermsClientInt.storeLocalValue('search', 'lastSearch', { term: this.term, lc: this.langCode });
-			KeytermsClientInt.searchTerms(this.term, this.langCode.value)
+			KeytermsClientInt.searchTerms(this.term, this.langCode.value, $scope.glossScope)
 			.then(function (termList) {
 				$scope.searchResults = termList;
 				$scope.resetPagination();

@@ -131,14 +131,15 @@ app.factory('keytermsApi', ['$http', '$q', 'ApiUrl', function ($http, $q, ApiUrl
 	///////////////// Entry Methods ////////////////////////
 
 	// expects array of entries
-	service.searchTerms = function (term, langCode, exact) {
+	service.searchTerms = function (term, langCode, glossScope, exact) {
 		if (!term || !langCode) { return Promise.reject('Bad parameters'); }
 		// [Converted - 10/25] FOR DEV ONLY
 		var url = baseApiUrl + '/search/default';
 		url += exact ? '?exact=' + exact : '';
 		return $http.post(url, {
 			langCode: langCode,
-			searchTerm: term
+			searchTerm: term,
+			glossScope: glossScope
 		});
 	};
 

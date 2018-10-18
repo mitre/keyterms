@@ -106,6 +106,14 @@ exports.searchTermParam = function (req, res, next) {
 	}).catch(next);
 };
 
+exports.glossScopeParam = function (req, res, next) {
+	var glossScope = null;
+
+	glossScope = req.body.glossScope;
+	return next();
+
+};
+
 // Cleans the response from elastic and returns a dictionary of scores keyed with mongoIds
 var getIdDict = function (resp) {
 	// Remove dups

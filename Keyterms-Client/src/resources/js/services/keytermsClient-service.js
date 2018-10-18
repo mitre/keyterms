@@ -102,8 +102,8 @@ app.factory('keytermsClient.service', ['$q', 'globals', 'keytermsApi', 'componen
 				return res.data;
 			});
 		},
-		searchTerms: function (term, langCode) {
-			return Keyterms.searchTerms(term, langCode).then(function (res) {
+		searchTerms: function (term, langCode, glossScope) {
+			return Keyterms.searchTerms(term, langCode, glossScope).then(function (res) {
 				return res.data;
 			});
 		},
