@@ -60,7 +60,7 @@ function ($scope, $location, $q, User, AppVersion, $rootScope, $uibModal, uiToas
 							var orgId = $scope.user.getUser().currentOrg;
 							$scope.user.updateUserDefaultOrg(orgId)
 							.then(function(){
-								$scope.uiToast.trigger("Default organization saved! You can update your default organization in 'My Settings'.");
+								$scope.uiToast.trigger("Default glossary saved! You can update your default glossary in 'My Settings'.");
 							});
 						}
 						$uibModalInstance.close();
