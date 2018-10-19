@@ -108,7 +108,19 @@ exports.searchTermParam = function (req, res, next) {
 
 exports.glossScopeParam = function (req, res, next) {
 
-	req.glossScope = req.body.glossScope;
+	if(req.method === 'POST') {
+        req.glossScope = req.body.glossScope;
+    }
+
+    else if (req.method === 'GET') {
+		req.glossScope = decodeURIComponent(req.query.glossScope);
+		console.log("testing are we here: ", JSON.stringify(req.glossScope, null, 4));
+	}
+
+	else {
+		return next(new Error('The HTTP verb: {' + req.method + '} is not supported'));
+	}
+
 	return next();
 
 };
@@ -173,7 +185,7 @@ var processMongoQuery = function (entries, entryDict) {
 // Abstraction of "default", organizational Entry search
 var executeOrgSearch = function (req) {
 	log.info("querying mongo for terms with: '" + req.ktSearchTerm + "' in organization: " + req.org.name);
-
+	console.log("test");
 	var exactParam = (req.query.exact === 'true') || false;
 	var orgParam = req.query.org || null;
 
@@ -215,7 +227,7 @@ exports.executeOrgSearch = executeOrgSearch;
 var executeDefaultSearch = function (req) {
 	log.info(`executing default search for terms with ${ req.ktSearchTerm }`);
 
-	var glossScope = req.body.glossScope.value;
+	var glossScope = req.glossScope.value;
 	var userOrgs = req.user.organizations;
 	var userCurrentOrg = req.user.currentOrg;
 
@@ -227,6 +239,7 @@ var executeDefaultSearch = function (req) {
 		// Execute elastic query for Entries
 		return elastic.searchDefault(req.ktSearchTerm, req.langCode, exactParam)
 		.then(function (resp) {
+
 			var entryIds = getIdDict(resp);
 
 			switch (glossScope) {
@@ -301,6 +314,7 @@ var executeDefaultSearch = function (req) {
 						entryIds[key].highlightTermText[termKey] = entryIds[key].highlightTermText[termKey].replace(new RegExp('{{{/em}}}', 'g'), '</b>');
 					}
 				}
+
 				return processMongoQuery(entries, entryIds);
 			});
 		});
@@ -323,8 +337,10 @@ exports.searchOrgEntries = searchOrgEntries;
 // This is the restful endpoint version of "org" search on an user's organization
 // This is currently the default search handler
 var searchSharedEntries = function (req, res, next) {
+
 	executeDefaultSearch(req)
 	.then( function (docs) {
+        
 		res.json(docs);
 	})
 	.catch(next);

@@ -123,8 +123,10 @@ describe("07-01 Testing Search API", function() {
 	it('should search default for Entries by Term (get)', function(done) {
         entry = env.termDocs[0];
 		term = entry.terms[0];
+		var gloss = {value: 'all'};
+
 		request
-		.get('/api/search/default?langCode=eng&searchTerm=PANCAKES')
+		.get('/api/search/default?langCode=eng&searchTerm=PANCAKES&glossScope={value: \'all\'}')
 		.expect(200)
 		.expect('Content-Type', /json/)
 		.expect(function(res) {
@@ -133,6 +135,7 @@ describe("07-01 Testing Search API", function() {
 			expect(res.body[0]).to.have.property('terms');
 			expect(res.body[0].terms[0]).to.have.property('termText', term.termText);
 			expect(res.body[0].terms[0]).to.have.property('highlightTermText', '<b class="search-hit">' + term.termText + '</b>');
+			console.log("LOOK HERE ", res.body);
 		})
 		.end(function(err, res) {
 			done(err);
@@ -140,9 +143,11 @@ describe("07-01 Testing Search API", function() {
 	});
 
 	it('should search default for Entries by Term (post)', function(done) {
+
+		var glossScope = {value: 'all'};
 		request
 		.post('/api/search/default')
-		.send({ langCode: term.langCode, searchTerm: term.termText })
+		.send({ langCode: term.langCode, searchTerm: term.termText, glossScope: glossScope })
 		.expect(200)
 		.expect('Content-Type', /json/)
 		.expect(function(res) {

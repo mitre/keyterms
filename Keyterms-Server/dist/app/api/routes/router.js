@@ -1225,7 +1225,7 @@ var searchRouter = express.Router();
  * @apiUse entrySuccess
  *
  */
-searchRouter.post('/org', search.langCodeParam, search.searchTermParam, search.glossScopeParam, search.searchOrgEntries);
+searchRouter.post('/org', search.langCodeParam, search.searchTermParam, search.searchOrgEntries);
 
 /**
  * @api {get} /api/search/org search entries by term [GET]
@@ -1250,7 +1250,7 @@ searchRouter.post('/org', search.langCodeParam, search.searchTermParam, search.g
 searchRouter.get('/org', search.langCodeParam, search.searchTermParam, search.searchOrgEntries);
 
 searchRouter.route('/default')
-.get(search.langCodeParam, search.searchTermParam, search.searchSharedEntries)
+.get(search.langCodeParam, search.searchTermParam, search.glossScopeParam, search.searchSharedEntries)
 .post(search.langCodeParam, search.searchTermParam, search.glossScopeParam, search.searchSharedEntries);
 
 router.use('/search', searchRouter);
