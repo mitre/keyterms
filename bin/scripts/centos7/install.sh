@@ -69,13 +69,13 @@ else
 fi
 
 # Set URLs for server config
-read -p 'Please enter the fully qualified domain name of your server (e.g. keyterms.mycompany.com): ' fqdn
-serverLOC="$fqdn:$SV_PORT"
-sed -i -e "s|myServerLocation|${fqdn}|g" $SERVER_DEPLOY_DIR/config.js
+hostname="$(hostname -f)"
+serverLOC="$hostname:$SV_PORT"
+sed -i -e "s|myServerLocation|${hostname}|g" $SERVER_DEPLOY_DIR/config.js
 sed -i -e "s|myPort|${SV_PORT}|g" $SERVER_DEPLOY_DIR/config.js
 
-read -p "Would you like to use the default database name, \"KeyTerms\"? (Y|n) " choice
-case "$choice" in
+read -p "Would you like to use the default database name, \"KeyTerms\"? (Y|n) " dbchoice
+case "$dbchoice" in
     n|N )
         echo "Please enter a database name for the KeyTerms collection:"
         read dbname
@@ -125,7 +125,11 @@ else
     echo "USER ACTION REQUIRED: Be sure to configure Tomcat to use your SSL certificates."
     cp $CONF_DIR/server.xml.ssl $CATALINA_HOME/conf/server.xml
 fi
+
 # TODO: ADD BIT FOR SETTING HTTP.PROXY IN CONNECTORS IN SERVER.XML
+
+# Update tomcat service with installed version
+sed -i -e "s|TOMCATDIR|${CATALINA_HOME}|g" $SERVICES_DIR/$TOMCAT_DAEMON
 cp $SERVICES_DIR/$TOMCAT_DAEMON /etc/systemd/system/
 chown -R $TOMCAT_USER:$APP_GROUP $CATALINA_HOME
 systemctl daemon-reload
@@ -137,9 +141,12 @@ cp $LIB_DIR/$NLP_WAR $CATALINA_HOME/webapps
 echo "... deployed under $CATALINA_HOME/webapps"
 
 # Deploy client (if desired)
-read -p 'Deploy Keyterms client under Tomcat? (y|N) ' choice
-case "$choice" in
-    y|Y ) echo '... deploying Keyterms client to Tomcat ...'
+read -p 'Deploy Keyterms client under Tomcat? (Y|n) ' clientchoice
+case "$clientchoice" in
+    n|N)
+        echo '... skipping Keyterms client installation.'
+        ;;
+    *) echo '... deploying Keyterms client to Tomcat ...'
         mv $CATALINA_HOME/webapps/ROOT $CATALINA_HOME/webapps/ROOT_BAK
         CLIENT_TOMCAT_DIR=$CATALINA_HOME/webapps/ROOT
         mkdir -p $CLIENT_TOMCAT_DIR
@@ -148,12 +155,9 @@ case "$choice" in
 
         echo "... KeyTerms client has been placed into $CLIENT_TOMCAT_DIR"
         cp $CONF_DIR/client-config.js $CLIENT_TOMCAT_DIR/config.js
-        serverURL="$SV_PROTOCOL://$fqdn:$SV_PORT/"
+        serverURL="$SV_PROTOCOL://$hostname:$SV_PORT/"
         sed -i -e "s|myServerLocation|${serverURL}|g" $CLIENT_TOMCAT_DIR/config.js
         echo "USER ATTENTION REQUIRED: If you are having problems with the client under tomcat, please verify the server location setting in $CATALINA_HOME/webapps/ROOT/keyterms/config.js"
-        ;;
-    *)
-        echo '... skipping Keyterms client installation.'
         ;;
 esac
 
@@ -165,16 +169,19 @@ systemctl enable $TOMCAT_DAEMON
 
 # Run init-cli script
 echo ' '
-read -p 'Installation complete. Run database initialization script? (y|N) ' dbChoice
+read -p 'Component installation complete. Run database initialization script? (Y|n) ' dbChoice
 case $dbChoice in
-    y|Y)
-        cd $SERVER_DEPLOY_DIR
-        npm run init-cli
+    n|N)
         ;;
     *)
+        cd $SERVER_DEPLOY_DIR
+        npm run init-cli
+        echo 'Database initialization complete.'
         ;;
 esac
 
 chown -R $NODEJS_USER:$APP_GROUP $SERVER_DEPLOY_DIR
 systemctl restart ktserver
-echo ' '; echo 'Database initialization complete.'
+
+echo ' '
+echo "KeyTerms installation complete."

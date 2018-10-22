@@ -55,12 +55,82 @@ cd $APP_DIR
 echo "... application directory: $APP_DIR"
 
 ################################################################################
+# Check Java installation
+################################################################################
+
+echo ' '; echo '---------------------------------------------------------------'
+echo 'Checking for Java installation ...'
+PROMPT_JAVA=0
+MIN_JAVA=9
+
+# Check for existing java binary
+if [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]; then
+    echo "... found java executable in JAVA_HOME: $JAVA_HOME"
+    _java="$JAVA_HOME/bin/java"
+elif type -p java; then
+    echo '... found java executable in PATH'
+    _java=java
+    _binary=$(which java)
+    JAVA_HOME=$(readlink -f $_binary | sed "s|\/bin\/java||g")
+    echo "... java location is: $JAVA_HOME"
+else
+    echo '... java is not installed. You will not be able to continue the KeyTerms installation without java.'
+    PROMPT_JAVA=1
+fi
+
+# If java is installed, confirm minimum version
+if [[ "$_java" ]]; then
+    version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
+    onedot_version=$(echo $version | sed -r "s/^1\.//")
+    major_version=$(echo $onedot_version | sed -r "s/^([0-9]{1,3})\..+/\1/")
+    if (( "$major_version" > "$MIN_JAVA" )); then
+        echo "... installed version $major_version is greater than the minimum required version $MIN_JAVA. Proceeding with KeyTerms installation."
+    else
+        echo "... installed version $major_version is less than the minimum required version $MIN_JAVA. You must install a newer version of java to continue KeyTerms installation."
+        PROMPT_JAVA=1
+    fi
+fi
+
+# If java is not installed or is old version, prompt to install
+if [ $PROMPT_JAVA -ne 0 ]; then
+    read -p "Install Java 11 now? (Y|n) " choice
+    case "$choice" in
+        n|N)
+            echo "... skipping java installation. Tomcat and ElasticSearch will not work without java. KeyTerms-NLP requires java 1.9 or later. Exiting installer."
+            exit 0
+            ;;
+        *)
+            java_rpm=jdk-11_linux-x64_bin.rpm
+            echo "... downloading Java 11 ..."
+            curl -# -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/11+28/55eed80b163941c8885ad9298e6d786a/$java_rpm -O
+            if [ $? -ne 0 ]; then
+                echo '... download failed.'
+                echo 'Exiting'; exit 0
+            fi
+            echo '... installing Java ...'
+            rpm --install $java_rpm
+            rm -f $java_rpm
+            _binary=$(which java)
+            JAVA_HOME=$(readlink -f $_binary | sed "s|\/bin\/java||g")
+            echo "JAVA_HOME is now $JAVA_HOME"
+            ;;
+    esac
+fi
+
+# REPLACE JAVA SETTING IN TOMCAT.SERVICE with JAVA_HOME, back up the original just in case
+cp $SERVICES_DIR/$TOMCAT_DAEMON $SERVICES_DIR/tomcat.service.orig
+sed -i -e "s|\/usr\/lib\/jvm\/jre|${JAVA_HOME}|g" $SERVICES_DIR/$TOMCAT_DAEMON
+
+################################################################################
 # Check Tomcat installation
 ################################################################################
 
 echo ' '; echo '---------------------------------------------------------------'
 echo 'Checking for Tomcat installation ...'
+
+# Check for existing CATALINA_HOME
 if [ -n "$CATALINA_HOME" ]; then
+    echo "... Tomcat is installed. CATALINA_HOME is $CATALINA_HOME"
     export TOMCAT_USER=$(stat -c '%U' $CATALINA_HOME)
     echo "... Tomcat user is $TOMCAT_USER"
     if ! id -Gn $TOMCAT_USER | grep -q -c $APP_GROUP; then
@@ -69,17 +139,31 @@ if [ -n "$CATALINA_HOME" ]; then
     fi
     echo ' '
     sh $CATALINA_HOME/bin/version.sh
+
+# else check for existing Tomcat service file
+elif [ -e /etc/systemd/system/$TOMCAT_DAEMON ]; then
+    export CATALINA_HOME=$(cat /etc/systemd/system/$TOMCAT_DAEMON | grep "CATALINA_HOME" | cut -c27-)
+    echo "... Tomcat is installed. CATALINA_HOME is $CATALINA_HOME"
+    export TOMCAT_USER=$(stat -c '%U' $CATALINA_HOME)
+    echo "... Tomcat user is $TOMCAT_USER"
+
+# else Tomcat is not installed; prompt for installation
 else
-    read -p "... Tomcat installation not found. If Tomcat has been installed, make sure CATALINA_HOME is exported. If not, install Tomcat (v$SUPPORTED_TOMCAT_VERSION) now? (y|N) " tomcatchoice
+    echo "... Tomcat installation not found. If Tomcat has been installed, make sure CATALINA_HOME is exported."
+    read -p "... Tomcat installation is required for KeyTerms. If you choose not to install, this setup will terminate. Install Tomcat (v$SUPPORTED_TOMCAT_VERSION) now? (Y|n) " tomcatchoice
     case "$tomcatchoice" in
-        y|Y)
+        n|N)
+            echo '... Tomcat will not be installed at this time, but setup cannot continue without Tomcat.'
+            echo 'Exiting'; exit 0
+            ;;
+        *)
             MAJ_VER=$(echo $SUPPORTED_TOMCAT_VERSION | cut -c1-1)
             ARCHIVE="apache-tomcat-$SUPPORTED_TOMCAT_VERSION"
             mkdir -p $APP_DIR/tomcat
             cd $APP_DIR/tomcat
 
             echo '... downloading Tomcat archive ...'
-            wget https://archive.apache.org/dist/tomcat/tomcat-$MAJ_VER/v$SUPPORTED_TOMCAT_VERSION/bin/$ARCHIVE.tar.gz
+            curl -# -L https://archive.apache.org/dist/tomcat/tomcat-$MAJ_VER/v$SUPPORTED_TOMCAT_VERSION/bin/$ARCHIVE.tar.gz -O
             if [ $? -ne 0 ]; then
                 echo '... download failed.'
                 echo 'Exiting'; exit 0
@@ -96,10 +180,6 @@ else
             chown -R $TOMCAT_USER:$APP_GROUP $CATALINA_HOME
 
             echo "... Tomcat setup finished. CATALINA_HOME is $CATALINA_HOME"
-            ;;
-        *)
-            echo '... Tomcat will not be installed at this time, but setup cannot continue without Tomcat.'
-            echo 'Exiting'; exit 0
             ;;
     esac
 fi
@@ -121,15 +201,19 @@ if [ -e /etc/systemd/system/$TOMCAT_DAEMON ]; then
 echo ' '; echo '---------------------------------------------------------------'
 echo 'Checking for Node.js installation...'
 if ! [ -x "$(command -v node)" ] | [ -x "$(command -v nodejs)" ]; then
-    read -p "... Node.js not installed. Install Node.js (v$SUPPORTED_NODEJS_VERSION) now? (y|N) " nodechoice
+    read -p "... Node.js not installed. Node.js installation is required for KeyTerms. If you choose not to install, this setup will terminate. Install Node.js (v$SUPPORTED_NODEJS_VERSION) now? (Y|n) " nodechoice
     case "$nodechoice" in
-        y|Y)
+        n|N)
+            echo '... Node.js will not be installed at this time, but setup cannot continue without Node.js.'
+            echo 'Exiting'; exit 0
+            ;;
+        *)
             ARCHIVE="node-v$SUPPORTED_NODEJS_VERSION-linux-x64"
             mkdir -p $APP_DIR/nodejs
             cd $APP_DIR/nodejs
 
             echo '... downloading nodejs archive ...'
-            wget https://nodejs.org/download/release/v$SUPPORTED_NODEJS_VERSION/$ARCHIVE.tar.gz
+            curl -# -L https://nodejs.org/download/release/v$SUPPORTED_NODEJS_VERSION/$ARCHIVE.tar.gz -O
             if [ $? -ne 0 ]; then
                 echo '... download failed.'
                 echo 'Exiting'; exit 0
@@ -157,10 +241,6 @@ if ! [ -x "$(command -v node)" ] | [ -x "$(command -v nodejs)" ]; then
             chown -R $NODEJS_USER:$APP_GROUP $APP_DIR/nodejs
 
             echo "... nodejs installed in $APP_DIR/nodejs/$ARCHIVE"
-            ;;
-        *)
-            echo '... Node.js will not be installed at this time, but setup cannot continue without Node.js.'
-            echo 'Exiting'; exit 0
             ;;
     esac
 else
@@ -196,9 +276,12 @@ echo ' '; echo '---------------------------------------------------------------'
 echo 'Checking mongo installation ...'
 if ! [ -x "$(command -v mongo)" ] | [ -x "$(command -v mongod)" ] ; then
     echo "... mongo is not installed. If you choose not to install mongo, you must later configure KeyTerms to point to an external mongo server."
-    read -p "... Install mongo (v$SUPPORTED_MONGODB_VERSION) now? (y|N) " mongochoice
+    read -p "... Install mongo (v$SUPPORTED_MONGODB_VERSION) now? (Y|n) " mongochoice
     case "$mongochoice" in
-        y|Y)
+        n|N)
+            echo '... skipping mongo installation.'
+            ;;
+        *)
             VER="${SUPPORTED_MONGODB_VERSION%.*}"
             FULL_VER=$SUPPORTED_MONGODB_VERSION
             # Write the repo file if it doesn't exist
@@ -230,9 +313,6 @@ EOL
             systemctl start mongod.service
             systemctl enable mongod.service
             ;;
-        *)
-            echo '... skipping mongo installation.'
-            ;;
     esac
 else
     if [ -x "$(command -v mongo)" ]; then
@@ -259,12 +339,15 @@ if [ ${ELASTIC_SYSTEMCTL_LIST_STAT} ] || yum list installed elasticsearch >/dev/
     echo "... elasticsearch v${ES_INSTALLED_VERSION} is already installed."
 else
     echo "... elasticsearch installation not found. If you choose not to install elasticsearch, you must later configure KeyTerms to point to an external elasticsearch instance."
-    read -p "... Install elasticsearch (v$SUPPORTED_ELASTIC_VERSION) now? (y|N) " elasticchoice
+    read -p "... Install elasticsearch (v$SUPPORTED_ELASTIC_VERSION) now? (Y|n) " elasticchoice
     case "$elasticchoice" in
-        y|Y)
+        n|N)
+            echo '... skipping elasticsearch installation.'
+            ;;
+        *)
             ARCHIVE="elasticsearch-$SUPPORTED_ELASTIC_VERSION"
             echo '... downloading elasticsearch archive ...'
-            wget https://artifacts.elastic.co/downloads/elasticsearch/$ARCHIVE.rpm
+            curl -# -L https://artifacts.elastic.co/downloads/elasticsearch/$ARCHIVE.rpm -O
             if [ $? -ne 0 ]; then
                 echo '... download failed.'
                 echo 'Exiting'; exit 0
@@ -272,13 +355,11 @@ else
             echo '... installing elasticsearch ...'
             rpm --install "./$ARCHIVE.rpm"
             echo '... elasticsearch install finished.'
+            rm -f $ARCHIVE.rpm
 
             echo '... starting elasticsearch service ...'
             systemctl start elasticsearch.service
             systemctl enable elasticsearch.service
-            ;;
-        *)
-            echo '... skipping elasticsearch installation.'
             ;;
     esac
 fi
@@ -311,12 +392,12 @@ esac
 
 cd $PROJ_DIR
 echo ' '
-read -p 'Setup finished. Run installer now? (y|N) ' choice
+read -p 'Setup finished. Run installer now? (Y|n) ' choice
 case "$choice" in
-    y|Y)
-        sh $SCRIPTS_DIR/chosen-os/install.sh
+    n|N)
+        echo 'Exiting.'
         ;;
     *)
-        echo 'Exiting.'
+        sh $SCRIPTS_DIR/chosen-os/install.sh
         ;;
 esac
