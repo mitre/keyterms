@@ -51,8 +51,6 @@ exports.nominationTypeINFO = [
 exports.nominationTypes = exports.nominationTypeINFO.map(type => type.value);
 
 //**********************************************************************************************************************
-//exports.entryTypes = 'term,person,org,loc,event'.split(',');
-
 exports.entryTypesINFO = [
     { value: 'term',    	name: 'Term',           	desc: 'generic term or collocation'},
     { value: 'attribute',   name: 'Attribute',          desc: 'an attribute of an entity'},
@@ -65,6 +63,7 @@ exports.entryTypesINFO = [
     { value: 'phrase',     	name: 'Phrase',       	desc: 'self explanatory'}
 ];
 exports.entryTypes = exports.entryTypesINFO.map(type => type.value);
+
 //**********************************************************************************************************************
 exports.noteTypes = 'usage,example,pos,meaning,source,general,nominate'.split(',');
 exports.noteTypesINFO = [
