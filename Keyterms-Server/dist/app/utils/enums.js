@@ -56,11 +56,11 @@ exports.entryTypesINFO = [
     { value: 'attribute',   name: 'Attribute',          desc: 'an attribute of an entity'},
     { value: 'document',    name:  'Document',          desc: 'an entry that describes a document'},
     { value: 'event',   	name: 'Event',          	desc: 'an entry that describes an event'},
-    { value: 'location',    name: 'Location',       	desc: 'self explanatory'},
-    { value: 'organization',     	name: 'Organization',   	desc: 'self explanatory'},
-    { value: 'passage',    	name: 'Passage',       	desc: 'self explanatory'},
-    { value: 'person',     	name: 'Person',         	desc: 'self explanatory'},
-    { value: 'phrase',     	name: 'Phrase',       	desc: 'self explanatory'}
+    { value: 'location',    name: 'Location',       	desc: 'name of a place or landmark'},
+    { value: 'organization',     	name: 'Organization',   	desc: 'name of a company or group'},
+    { value: 'passage',    	name: 'Passage',       	desc: 'multi-sentence entries'},
+    { value: 'person',     	name: 'Person',         	desc: 'name of a person'},
+    { value: 'phrase',     	name: 'Phrase',       	desc: 'a short phrase, clause or sentence'}
 ];
 exports.entryTypes = exports.entryTypesINFO.map(type => type.value);
 
@@ -74,7 +74,7 @@ exports.noteTypesINFO = [
 	{ value: 'function',      name: 'Function',          desc: 'function of the Entry or Term'},
     { value: 'meaning', 	  name: 'Meaning',        	  desc: 'definition'},
     { value: 'usage',   	  name: 'Usage',          	  desc: 'explanation of how the term is used'},
-    { value: 'pos',     	  name: 'Part of Speech', 	  desc: 'part Of speech'},
+    { value: 'pos',     	  name: 'Part of Speech', 	  desc: 'part of speech'},
     { value: 'source',  	  name: 'Source',         	  desc: 'document, website, etc. where the information was obtained'},
 	{ value: 'pronunciation', name: 'Pronunciation',      desc: 'phonetic or other sound-based representation'},
 	{ value: 'routing',       name: 'Routing',            desc: 'where the term should be used'},
