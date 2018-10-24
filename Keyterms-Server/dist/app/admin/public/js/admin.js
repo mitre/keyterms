@@ -165,29 +165,6 @@
 					return org.qcs.indexOf($scope.user._id) != -1;
 				};
 
-				$scope.setPassword = function () {
-					$scope.user.password = Math.random().toString(36).slice(2, 14);
-					$scope.pwdChanged = true;
-					var modal = $uibModal.open({
-						animation: false,
-						templateUrl: __templatePath + '/password.html',
-						controller: ['$scope', '$uibModalInstance', function (_scope, $uibModalInstance) {
-							_scope.password = $scope.user.password;
-
-							// prevents closing from outside clicks
-							_scope.$on('modal.closing', function (event, reason) {
-								if (reason == 'backdrop click')
-									event.preventDefault();
-							});
-
-							_scope.ok = function () {
-								$uibModalInstance.dismiss();
-							};
-						}],
-						size: 'md'
-					});
-				};
-
 				$scope.showOrgDeleteBtn = function (orgId) {
 					return $scope.user.organizations.length > 1 &&
 						  ($scope.user.organizations.length - $scope.user.__orgsToRemove.length > 1 ||
@@ -221,7 +198,7 @@
 		})
 		.when('/users', {
 			templateUrl: __templatePath + '/users.html',
-			controller: [ '$scope', '$location', '$route', 'deleteModal', 'Api.service', 'Users', function ($scope, $location, $route, deleteModal, ApiSvc, Users) {
+			controller: [ '$scope', '$location', '$route', '$uibModal', 'deleteModal', 'Api.service', 'Users', function ($scope, $location, $route, $uibModal, deleteModal, ApiSvc, Users) {
 				$scope.users = Users;
 
 				$scope.showDeactive = false;
@@ -247,6 +224,41 @@
 				if (!!$location.search().org) {
 					$scope.users = $scope.users.filter( function (user) {
 						return user.organizations.indexOf($location.search().org) != -1;
+					});
+				}
+
+				$scope.resetUserPassword = function (user) {
+					var updatedUser = angular.copy(user);
+					updatedUser.password = Math.random().toString(36).slice(2, 14);
+					var modal = $uibModal.open({
+						animation: false,
+						templateUrl: __templatePath + '/resetPassword.html',
+						controller: ['$scope', '$uibModalInstance', function (_scope, $uibModalInstance) {
+							_scope.username = updatedUser.username;
+							_scope.newPassword = updatedUser.password;
+							_scope.status = 'pre';
+
+							// prevents closing from outside clicks
+							_scope.$on('modal.closing', function (event, reason) {
+								if (reason == 'backdrop click')
+									event.preventDefault();
+							});
+
+							_scope.submit = function () {
+								ApiSvc.updateUser(updatedUser)
+								.then( function(res) {
+									_scope.status = 'success';
+								})
+								.catch( function(err) {
+									_scope.status = 'error';
+								});
+							};
+
+							_scope.close = function () {
+								$uibModalInstance.dismiss();
+							};
+						}],
+						size: 'md'
 					});
 				}
 
