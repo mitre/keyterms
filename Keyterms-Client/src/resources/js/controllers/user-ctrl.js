@@ -50,7 +50,7 @@ function ($scope, KeyTerms, user, uiToast, UserService) {
 
 		UserService.updateUserDefaultOrg(orgId).then( function(response){
 			console.log(response);
-			uiToast.trigger('Your default organization has been updated.');
+			uiToast.trigger('Your default glossary has been updated.');
 
 		});
 	};

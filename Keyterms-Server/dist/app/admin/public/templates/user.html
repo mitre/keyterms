@@ -71,17 +71,17 @@
                 </label>
             </div>
         </div>
-        <!-- Organization -->
+        <!-- Glossary -->
         <div class="form-group" ng-if="::main.currentUser.isAdmin">
-            <label class="col-sm-3 control-label">Organizations</label>
+            <label class="col-sm-3 control-label">Glossaries</label>
             <div class="col-sm-6">&nbsp;
                 <table class="table table-striped white-bg">
                     <thead>
                     <tr>
                         <th>Name</th>
                         <th>Abbreviation</th>
-                        <th class="text-center">Org Admin</th>
-                        <th class="text-center">Org QC</th>
+                        <th class="text-center">Glossary Admin</th>
+                        <th class="text-center">Glossary QC</th>
                         <th ng-if="($modal.modal || existing) && user.organizations.length > 1"></th>
                     </tr>
                     </thead>
@@ -95,16 +95,16 @@
                 </table>
             </div>
         </div>
-        <!-- Common Organization -->
+        <!-- Common Glossary -->
         <div class="form-group" ng-if="$modal.modal">
             <div class="col-sm-6 col-sm-offset-3">
-                <div class="form-control-static">Note: This user will also be added to the common organization <strong>{{ $modal.commonOrg.name }}</strong>.</div>
+                <div class="form-control-static">Note: This user will also be added to the common glossary <strong>{{ $modal.commonOrg.name }}</strong>.</div>
             </div>
         </div>
         <!-- Deactivate User -->
         <div class="form-group" ng-if="currentUser !== user._id">
             <label class="col-sm-3 control-label">
-                Deactivate User <span uib-popover="Deactivating a user locks them out of their account for all organizations."
+                Deactivate User <span uib-popover="Deactivating a user locks them out of their account for all glossaries."
                                       popover-trigger="mouseenter" popover-placement="bottom" class="help-popover">
                     <i class="fa fa-fw fa-question-circle text-info"></i>
                 </span>

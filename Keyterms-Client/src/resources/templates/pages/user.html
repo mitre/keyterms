@@ -46,16 +46,16 @@
             </div>
             <!-- Default Organization -->
             <div class="row form-group">
-                <label class="col-sm-3 text-right">Default Organization</label>
+                <label class="col-sm-3 text-right">Default Glossary</label>
                 <div class="col-sm-6">
                     <div uib-dropdown class="btn-group select-tag">
                         <div class="btn btn-primary dropdown-selector" uib-dropdown-toggle>
                             <i class="fa fa-sitemap" ng-if="selectedDefaultOrg.name"></i>
-                            {{selectedDefaultOrg.name || "No Default Org"}} <span class="caret" style=""></span>
+                            {{selectedDefaultOrg.name || "No Default Glossary"}} <span class="caret" style=""></span>
                         </div>
                         <ul class="dropdown-menu dropdown-menu-left" uib-dropdown-menu role="menu">
                             <li role="menuitem">
-                                <a ng-click="updateSelectedDefaultOrg(false)" href="">No Default Org</a>
+                                <a ng-click="updateSelectedDefaultOrg(false)" href="">No Default Glossary</a>
                             </li>
                             <li role="menuitem" ng-repeat="org in user.organizations">
                                 <a ng-click="updateSelectedDefaultOrg(org)" href="">{{::org.name}}</a>
