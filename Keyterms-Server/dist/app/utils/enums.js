@@ -33,6 +33,7 @@
 
 //**********************************************************************************************************************
 //exports.statuses = ',add,del,mod,usr,dft,dep'.split(',');
+
 exports.statusesINFO = [
     { value: 'org',     name: 'Approved',       desc: 'organization\'s entry'},
     { value: 'usr',     name: 'User',           desc: 'user\'s personal entry'},
@@ -50,47 +51,48 @@ exports.nominationTypeINFO = [
 exports.nominationTypes = exports.nominationTypeINFO.map(type => type.value);
 
 //**********************************************************************************************************************
-//exports.entryTypes = 'term,person,org,loc,event'.split(',');
-
 exports.entryTypesINFO = [
-    { value: 'term',    	name: 'Term',           	desc: 'generic term'},
-	{ value: 'attribute',   name: 'Attribute',          desc: 'self explanatory'},
-	{ value: 'document',    name:  'Document',          desc: 'self explanatory'},
-    { value: 'per',     	name: 'Person',         	desc: 'self explanatory'},
-    { value: 'org',     	name: 'Organization',   	desc: 'self explanatory'},
-    { value: 'loc',     	name: 'Location',       	desc: 'self explanatory'},
-    { value: 'event',   	name: 'Event',          	desc: 'self explanatory'}
+    { value: 'term',    	name: 'Term',           	desc: 'generic term or collocation'},
+    { value: 'attribute',   name: 'Attribute',          desc: 'an attribute of an entity'},
+    { value: 'document',    name:  'Document',          desc: 'an entry that describes a document'},
+    { value: 'event',   	name: 'Event',          	desc: 'an entry that describes an event'},
+    { value: 'location',    name: 'Location',       	desc: 'name of a place or landmark'},
+    { value: 'organization',     	name: 'Organization',   	desc: 'name of a company or group'},
+    { value: 'passage',    	name: 'Passage',       	desc: 'multi-sentence entries'},
+    { value: 'person',     	name: 'Person',         	desc: 'name of a person'},
+    { value: 'phrase',     	name: 'Phrase',       	desc: 'a short phrase, clause or sentence'}
 ];
 exports.entryTypes = exports.entryTypesINFO.map(type => type.value);
+
 //**********************************************************************************************************************
 exports.noteTypes = 'usage,example,pos,meaning,source,general,nominate'.split(',');
 exports.noteTypesINFO = [
     { value: 'general', 	  name: 'General',        	  desc: 'general type of overview note'},
     { value: 'example', 	  name: 'Example',        	  desc: 'example of how the term is used'},
-	{ value: 'etymology',     name: 'Etymology',          desc:  ''},
-	{ value: 'formality',     name:  'Formality',         desc: ''},
-	{ value: 'function',      name:  'Function',          desc:''},
-    { value: 'meaning', 	  name: 'Meaning',        	  desc: 'term definition'},
+	{ value: 'etymology',     name: 'Etymology',          desc:  'historical derivation information'},
+	{ value: 'formality',     name: 'Formality',         desc: 'degree of formality, e.g. formal, academic, vernacular, vulgar'},
+	{ value: 'function',      name: 'Function',          desc: 'function of the Entry or Term'},
+    { value: 'meaning', 	  name: 'Meaning',        	  desc: 'definition'},
     { value: 'usage',   	  name: 'Usage',          	  desc: 'explanation of how the term is used'},
-    { value: 'pos',     	  name: 'Part of Speech', 	  desc: 'Part Of Speech'},
+    { value: 'pos',     	  name: 'Part of Speech', 	  desc: 'part of speech'},
     { value: 'source',  	  name: 'Source',         	  desc: 'document, website, etc. where the information was obtained'},
-	{ value: 'pronunciation', name: 'Pronunciation',      desc: ''},
-	{ value: 'routing',       name: 'Routing',            desc: ''},
-	{ value: 'status',        name: 'Status',             desc: ''}
+	{ value: 'pronunciation', name: 'Pronunciation',      desc: 'phonetic or other sound-based representation'},
+	{ value: 'routing',       name: 'Routing',            desc: 'where the term should be used'},
+	{ value: 'status',        name: 'Status',             desc: 'is the term used, deprecated, active, etc.'}
 ];
 
 //**********************************************************************************************************************
 exports.orthTypesINFO = [
-	{ value: 'abbr',    	   name: 'Abbreviation',   	     desc: 'self explanatory'},
-	{ value: 'acronym', 	   name: 'Acronym',        	     desc: 'self explanatory'},
-	{ value: 'inflect', 	   name: 'Inflected Form', 	     desc: 'TODO' },
-	{ value: 'nick',		   name: 'Nickname', 		     desc: 'self explanatory'},
-	{ value: 'short',   	   name: 'Short Form',     	     desc: 'For languages that have different forms, e.g. Russian'},
-	{ value: 'translat', 	   name: 'Translation', 	     desc: 'self explanatory' },
-	{ value: 'translit', 	   name: 'Transliteration',      desc: 'self explanatory' },
-	{ value: 'dialectVariant', name: 'Dialectical Variant',  desc: 'TODO' },
-	{ value: 'orthoVariant',   name: 'Orthographic Variant', desc: ''},
-	{ value: 'synonym',       name: 'Synonym',               desc:''}
+	{ value: 'abbr',    	   name: 'Abbreviation',   	     desc: 'abbreviation according to rules of language'},
+	{ value: 'acronym', 	   name: 'Acronym',        	     desc: 'acronym or initialism'},
+	{ value: 'inflect', 	   name: 'Inflected Form', 	     desc: 'inflected form, with suffix, prefix, infix or irregularity' },
+	{ value: 'nick',		   name: 'Nickname', 		     desc: 'nick name or familiar name'},
+	{ value: 'short',   	   name: 'Short Form',     	     desc: 'ahortened form of multi-token entries'},
+	{ value: 'translat', 	   name: 'Translation', 	     desc: 'translation, meaning based' },
+	{ value: 'translit', 	   name: 'Transliteration',      desc: 'transliteration, sound or spelling based' },
+	{ value: 'dialectVariant', name: 'Dialectical Variant',  desc: 'dialect-specific variant' },
+	{ value: 'orthoVariant',   name: 'Spelling Variant', desc: 'spelling variant'},
+	{ value: 'synonym',       name: 'Synonym',               desc:'terms with approximatly the same meaning and usage'}
 ];
 exports.orthTypes = exports.orthTypesINFO.map(status => status.value);
 
