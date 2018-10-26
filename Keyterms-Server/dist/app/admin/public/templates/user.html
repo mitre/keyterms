@@ -50,16 +50,11 @@
             </div>
         </div>
         <!-- Password -->
-        <div class="form-group">
+        <div class="form-group" ng-if="!existing">
             <label class="col-sm-3 control-label">Password</label>
             <div class="col-sm-6">
-                <button ng-if="existing" type="button" class="btn btn-primary btn-block" ng-click="setPassword()">
-                    <span>Reset Password</span>
-                </button>
-                <div ng-if="!existing">
-                    <input ng-if="$modal.modal" type="text" class="form-control" name="password" ng-model="$modal.password" required disabled>
-                    <input ng-if="nonmodal" type="text" class="form-control" name="password" ng-model="user.password" required disabled>
-                </div>
+                <input ng-if="$modal.modal" type="text" class="form-control" name="password" ng-model="$modal.password" required disabled>
+                <input ng-if="nonmodal" type="text" class="form-control" name="password" ng-model="user.password" required disabled>
             </div>
         </div>
         <!-- System Admin -->
