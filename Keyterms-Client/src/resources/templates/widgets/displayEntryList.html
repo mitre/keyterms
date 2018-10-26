@@ -39,7 +39,7 @@
                 <span ng-repeat="term in entry.terms | filter: { src : '!nlp', isLabel: false }" ><span ng-if="!term.highlightTermText">{{::term.termText}}</span><span ng-bind-html="::term.highlightTermText" ng-if="!!term.highlightTermText"></span>{{::$last ? '' : ', ' }} </span>
             </div>
             <div class="entry-info">
-                <span class="org-name"   tooltip-placement="bottom" uib-tooltip="Organization: {{::entry.org.name}}"><i class="fa fa-sitemap"></i> {{::entry.org.name}}</span>
+                <span class="org-name"   tooltip-placement="bottom" uib-tooltip="Glossary: {{::entry.org.name}}"><i class="fa fa-sitemap"></i> {{::entry.org.name}}</span>
                 <span class="view-scope" tooltip-placement="bottom" uib-tooltip="Visible To: {{::$parent.viewScopeList[entry.viewScope]}}"><i class="fa fa-eye"></i> {{::$parent.viewScopeList[entry.viewScope]}}</span>
                 <span class="edit-scope" tooltip-placement="bottom" uib-tooltip="Editable By: {{::$parent.editScopeList[entry.editScope]}}"><i class="fa fa-pencil" ></i> {{::$parent.editScopeList[entry.editScope]}}</span>
             </div>

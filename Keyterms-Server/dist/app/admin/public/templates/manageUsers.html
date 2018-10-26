@@ -39,8 +39,8 @@
                 <tr>
                     <th>Full Name</th>
                     <th>Email</th>
-                    <th class="text-center">Org QC</th>
-                    <th class="text-center">Org Admin</th>
+                    <th class="text-center">Glossary QC</th>
+                    <th class="text-center">Glossary Admin</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -68,19 +68,19 @@
                                 <li role="menuitem"><a href="user/{{ ::user._id }}">Edit User</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li role="menuitem" ng-switch="user.marked">
-                                    <a href="" ng-click="user.marked = true" ng-switch-default>Remove User from Org</a>
+                                    <a href="" ng-click="user.marked = true" ng-switch-default>Remove User from Glossary</a>
                                     <a href="" ng-click="user.marked = false" ng-switch-when="true">
                                         <i class="fa fa-fw fa-undo text-info i-btn"></i>
                                         &nbsp;Undo Remove User
                                     </a>
                                 </li>
                                 <li role="menuitem" ng-switch="user.admin">
-                                    <a href="" ng-click="user.admin = true" ng-switch-when="false">Promote to Org Admin</a>
-                                    <a href="" ng-click="user.admin = false" ng-switch-when="true">Revoke Org Admin</a>
+                                    <a href="" ng-click="user.admin = true" ng-switch-when="false">Promote to Glossary Admin</a>
+                                    <a href="" ng-click="user.admin = false" ng-switch-when="true">Revoke Glossary Admin</a>
                                 </li>
                                 <li role="menuitem" ng-switch="user.qc">
-                                    <a href="" ng-click="user.qc = true" ng-switch-when="false">Promote to Org QC</a>
-                                    <a href="" ng-click="user.qc = false" ng-switch-when="true">Revoke Org QC</a>
+                                    <a href="" ng-click="user.qc = true" ng-switch-when="false">Promote to Glossary QC</a>
+                                    <a href="" ng-click="user.qc = false" ng-switch-when="true">Revoke Glossary QC</a>
                                 </li>
                             </ul>
                         </div>

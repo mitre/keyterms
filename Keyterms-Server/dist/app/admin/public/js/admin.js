@@ -165,29 +165,6 @@
 					return org.qcs.indexOf($scope.user._id) != -1;
 				};
 
-				$scope.setPassword = function () {
-					$scope.user.password = Math.random().toString(36).slice(2, 14);
-					$scope.pwdChanged = true;
-					var modal = $uibModal.open({
-						animation: false,
-						templateUrl: __templatePath + '/password.html',
-						controller: ['$scope', '$uibModalInstance', function (_scope, $uibModalInstance) {
-							_scope.password = $scope.user.password;
-
-							// prevents closing from outside clicks
-							_scope.$on('modal.closing', function (event, reason) {
-								if (reason == 'backdrop click')
-									event.preventDefault();
-							});
-
-							_scope.ok = function () {
-								$uibModalInstance.dismiss();
-							};
-						}],
-						size: 'md'
-					});
-				};
-
 				$scope.showOrgDeleteBtn = function (orgId) {
 					return $scope.user.organizations.length > 1 &&
 						  ($scope.user.organizations.length - $scope.user.__orgsToRemove.length > 1 ||
@@ -221,7 +198,7 @@
 		})
 		.when('/users', {
 			templateUrl: __templatePath + '/users.html',
-			controller: [ '$scope', '$location', '$route', 'deleteModal', 'Api.service', 'Users', function ($scope, $location, $route, deleteModal, ApiSvc, Users) {
+			controller: [ '$scope', '$location', '$route', '$uibModal', 'deleteModal', 'Api.service', 'Users', function ($scope, $location, $route, $uibModal, deleteModal, ApiSvc, Users) {
 				$scope.users = Users;
 
 				$scope.showDeactive = false;
@@ -247,6 +224,41 @@
 				if (!!$location.search().org) {
 					$scope.users = $scope.users.filter( function (user) {
 						return user.organizations.indexOf($location.search().org) != -1;
+					});
+				}
+
+				$scope.resetUserPassword = function (user) {
+					var updatedUser = angular.copy(user);
+					updatedUser.password = Math.random().toString(36).slice(2, 14);
+					var modal = $uibModal.open({
+						animation: false,
+						templateUrl: __templatePath + '/resetPassword.html',
+						controller: ['$scope', '$uibModalInstance', function (_scope, $uibModalInstance) {
+							_scope.username = updatedUser.username;
+							_scope.newPassword = updatedUser.password;
+							_scope.status = 'pre';
+
+							// prevents closing from outside clicks
+							_scope.$on('modal.closing', function (event, reason) {
+								if (reason == 'backdrop click')
+									event.preventDefault();
+							});
+
+							_scope.submit = function () {
+								ApiSvc.updateUser(updatedUser)
+								.then( function(res) {
+									_scope.status = 'success';
+								})
+								.catch( function(err) {
+									_scope.status = 'error';
+								});
+							};
+
+							_scope.close = function () {
+								$uibModalInstance.dismiss();
+							};
+						}],
+						size: 'md'
 					});
 				}
 
@@ -278,7 +290,7 @@
 				$scope.langCodes = LangCodes.codes;
 				$scope.reference = LangCodes.reference;
 
-				$scope.title = 'Create Organization';
+				$scope.title = 'Create Glossary';
 				$scope.button = 'Create';
 				$scope.showUsers = false;
 
@@ -289,13 +301,13 @@
 					});
 				};
 
-				$scope.globalBlockPopover = 'Prevent all Entries of this Organization from being searchable by users outside of this Organization';
+				$scope.globalBlockPopover = 'Prevent all Entries of this Glossary from being searchable by users outside of this Glossary';
 
 				$scope.supportedPopoverText =
-					$sce.trustAsHtml('A master list of all languages KeyTerms supports.<br><br>Add a language to this Organization by clicking the <i class="fa fa-fw fa-plus text-success"></i>');
+					$sce.trustAsHtml('A master list of all languages KeyTerms supports.<br><br>Add a language to this Glossary by clicking the <i class="fa fa-fw fa-plus text-success"></i>');
 
 				$scope.orgPopoverText =
-					$sce.trustAsHtml('These are the languages currently associated with this Organization.<br><br>Remove a language from this Organization by clicking the <i class="fa fa-fw fa-times text-danger"></i>');
+					$sce.trustAsHtml('These are the languages currently associated with this Glossary.<br><br>Remove a language from this Glossary by clicking the <i class="fa fa-fw fa-times text-danger"></i>');
 			}]
 			, resolve: {
 				LangCodes: ['Api.service', function (ApiSvc) {
@@ -331,7 +343,7 @@
 				$scope.langCodes = LangCodes.codes;
 				$scope.reference = LangCodes.reference;
 
-				$scope.title = 'Edit Organization';
+				$scope.title = 'Edit Glossary';
 				$scope.button = 'Save Changes';
 
 				$scope.userUpdate = function (user) {
@@ -377,13 +389,13 @@
 					});
 				};
 
-				$scope.globalBlockPopover = 'Prevent all Entries of this Organization from being searchable by users outside of this Organization';
+				$scope.globalBlockPopover = 'Prevent all Entries of this Glossary from being searchable by users outside of this Glossary';
 
 				$scope.supportedPopoverText =
-					$sce.trustAsHtml('A master list of all languages KeyTerms supports.<br><br>Add a language to this Organization by clicking the <i class="fa fa-fw fa-plus text-success"></i>');
+					$sce.trustAsHtml('A master list of all languages KeyTerms supports.<br><br>Add a language to this Glossary by clicking the <i class="fa fa-fw fa-plus text-success"></i>');
 
 				$scope.orgPopoverText =
-					$sce.trustAsHtml('These are the languages currently associated with this Organization.<br><br>Remove a language from this Organization by clicking the <i class="fa fa-fw fa-times text-danger"></i>');
+					$sce.trustAsHtml('These are the languages currently associated with this Glossary.<br><br>Remove a language from this Glossary by clicking the <i class="fa fa-fw fa-times text-danger"></i>');
 			}]
 			, resolve: {
 				Org: ['$route', 'Api.service', function ($route, ApiSvc) {
@@ -449,7 +461,7 @@
 				$scope.save = function () {
 					ApiSvc.updateMembers(Org._id, $scope.members)
 					.then( function (resp) {
-						addUserModal.cacheMsg({success: 'Organization was successfully updated'});
+						addUserModal.cacheMsg({success: 'Glossary was successfully updated'});
 						addUserModal.$routeReload();
 					})
 					.catch( function (err) {
@@ -719,7 +731,7 @@
 
 				fn.then( function (resp) {
 					waitingOnResp = false;
-					msgCache = {success: 'Organization was successfully updated'};
+					msgCache = {success: 'Glossary was successfully updated'};
 					$scope.$close(true);
 				})
 				.catch( function (err) {
@@ -847,7 +859,7 @@
 	.directive('rmOrgUser', function () {
 		return {
 			restrict: 'E',
-			template: '<span title="Remove user from this organization"><div class="btn btn-sm btn-primary" ng-click="__rmOrgUser(user)"><i class="fa fa-fw fa-lg fa-trash text-danger i-btn" style="color:white;"></i></div></span>',
+			template: '<span title="Remove user from this Glossary"><div class="btn btn-sm btn-primary" ng-click="__rmOrgUser(user)"><i class="fa fa-fw fa-lg fa-trash text-danger i-btn" style="color:white;"></i></div></span>',
 			scope: {
 				'user': '=user',
 				'form': '=form',
@@ -866,7 +878,7 @@
 						tr.find('input').attr('disabled', 'true');
 						tr.find('i').css('opacity', 0.6);
 						elem.find('i').removeClass('fa-ban text-danger').addClass('fa-undo text-info');
-						elem.find('span').attr('title', 'Undo remove user from this organization');
+						elem.find('span').attr('title', 'Undo remove user from this Glossary');
 
 						scope.user.marked = true;
 						scope.user.__orgsToRemove.push(scope.orgid);
@@ -877,7 +889,7 @@
 						tr.find('input').removeAttr('disabled');
 						tr.find('i').css('opacity', 1);
 						elem.find('i').removeClass('fa-undo text-info').addClass('fa-ban text-danger');
-						elem.find('span').attr('title', 'Remove user from this organization');
+						elem.find('span').attr('title', 'Remove user from this Glossary');
 
 						scope.user.marked = false;
 						scope.user.__orgsToRemove.splice(scope.user.__orgsToRemove.indexOf(scope.orgid));

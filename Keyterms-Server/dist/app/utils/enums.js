@@ -35,7 +35,7 @@
 //exports.statuses = ',add,del,mod,usr,dft,dep'.split(',');
 
 exports.statusesINFO = [
-    { value: 'org',     name: 'Approved',       desc: 'organization\'s entry'},
+    { value: 'org',     name: 'Approved',       desc: 'glossary\'s entry'},
     { value: 'usr',     name: 'User',           desc: 'user\'s personal entry'},
     { value: 'dft',     name: 'Draft',          desc: 'user\'s personal entry in draft'},
     { value: 'dep',     name: 'Deprecated',     desc: 'deprecated entry, not to be used, kept for information'}
@@ -99,7 +99,7 @@ exports.orthTypes = exports.orthTypesINFO.map(status => status.value);
 //**********************************************************************************************************************
 exports.editScopeTypesINFO = [
 	{ value: 'any', 	name: 'Anyone', 				comparison: 10,		desc: 'Any KeyTerms user is allowed to make edits to this Entry'},
-	{ value: 'org', 	name: 'Owning Organization',	comparison: 5,		desc: 'This Entry follows the KeyTerms default Organization-based curation pattern'},
+	{ value: 'org', 	name: 'Glossary Members',	    comparison: 5,		desc: 'This Entry follows the KeyTerms default Glossary-based curation pattern'},
 	{ value: 'me', 		name: 'Just Me', 				comparison: 1,		desc: 'The author of this Entry is the only person whom is allowed to make edits'}
 ];
 exports.editScopeTypes = exports.editScopeTypesINFO.map(type => type.value);
@@ -107,7 +107,7 @@ exports.editScopeTypes = exports.editScopeTypesINFO.map(type => type.value);
 //**********************************************************************************************************************
 exports.viewScopeTypesINFO = [
 	{ value: 'any', 	name: 'Anyone', 				comparison: 10,		desc: 'Any KeyTerms user is allowed view this Entry'},
-	{ value: 'org', 	name: 'Owning Organization', 	comparison: 5,		desc: 'Only members of this Entry\'s Organization will be able to view it'},
+	{ value: 'org', 	name: 'Glossary Members',    	comparison: 5,		desc: 'Only members of this Entry\'s Glossary will be able to view it'},
 	{ value: 'me', 	    name: 'Just Me', 				comparison: 1,		desc: 'This Entry is private to the author'}
 ];
 exports.viewScopeTypes = exports.viewScopeTypesINFO.map(type => type.value);
