@@ -35,7 +35,12 @@ exports.browseTerms = function (req, res, next) {
 	.then( function (resp) {
 		res.json(resp.aggregations.entries.buckets);
 	})
-	.catch(next);
+	.catch( function (err) {
+		if(err.body.error.type == 'index_not_found_exception') {
+			return res.json([]);
+		}
+		next();
+	});
 };
 
 // GET?POST? /api/browse/terms/entries
@@ -51,4 +56,3 @@ exports.browseEntriesOfTerms = function (req, res, next) {
 	})
 	.catch(next);
 };
-
