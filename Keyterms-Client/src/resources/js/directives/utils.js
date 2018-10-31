@@ -192,7 +192,6 @@ app.directive('orgDropdown', ['user.service', '$route', '$rootScope', function (
 				}).then(function(){
 					if($rootScope.showOrgPopup) {
 						$rootScope.showOrgPopup = false;
-						scope.$parent.$dismiss();
 					}
 					scope.user = UserService.getUser();
 					$route.reload();

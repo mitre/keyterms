@@ -202,7 +202,7 @@
 				<div class="user-container">
 					<div class="select-tag btn-group" uib-dropdown keyboard-nav auto-close="always" is-open="isOpen">
 						<div class="btn-select" uib-dropdown-toggle style="cursor: pointer; box-shadow: none; min-width: unset">
-							{{user.getUser().fullName}} <span class="caret" style=""></span>
+							<span ng-if="isOrgQC()" class="fa fa-thumbs-up"></span>	{{user.getUser().fullName}} <span class="caret" style=""></span>
 						</div>
 						<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu rule="menu">
 							<li role="menuitem">
