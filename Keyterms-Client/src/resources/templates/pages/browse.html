@@ -177,6 +177,9 @@
         </div>
         <div class="main-panel">
             <div>
+                <div ng-if="displayList.length == 0">
+                    <h3 class="text-center">No terms found</h3>
+                </div>
                 <!--<div ng-repeat="displayList in loadedTerms">-->
                 <div class="row no-gutters" ng-repeat="agg in displayList" ng-init="selected = null" ng-class="{'selected': selected != null}">
                     <div class="col-xs-4 term-header" ng-class="{'selected': selected == agg[0]}" ><div class="well" browse-term-display="agg[0]"></div></div>
