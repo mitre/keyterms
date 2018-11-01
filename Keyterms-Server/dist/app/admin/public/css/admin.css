@@ -276,3 +276,7 @@ table.white-bg {
     min-width: 120px;
     margin: 0 4px;
 }
+
+#user-dropdown {
+   padding-bottom: 5px;
+}
