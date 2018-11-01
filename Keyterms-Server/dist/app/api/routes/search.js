@@ -106,6 +106,25 @@ exports.searchTermParam = function (req, res, next) {
 	}).catch(next);
 };
 
+exports.glossScopeParam = function (req, res, next) {
+
+	if(req.method === 'POST') {
+        req.glossScope = req.body.glossScope;
+    }
+
+    else if (req.method === 'GET') {
+		req.glossScope = decodeURIComponent(req.query.glossScope);
+		console.log("testing are we here: ", JSON.stringify(req.glossScope, null, 4));
+	}
+
+	else {
+		return next(new Error('The HTTP verb: {' + req.method + '} is not supported'));
+	}
+
+	return next();
+
+};
+
 // Cleans the response from elastic and returns a dictionary of scores keyed with mongoIds
 var getIdDict = function (resp) {
 	// Remove dups
@@ -166,7 +185,7 @@ var processMongoQuery = function (entries, entryDict) {
 // Abstraction of "default", organizational Entry search
 var executeOrgSearch = function (req) {
 	log.info("querying mongo for terms with: '" + req.ktSearchTerm + "' in organization: " + req.org.name);
-
+	console.log("test");
 	var exactParam = (req.query.exact === 'true') || false;
 	var orgParam = req.query.org || null;
 
@@ -208,6 +227,10 @@ exports.executeOrgSearch = executeOrgSearch;
 var executeDefaultSearch = function (req) {
 	log.info(`executing default search for terms with ${ req.ktSearchTerm }`);
 
+	var glossScope = req.glossScope.value;
+	var userOrgs = req.user.organizations;
+	var userCurrentOrg = req.user.currentOrg;
+
 	var exactParam = (req.query.exact === 'true') || false;
 
 	// Find all Organization's to check for the global block flag
@@ -216,17 +239,62 @@ var executeDefaultSearch = function (req) {
 		// Execute elastic query for Entries
 		return elastic.searchDefault(req.ktSearchTerm, req.langCode, exactParam)
 		.then(function (resp) {
+
 			var entryIds = getIdDict(resp);
-			// $in > $or for value checks of the same field (https://stackoverflow.com/questions/14736656)
-			var searchQuery = {
-				_id: {$in: Object.keys(entryIds)},										// Entry has to have been returned from Elastic
-				 isDraft: false,														// Never return Entries that are Drafts
-				 $or: [
-					{org: {$nin: blocked}, viewScope: 'any'},							// Entry is in a non-blocked org and viewScope is anyone
-					 {org: req.org._id, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
-					 {org: req.org._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
-				]
-			};
+
+			switch (glossScope) {
+
+				case 'current':
+
+					var searchQuery = {
+						_id: {$in: Object.keys(entryIds)},
+						isDraft: false,
+                        $or: [
+                            {org: req.org._id, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
+                            {org: req.org._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
+                        ]
+					};
+					break;
+
+				case 'my':
+
+                    var searchQuery = {
+                        _id: {$in: Object.keys(entryIds)},
+                        isDraft: false,
+                        $or: [
+                            {org: {$in: userOrgs}, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
+                            {org: {$in: userOrgs}, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
+                        ]
+                    };
+                    break;
+
+				case 'all':
+
+                    var searchQuery = {
+                        _id: {$in: Object.keys(entryIds)},										// Entry has to have been returned from Elastic
+                        isDraft: false,														// Never return Entries that are Drafts
+                        $or: [
+                            {org: {$nin: blocked}, viewScope: 'any'},							// Entry is in a non-blocked org and viewScope is anyone
+                            {org: req.org._id, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
+                            {org: req.org._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
+                        ]
+                    };
+                    break;
+
+				default:
+					console.log("Error");
+			}
+
+			// // $in > $or for value checks of the same field (https://stackoverflow.com/questions/14736656)
+			// var searchQuery = {
+			// 	_id: {$in: Object.keys(entryIds)},										// Entry has to have been returned from Elastic
+			// 	 isDraft: false,														// Never return Entries that are Drafts
+			// 	 $or: [
+			// 		{org: {$nin: blocked}, viewScope: 'any'},							// Entry is in a non-blocked org and viewScope is anyone
+			// 		 {org: req.org._id, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
+			// 		 {org: req.org._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
+			// 	]
+			// };
 
 			return Entry.findAndPopulateForGui(searchQuery)
 			.then(function (entries) {
@@ -246,6 +314,7 @@ var executeDefaultSearch = function (req) {
 						entryIds[key].highlightTermText[termKey] = entryIds[key].highlightTermText[termKey].replace(new RegExp('{{{/em}}}', 'g'), '</b>');
 					}
 				}
+
 				return processMongoQuery(entries, entryIds);
 			});
 		});
@@ -268,8 +337,10 @@ exports.searchOrgEntries = searchOrgEntries;
 // This is the restful endpoint version of "org" search on an user's organization
 // This is currently the default search handler
 var searchSharedEntries = function (req, res, next) {
+
 	executeDefaultSearch(req)
 	.then( function (docs) {
+        
 		res.json(docs);
 	})
 	.catch(next);

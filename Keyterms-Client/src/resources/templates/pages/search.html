@@ -54,6 +54,20 @@
 				</div>
 			</div>
 			<div class="form-group">
+
+				<label class="control-label">Scope:&nbsp;&nbsp;</label>
+				<div class="select-tag btn-group" uib-dropdown keyboard-nav auto-close="outsideClick" is-open="isOpen" on-toggle="focusInput()">
+					<button type="button" class="btn btn-primary btn-select dropdown-selector" uib-dropdown-toggle ng-click="isOpen = true">
+						{{ glossScope.name }}&nbsp;<span class="caret" style=""></span>
+					</button>
+					<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu" >
+						<li role="menuitem" ng-repeat="glossScope in glossScopes">
+							<a ng-click="setGlossScope(glossScope)" href="">{{glossScope.name}}</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="form-group">
 				<input tabindex="1" type="text" class="form-control" placeholder="Search Term or Acronym" ng-model="searchTerm.term" ng-enterkey="searchTerm.onClick()" size="34">
 				<i class="fa fa-times" id="clear-search" ng-click="searchTerm.term = null" ng-show="searchTerm.term"></i>
 			</div>

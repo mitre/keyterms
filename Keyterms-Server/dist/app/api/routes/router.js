@@ -1206,10 +1206,11 @@ var searchRouter = express.Router();
  * @apiGroup Search
  * @apiName Basic Search [POST]
  * @apiVersion 3.1.0
- * @apiDescription Search for Entries within the user's current organization given a specific langCode and SearchTerm
+ * @apiDescription Search for Entries within the user's current glossary, all of the user's glossaries, or all glossaries, given a specific langCode and SearchTerm
  *
  * @apiParam (Request Body) {string {3}} langCode A 3 letter language code to specify which language to search on <br> See <a href='#api-Language_Utilities-langcodes'>langCodes</a> or <a target='_blank' href='../api/langcodes'>/api/langcodes</a> for more info
  * @apiParam (Request Body) {string} searchTerm The term or phrase to search for within the user's current organization
+ * @apiParam (Request Body) {string} glossScope A string specifying which glossaries to search
  * @apiParam (Query Parameters) {boolean} [exact=false] If true, only exact matches will be returned. Defaults to false if not provided
  *
  *
@@ -1249,8 +1250,8 @@ searchRouter.post('/org', search.langCodeParam, search.searchTermParam, search.s
 searchRouter.get('/org', search.langCodeParam, search.searchTermParam, search.searchOrgEntries);
 
 searchRouter.route('/default')
-.get(search.langCodeParam, search.searchTermParam, search.searchSharedEntries)
-.post(search.langCodeParam, search.searchTermParam, search.searchSharedEntries);
+.get(search.langCodeParam, search.searchTermParam, search.glossScopeParam, search.searchSharedEntries)
+.post(search.langCodeParam, search.searchTermParam, search.glossScopeParam, search.searchSharedEntries);
 
 router.use('/search', searchRouter);
 
