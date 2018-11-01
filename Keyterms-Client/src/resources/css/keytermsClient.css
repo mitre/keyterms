@@ -276,6 +276,7 @@ textarea.form-control:-moz-placeholder {
 	font-weight: bold;
 }
 
+
 .gear-popover button.btn,
 .gear-popover a.btn {
 	padding: 0;
@@ -284,7 +285,6 @@ textarea.form-control:-moz-placeholder {
 .gear-popover a.btn {
 	padding-bottom: 1px;
 }
-
 .view-entry .entry-section {
 	padding-bottom: 15px;
 }

@@ -46,6 +46,13 @@
                     <li role="menuitem"><a target="_self" href="logout">Logout</a></li>
                 </ul>
             </li>
+            <li>
+                <a id="user-dropdown" uib-popover-template="'userPopover.html'" popover-trigger="outsideClick" popover-animation="false" popover-placement="bottom-right">
+                    <p><i class="fa fa-fw fa-gear fa-lg hidden-xs-override"  aria-hidden="true" ng-class="{ 'active' : userPopoverOpen }"></i></p>
+                    <!--<p><i class="fa fa-fw fa-gear show-xs-override" aria-hidden="true" ng-class="{ 'active' : userPopoverOpen }"></i></p>-->
+                </a>
+
+            </li>
         </ul>
     </div><!-- /.container-fluid -->
 </nav>
@@ -67,6 +74,53 @@
     </div>
 
 </div>
+
+<script type="text/ng-template" id="userPopover.html">
+    <div class="gear-popover" style="color:rgb(72, 78, 85)">
+        <div class="row">
+            <div class="col-xs-6 text-center">
+                <a class="btn btn-link btn-block" href="#/user">
+                    <p><i class="fa fa-user fa-3x"></i></p>
+                    <p>Account</p>
+                </a>
+            </div>
+            <div class="col-xs-6 text-center">
+                <a class="btn btn-link btn-block" href="mailto:{{mailto}}">
+                    <p><i class="fa fa-fw fa-envelope-o fa-3x"></i></p>
+                    <p>Contact</p>
+                </a>
+
+            </div>
+            <div class="col-xs-6 text-center">
+                <a class="btn btn-link btn-block" href="#/export">
+                    <p><i class="fa fa-fw fa-download fa-3x" aria-hidden="true"></i></p>
+                    <p>Export</p>
+                </a>
+            </div>
+            <div class="col-xs-6 text-center">
+                <a class="btn btn-link btn-block" target="_blank" href="/upload">
+                    <p><i class="fa fa-fw fa-upload fa-3x" aria-hidden="true"></i></p>
+                    <p>Import</p>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1" id="pop-border"></div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6 col-xs-offset-3 text-center" ng-switch="user.isLoggedIn()">
+                <a class="btn btn-link btn-block" ng-switch-when="true" ng-click="logout()">
+                    <p><i class="fa fa-unlock fa-3x"></i></p>
+                    <p>Sign Out</p>
+                </a>
+                <a class="btn btn-link btn-block" ng-switch-when="false" ng-click="openLoginModal()">
+                    <p><i class="fa fa-lock fa-3x"></i></p>
+                    <p>Sign In</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
 
 <script id="userscript" type="text/javascript">
     var __user__ = '<%- user %>';
