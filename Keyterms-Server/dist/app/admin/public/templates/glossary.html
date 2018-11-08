@@ -25,32 +25,32 @@
 
 <h1 class="page-title">{{ ::title }}</h1>
 <div class="well">
-    <form class="form-horizontal" name="orgForm" ng-submit="submit()" novalidate ng-switch="showUsers">
+    <form class="form-horizontal" name="glossaryForm" ng-submit="submit()" novalidate ng-switch="showUsers">
 <!-- Name -->
         <div class="form-group">
             <label class="col-sm-3 control-label">Name</label>
             <div class="col-sm-6">
-                <input type="text" class="form-control" name="name" required ng-model="org.name">
+                <input type="text" class="form-control" name="name" required ng-model="glossary.name">
             </div>
         </div>
 <!-- Abbreviation -->
         <div class="form-group">
             <label class="col-sm-3 control-label">Abbreviation</label>
             <div class="col-sm-6">
-                <input type="text" class="form-control" name="abbreviation" required ng-model="org.abbreviation">
+                <input type="text" class="form-control" name="abbreviation" required ng-model="glossary.abbreviation">
             </div>
         </div>
 <!-- Description -->
         <div class="form-group">
             <label class="col-sm-3 control-label">Description</label>
             <div class="col-sm-6">
-                <textarea class="form-control" rows="2" name="description" ng-model="org.description"></textarea>
+                <textarea class="form-control" rows="2" name="description" ng-model="glossary.description"></textarea>
             </div>
         </div>
 <!-- Languages -->
         <div class="form-group">
             <label class="col-sm-3 control-label">Language List</label>
-            <lang-select class="col-sm-6" org="org" reference="reference" lang-codes="langCodes"></lang-select>
+            <lang-select class="col-sm-6" glossary="glossary" reference="reference" lang-codes="langCodes"></lang-select>
         </div>
 <!-- Global Block -->
         <div class="form-group">
@@ -62,7 +62,7 @@
             </label>
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" ng-model="org.globalBlock">
+                    <input type="checkbox" ng-model="glossary.globalBlock">
                 </label>
             </div>
         </div>
@@ -85,7 +85,7 @@
                         <td>{{ :: user.email }}</td>
                         <td><input type="checkbox" ng-model="user.qc" ng-change="userUpdate(user)"></td>
                         <td><input type="checkbox" ng-model="user.admin" ng-change="userUpdate(user)"></td>
-                        <td><rm-org-user user="user" form="orgForm" orgid="org._id"></rm-org-user></td>
+                        <td><rm-glossary-user user="user" form="glossaryForm" glossaryid="glossary._id"></rm-glossary-user></td>
                     </tr>
                 </table>
             </div>
@@ -104,13 +104,13 @@
         <div class="form-group">
             <div class="row">
                 <div class="col-sm-offset-4 col-sm-2">
-                    <button type="submit" class="btn btn-primary btn-block" ng-disabled="orgForm.$invalid || orgForm.$pristine">{{ ::button }}</button>
+                    <button type="submit" class="btn btn-primary btn-block" ng-disabled="glossaryForm.$invalid || glossaryForm.$pristine">{{ ::button }}</button>
                 </div>
                 <div class="col-sm-2">
                     <a class="btn btn-default btn-block" href="javascript: history.back()">Cancel</a>
                 </div>
             </div>
-            <div class="row" ng-show="orgForm.$invalid">
+            <div class="row" ng-show="glossaryForm.$invalid">
                 <div class="col-sm-12 text-center">
                     <p class="help-block">All fields are required</p>
                 </div>
