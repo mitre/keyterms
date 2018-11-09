@@ -3,7 +3,7 @@
 var mongoose = require('mongoose');
 var Promise = require('bluebird');
 var readline = require('readline');
-var config = require('../../../config').commonOrg;
+var config = require('../../../config').commonGlossary;
 
 var rl = readline.createInterface({
 	input: process.stdin,
@@ -25,24 +25,24 @@ var exit = function () {
 var db = require('../../db').init({performCheck: false})
 .then( function () {
 
-	var org = {
+	var gloss = {
 		isAdmin: true
 	};
 
 	console.log('Initializing KeyTerms...');
-	console.log('Creating common organization...');
+	console.log('Creating common glossary...');
 	if(!!config.name && !!config.abbreviation && !!config.description) {
-		org.name = config.name;
-		org.abbreviation = config.abbreviation;
-		org.description = config.description;
-		org.isCommon = true;
-		return mongoose.model('Organization').create(org);
+		gloss.name = config.name;
+		gloss.abbreviation = config.abbreviation;
+		gloss.description = config.description;
+		gloss.isCommon = true;
+		return mongoose.model('Glossary').create(gloss);
 	} else {
-		console.log('Missing config setting(s) for common organization');
-		throw new Error('Common org not configured');
+		console.log('Missing config setting(s) for common glossary');
+		throw new Error('Common glossary not configured');
 	}
 
-}).then( function (org) {
+}).then( function (gloss) {
 
 	var admin = {
 		isAdmin: true
@@ -63,18 +63,18 @@ var db = require('../../db').init({performCheck: false})
 		admin.password = ans;
 		return true;
 	}).then( function () {
-		console.log('Adding admin user to common organization...');
-		admin.organizations = [];
-		admin.organizations.push(org._id);
-		admin.currentOrg = org._id;
+		console.log('Adding admin user to common glossary...');
+		admin.glossaries = [];
+		admin.glossaries.push(gloss._id);
+		admin.currentGlossary = gloss._id;
 		return admin;
 	}).then( function (admin) {
             return mongoose.model('User').create(admin);
 	}).then( function (user) {
-            org.qcs.push(user._id);
-            org.admins.push(user._id);
-            return org.save();
-	}).then( function (savedOrg) {
+            gloss.qcs.push(user._id);
+            gloss.admins.push(user._id);
+            return gloss.save();
+	}).then( function (savedGlossary) {
 		console.log('Initialization completed successfully.');
 	});
 

@@ -48,36 +48,36 @@ var exit = function () {
 var db = require('../../db').init({performCheck: false})
 .then( function () {
 
-	var org = {
+	var gloss = {
 		isAdmin: true
 	};
 
-	console.log('Welcome to the Organization cli: ');
+	console.log('Welcome to the Glossary cli: ');
 
-	return prompt('Enter the Organization\'s name: ')
+	return prompt('Enter the Glossary\'s name: ')
 	.then( function (ans) {
-		org.name = ans;
+		gloss.name = ans;
 
-		return prompt('Enter the Organization\'s abbreviation: ')
+		return prompt('Enter the Glossary\'s abbreviation: ')
 	})
 	.then( function (ans) {
-		org.abbreviation = ans;
+		gloss.abbreviation = ans;
 
-		return prompt('Enter the Organization\'s description: ')
+		return prompt('Enter the Glossary\'s description: ')
 	})
 	.then( function (ans) {
-		org.description = ans;
+		gloss.description = ans;
 
 		return true;
 	})
 	.then( function () {
-		return org;
+		return gloss;
 	})
 })
-.then( function (org) {
-	return mongoose.model('Organization').create(org);
+.then( function (gloss) {
+	return mongoose.model('Glossary').create(gloss);
 })
-.then( function (org) {
-	console.log(`Organization: ${org.name} was created`);
+.then( function (gloss) {
+	console.log(`Glossary: ${gloss.name} was created`);
 	exit();
 });

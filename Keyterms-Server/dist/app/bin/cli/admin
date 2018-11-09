@@ -46,29 +46,29 @@ var db = require('../../db').init({performCheck: false})
 	.then( function (ans) {
 		admin.password = ans;
 
-		return prompt('Add user to an organization? (Y/N)');
+		return prompt('Add user to a glossary? (Y/N)');
 	})
-	// Adds membership to a single organization for this user
+	// Adds membership to a single glossary for this user
 	.then( function (ans) {
 		if (ans[0].toUpperCase() === 'Y') {
-			return mongoose.model('Organization').find().select('abbreviation name').exec()
-			.then( function (orgs) {
+			return mongoose.model('Glossary').find().select('abbreviation name').exec()
+			.then( function (glossaries) {
 				console.log('*************************************');
-				orgs.forEach( function (org) {
-					console.log(`${org.name} (${org.abbreviation})`);
+				glossaries.forEach( function (gloss) {
+					console.log(`${gloss.name} (${gloss.abbreviation})`);
 				});
 				console.log('*************************************');
-				return prompt('Enter the abbreviation of the org: ')
+				return prompt('Enter the abbreviation of the glossary: ')
 				.then( function (_ans) {
-					var index = orgs.map(o => o.abbreviation).indexOf(_ans);
+					var index = glossaries.map(o => o.abbreviation).indexOf(_ans);
 					if (index == -1) {
 						console.log(_ans + ' does not exist!');
 						exit(); process.exit();
 					}
 					else {
-						admin.organizations = [];
-						admin.organizations.push(orgs[index]._id);
-						admin.currentOrg = orgs[index]._id;
+						admin.glossaries = [];
+						admin.glossaries.push(glossaries[index]._id);
+						admin.currentGlossary = glossaries[index]._id;
 					}
 				})
 			})
