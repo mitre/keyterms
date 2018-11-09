@@ -27,8 +27,8 @@ var log = require('../includes').log;
 var ImporterBase = require('../importerBase');
 
 class xlsParser extends ImporterBase {
-	constructor (ws, org, base) {
-		super(org, base);
+	constructor (ws, glossary, base) {
+		super(glossary, base);
 
 		log.verbose('Initializing xls Parser...');
 

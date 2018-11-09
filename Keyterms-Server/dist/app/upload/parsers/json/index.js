@@ -7,7 +7,7 @@ var Parsers = {
 
 var getParser = function (req, obj, base) {
 
-    return new Parsers.json(req.org, obj, base);
+    return new Parsers.json(req.glossary, obj, base);
 
 };
 

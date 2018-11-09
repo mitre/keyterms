@@ -32,7 +32,7 @@ var Parsers = {
 var getParser = function (req, ws, base) {
 	switch (req.body.format) {
 		case '2D':
-			return new Parsers._2d(ws, req.org, base);
+			return new Parsers._2d(ws, req.glossary, base);
 	}
 };
 

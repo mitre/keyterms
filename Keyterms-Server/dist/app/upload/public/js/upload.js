@@ -33,8 +33,8 @@
 	.controller('upload-ctrl', ['$scope', '$http', 'Includes', function ($scope, $http, Includes) {
 		var reset = function () {
 			var clean = {
-				orgs: '',
-				org: '',
+				glossaries: '',
+				glossary: '',
 				file: {},
 				ext: '',
 				format: ''
@@ -50,13 +50,13 @@
 			show: false,
 			format: 'text-muted'
 		};
-		$scope.fm.orgs = Includes.orgs;
-		$scope.currentOrg = Includes.user.currentOrg;
+		$scope.fm.glossaries = Includes.glossaries;
+		$scope.currentGlossary = Includes.user.currentGlossary;
 
-		$scope.fm.orgs.forEach(function(org){
+		$scope.fm.glossaries.forEach(function(gloss){
 
-			if(org._id === $scope.currentOrg){
-				$scope.fm.org = org;
+			if(gloss._id === $scope.currentGlossary){
+				$scope.fm.glossary = gloss;
 			}
 		});
 
