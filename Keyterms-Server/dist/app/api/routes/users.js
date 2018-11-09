@@ -63,8 +63,8 @@ exports.idParam = function (req, res, next, id) {
 // GET /api/user/u/:id
 exports.read = function (req, res, next) {
 	req.userDoc.populate({
-		path: 'organizations',
-		model: 'Organization',
+		path: 'glossaries',
+		model: 'Glossary',
 		select: 'name abbreviation admins qcs langList'
 	}).execPopulate()
 	.then( function (user) {
@@ -106,15 +106,15 @@ exports.delete = function (req, res, next) {
 	.catch(next);
 };
 
-// POST /api/user/defaultOrg/:org
-exports.updateDefaultOrg = function (req, res, next) {
-	var orgId = req.params.org === 'false' ? null : req.params.org;
+// POST /api/user/defaultGlossary/:glossary
+exports.updateDefaultGlossary = function (req, res, next) {
+	var glossaryId = req.params.glossary === 'false' ? null : req.params.glossary;
 
-	req.user.updateDefaultOrg(orgId)
+	req.user.updateDefaultGlossary(glossaryId)
 		.then(function (user) {
 			return user.populate({
-				path: 'organizations',
-				model: 'Organization',
+				path: 'glossaries',
+				model: 'Glossary',
 				select: 'name langList'
 			}).execPopulate();
 		})
@@ -123,7 +123,7 @@ exports.updateDefaultOrg = function (req, res, next) {
 		})
 		.catch(function (err) {
 			if (!!err.notAMember) {
-				log.error(`User is not a member of target Organization [${orgId}]`);
+				log.error(`User is not a member of target Glossary [${glossaryId}]`);
 				res.sendStatus(400);
 			}
 			else {
@@ -132,13 +132,13 @@ exports.updateDefaultOrg = function (req, res, next) {
 		});
 };
 
-// POST /api/user/activeOrg/:org
-exports.switchActiveOrg = function (req, res, next) {
-	req.user.switchActiveOrg(req.params.org)
+// POST /api/user/activeGlossary/:glossary
+exports.switchActiveGlossary = function (req, res, next) {
+	req.user.switchActiveGlossary(req.params.glossary)
 	.then(function(user){
         return user.populate({
-            path: 'organizations',
-            model: 'Organization',
+            path: 'glossaries',
+            model: 'Glossary',
             select: 'name langList'
         }).execPopulate();
 	})
@@ -147,7 +147,7 @@ exports.switchActiveOrg = function (req, res, next) {
 	})
 	.catch( function (err) {
 		if (!!err.notAMember) {
-			log.error(`User is not a member of target Organization [${req.params.org}]`);
+			log.error(`User is not a member of target Glossary [${req.params.glossary}]`);
 			res.sendStatus(400);
 		}
 		else {

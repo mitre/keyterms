@@ -111,9 +111,9 @@ var sendFileOrBody = function (req, res, json) {
 	}
 };
 
-// download every Entry which belongs to a specific organization
-// defaults to current organization if none is specified
-exports.orgToJSON = function (req, res, next) {
+// download every Entry which belongs to a specific glossary
+// defaults to current glossary if none is specified
+exports.glossaryToJSON = function (req, res, next) {
 	// removes extra quotations around the date fields
 	Object.keys(req.query).forEach( function (key) {
 		req.query[key] = req.query[key].replace(/"/g, '');
@@ -148,25 +148,25 @@ exports.orgToJSON = function (req, res, next) {
 
 	Promise.resolve()
 	.then( function () {
-		if (!!req.query.org) {
-			mongoose.model('Organization').findOne({abbreviation: req.query.org}).exec()
-			.then( function (org) {
-				if (org.globalBlock) {
-                    return next(new Error('Cannot request Entries of a globally restricted Organization without membership'));
+		if (!!req.query.glossary) {
+			mongoose.model('Glossary').findOne({abbreviation: req.query.glossary}).exec()
+			.then( function (glossary) {
+				if (glossary.globalBlock) {
+                    return next(new Error('Cannot request Entries of a globally restricted Glossary without membership'));
                 }
 				else {
-                    return org;
+                    return glossary;
                 }
 			});
 		}
 		else {
-			return req.org;
+			return req.glossary;
 		}
 	})
-	.then( function (org) {
+	.then( function (glossary) {
 		log.debug('Additional query parameters: ', query);
 
-		query['_id'] = {$in: org.entries};
+		query['_id'] = {$in: glossary.entries};
 		var mongooseQuery = Entry.find(query);
 
 		if (!!req.query['langCode']) {
@@ -200,9 +200,9 @@ exports.orgToJSON = function (req, res, next) {
 // NOTE: /api/download/query?file=false will return identical results as /api/search
 // NOTE: the same "pre-search" middleware is required to be mounted before this call
 exports.queryToJSON = function (req, res, next) {
-	search.executeOrgSearch(req)
+	search.executeGlossarySearch(req)
 	.then( function (searchResults) {
-		// Entry's are pre-populated via search.executeOrgSearch
+		// Entry's are pre-populated via search.executeGlossarySearch
 		return sendFileOrBody(req, res, searchResults);
 	})
 	.catch(next);

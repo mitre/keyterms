@@ -29,23 +29,23 @@ var config = require('../../../config');
 
 var log = require('../../utils/logger').logger;
 
-var Organization = mongoose.model('Organization');
+var Glossary = mongoose.model('Glossary');
 var User = mongoose.model('User');
 
 exports.idParam = function(req, res, next, id){
-	Organization.findOne({'_id': id}).exec()
-	.then(function(org) {
-		if (!org){ return res.sendStatus(404); }
+	Glossary.findOne({'_id': id}).exec()
+	.then(function(glossary) {
+		if (!glossary){ return res.sendStatus(404); }
 
-		req.orgDoc = org;
+		req.glossaryDoc = glossary;
 		next();
 	}).catch(next);
 };
 
 exports.create = function(req, res, next){
-    log.debug('creating org!');
+    log.debug('creating glossary!');
 
-    Organization.create(req.body)
+    Glossary.create(req.body)
     .then(function (result) {
         res.status(201).json(result);
     })
@@ -56,23 +56,23 @@ exports.create = function(req, res, next){
 };
 
 exports.read = function(req, res) {
-	var org = req.orgDoc.toObject();
-	org.entries = org.entries.length || 0;
-	org.nominations = org.nominations.length || 0;
+	var glossary = req.glossaryDoc.toObject();
+	glossary.entries = glossary.entries.length || 0;
+	glossary.nominations = glossary.nominations.length || 0;
 
-	res.json(org);
+	res.json(glossary);
 };
 
 exports.update = function (req, res, next) {
-	req.orgDoc.updateMetadata(req.body)
-	.then( function (org) {
-		res.json(org);
+	req.glossaryDoc.updateMetadata(req.body)
+	.then( function (glossary) {
+		res.json(glossary);
 	})
 	.catch(next);
 };
 
 exports.delete = function(req, res, next){
-    req.orgDoc.removeOrganization()
+    req.glossaryDoc.removeGlossary()
     .then( function () {
 		res.sendStatus(204);
 	})
@@ -80,53 +80,53 @@ exports.delete = function(req, res, next){
 };
 
 exports.addQC = function(req, res, next){
-   req.orgDoc.addQC(req.body.qcID)
-   .then( function (org) {
-	   res.json(org);
+   req.glossaryDoc.addQC(req.body.qcID)
+   .then( function (glossary) {
+	   res.json(glossary);
    })
    .catch(next);
 };
 
 exports.addAdmin = function(req, res, next){
-    req.orgDoc.addAdmin(req.body.adminID)
-	.then( function (org) {
-		res.json(org);
+    req.glossaryDoc.addAdmin(req.body.adminID)
+	.then( function (glossary) {
+		res.json(glossary);
 	})
 	.catch(next);
 };
 
 exports.removeQC = function(req, res, next){
-    req.orgDoc.removeQC(req.body.qcID)
-	.then( function (org) {
-		res.json(org);
+    req.glossaryDoc.removeQC(req.body.qcID)
+	.then( function (glossary) {
+		res.json(glossary);
 	})
 	.catch(next);
 };
 
 exports.removeAdmin = function(req, res, next){
-   req.orgDoc.removeAdmin(req.body.adminID)
-   .then( function (org) {
-	   res.json(org);
+   req.glossaryDoc.removeAdmin(req.body.adminID)
+   .then( function (glossary) {
+	   res.json(glossary);
    })
 	.catch(next);
 };
 
 exports.list = function(req, res, next){
-    Organization.find({}, '-entries -nominations').exec()
+    Glossary.find({}, '-entries -nominations').exec()
 	.then(function(data){
         res.json(data);
     }).catch(next);
 };
 
 exports.getCommon = function(req, res, next) {
-	Organization.findOne({'isCommon': true}).exec()
-	.then(function(org) {
-		if (!org) { return res.sendStatus(404); }
-		res.json(org);
+	Glossary.findOne({'isCommon': true}).exec()
+	.then(function(glossary) {
+		if (!glossary) { return res.sendStatus(404); }
+		res.json(glossary);
 	}).catch(next);
 };
 
-// GET /api/org/members/:orgId
+// GET /api/glossary/members/:glossaryId
 exports.getMembers = function (req, res, next) {
 	var async = Promise.resolve();
 
@@ -144,10 +144,10 @@ exports.getMembers = function (req, res, next) {
 					var userObj = user.toObject();
 					var list = resp.nonMembers;
 
-					// if member of org
-					if (user.organizations.indexOf(req.orgDoc._id) !== -1) {
-						userObj.qc = req.orgDoc.qcs.indexOf(user._id) !== -1;
-						userObj.admin = req.orgDoc.admins.indexOf(user._id) !== -1;
+					// if member of glossary
+					if (user.glossarys.indexOf(req.glossaryDoc._id) !== -1) {
+						userObj.qc = req.glossaryDoc.qcs.indexOf(user._id) !== -1;
+						userObj.admin = req.glossaryDoc.admins.indexOf(user._id) !== -1;
 						list = resp.members;
 					}
 					else {
@@ -164,7 +164,7 @@ exports.getMembers = function (req, res, next) {
 			});
 		}
 		else {
-			return User.find({ organizations: req.orgDoc._id }).select('-password').exec();
+			return User.find({ glossarys: req.glossaryDoc._id }).select('-password').exec();
 		}
 	})
 	.then( function (users) {
@@ -172,34 +172,34 @@ exports.getMembers = function (req, res, next) {
 	}).catch(next);
 };
 
-// PUT /api/org/members/:orgId	 =>  req.body = []
+// PUT /api/glossary/members/:glossaryId	 =>  req.body = []
 exports.addMembers = function (req, res, next) {
 	var userIds = req.body.map( user => user._id );
 
 	User.find({_id: {$in: userIds}}).exec()
 	.then( function (userDocs) {
-		return Promise.mapSeries(userDocs, user => user.joinOrg(req.orgDoc._id));
+		return Promise.mapSeries(userDocs, user => user.joinGlossary(req.glossaryDoc._id));
 	})
 	.then( function () {
-		// NOTE: user.admin reference to OrgAdmin (not sys admin aka user.isAdmin)
+		// NOTE: user.admin reference to GlossaryAdmin (not sys admin aka user.isAdmin)
 		var admins = req.body.filter( user => user.admin ).map( user => user._id );
 		var qcs = req.body.filter( user => user.qc ).map( user => user._id );
 
-		req.orgDoc.admins = req.orgDoc.admins.concat(admins);
-		req.orgDoc.qcs = req.orgDoc.qcs.concat(qcs);
+		req.glossaryDoc.admins = req.glossaryDoc.admins.concat(admins);
+		req.glossaryDoc.qcs = req.glossaryDoc.qcs.concat(qcs);
 
-		return req.orgDoc.save();
+		return req.glossaryDoc.save();
 	})
-	.then( function (org) {
-		org.entries = org.entries.length || 0;
-		org.nominations = org.nominations.length || 0;
+	.then( function (glossary) {
+		glossary.entries = glossary.entries.length || 0;
+		glossary.nominations = glossary.nominations.length || 0;
 
-		res.json(org);
+		res.json(glossary);
 	})
 	.catch(next);
 };
 
-// POST /api/org/members/:orgId  =>   req.body = [];
+// POST /api/glossary/members/:glossaryId  =>   req.body = [];
 exports.updateMembers = function (req, res, next) {
 	var userIds = req.body.map(user => user._id);
 	var currentUsers = [];
@@ -213,9 +213,9 @@ exports.updateMembers = function (req, res, next) {
 
 			// if the user is marked for removal, do so
 			if (user.marked) {
-				return user.leaveOrg(req.orgDoc._id);
+				return user.leaveGlossary(req.glossaryDoc._id);
 			}
-			// otherwise check if the user's orgAdmin or orgQC status needs updating
+			// otherwise check if the user's glossaryAdmin or glossaryQC status needs updating
 			else {
 				currentUsers.push(user);
 				return user;
@@ -223,30 +223,30 @@ exports.updateMembers = function (req, res, next) {
 		});
 	})
 	.then( function () {
-		// NOTE: user.admin reference to OrgAdmin (not sys admin aka user.isAdmin)
-		req.orgDoc.admins = currentUsers.filter( user => user.admin ).map( user => user._id );
-		req.orgDoc.qcs = currentUsers.filter( user => user.qc ).map( user => user._id );
+		// NOTE: user.admin reference to GlossaryAdmin (not sys admin aka user.isAdmin)
+		req.glossaryDoc.admins = currentUsers.filter( user => user.admin ).map( user => user._id );
+		req.glossaryDoc.qcs = currentUsers.filter( user => user.qc ).map( user => user._id );
 
-		// NOTE: setting the admins/qcs arrays as the value above will remove any users which were removed from the org as well
+		// NOTE: setting the admins/qcs arrays as the value above will remove any users which were removed from the glossary as well
 
-		return req.orgDoc.save();
+		return req.glossaryDoc.save();
 	})
-	.then( function (org) {
-		org.entries = org.entries.length || 0;
-		org.nominations = org.nominations.length || 0;
+	.then( function (glossary) {
+		glossary.entries = glossary.entries.length || 0;
+		glossary.nominations = glossary.nominations.length || 0;
 
-		res.json(org);
+		res.json(glossary);
 	})
 	.catch(next);
 };
 
 // This needs to be mounted AFTER verifyRequest middleware
-exports.checkOrgPermissions = function (req, res) {
+exports.checkGlossaryPermissions = function (req, res) {
 	var creds = {
-		isOrgAdmin: (req.org.admins.indexOf(req.user._id) !== -1),
-		isOrgQC: (req.org.qcs.indexOf(req.user._id) !== -1),
-		orgName: req.org.name || '',
-		langList: req.org.langList || []
+		isGlossaryAdmin: (req.glossary.admins.indexOf(req.user._id) !== -1),
+		isGlossaryQC: (req.glossary.qcs.indexOf(req.user._id) !== -1),
+		glossaryName: req.glossary.name || '',
+		langList: req.glossary.langList || []
 	};
 	res.json(creds);
 };

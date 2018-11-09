@@ -29,7 +29,7 @@ var router = express.Router();
 // import route handlers
 var system = require('./system');
 var transUtils = require('./translationUtils');
-var orgs = require('./orgs');
+var glossaries = require('./glossaries');
 var tags = require('./tags');
 var entries = require('./entries');
 var user = require('./users');
@@ -63,7 +63,7 @@ router.get('/docs', (req, res) => res.redirect('/docs'));
  * @apiSuccess (2xx : Response Body) {string} keyTermsVersion Current version of the KeyTerms Service
  * @apiSuccess (2xx : Response Body) {string} mongoDBversion Current version of MongoDB being used
  * @apiSuccess (2xx : Response Body) {string} mode The current environment the server is set to (dev or prod)
- * @apiSuccess (2xx : Response Body) {Number} keyTermsEntries Total number of Entries currently stored, across all organizations
+ * @apiSuccess (2xx : Response Body) {Number} keyTermsEntries Total number of Entries currently stored, across all glossaries
  *
  * @apiSuccessExample Success-Response:
  *        HTTP/1.1 200 OK
@@ -159,8 +159,8 @@ router.use(auth.authenticate.ensureAuthenticated);
  * @apiSuccess (2xx : Response Body) {string} email The user's email
  * @apiSuccess (2xx : Response Body) {ObjectId} id auto-generated hash key
  * @apiSuccess (2xx : Response Body) {boolean} isAdmin A flag representing if the user is a server admin
- * @apiSuccess (2xx : Response Body) {[Organization]} organizations The list of organizations this user belongs to
- * @apiSuccess (2xx : Response Body) {Organization} currentOrg The organization the user is currently acting in
+ * @apiSuccess (2xx : Response Body) {[Glossary]} glossaries The list of glossaries this user belongs to
+ * @apiSuccess (2xx : Response Body) {Glossary} currentGlossary The glossary the user is currently acting in
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
@@ -171,39 +171,39 @@ router.use(auth.authenticate.ensureAuthenticated);
  *    "username": "lsky",
  *    "_id": "57a4ed8a5dea6f5841348cdd",
  *    "isAdmin": false,
- *    "organizations": ["57a4ed8a5dea6f58415ae3d3", "57a4ed8a5dea6f58415ae3e7"],
- *    "currentOrg": "57a4ed8a5dea6f58415ae3d3"
+ *    "glossaries": ["57a4ed8a5dea6f58415ae3d3", "57a4ed8a5dea6f58415ae3e7"],
+ *    "currentGlossary": "57a4ed8a5dea6f58415ae3d3"
  *}
  */
 
 var userRouter = express.Router();
 
 /**
- * @api {post} /api/user/activeOrg/:org change active org
+ * @api {post} /api/user/activeGlossary/:glossary change active glossary
  * @apiGroup User Management
- * @apiName activeOrg
- * @apiDescription Changes a user's current organization
+ * @apiName activeGlossary
+ * @apiDescription Changes a user's current glossary
  * @apiVersion 3.1.0
- * @apiDescription Used to change the current user's current organization
- * @apiParam (Param) {ObjectId} org The _id of the target organization the user wishes to focus
+ * @apiDescription Used to change the current user's current glossary
+ * @apiParam (Param) {ObjectId} glossary The _id of the target glossary the user wishes to focus
  *
  * @apiParamExample {json} Request-Example:
- *        path: /api/user/activeOrg/57a4ed8a5dea6f58415ae3d3
+ *        path: /api/user/activeGlossary/57a4ed8a5dea6f58415ae3d3
  *
  *    @apiSuccessExample Success-Response:
  *    HTTP/1.1 200 OK
  */
-userRouter.post('/activeOrg/:org', user.switchActiveOrg);
+userRouter.post('/activeGlossary/:glossary', user.switchActiveGlossary);
 
 /**
- * @api {post} /api/user/defaultOrg/:org update user's default org
+ * @api {post} /api/user/defaultGlossary/:glossary update user's default glossary
  * @apiGroup User Management
- * @apiName defaultOrg
- * @apiDescription Updates a user's stored default organization
+ * @apiName defaultGlossary
+ * @apiDescription Updates a user's stored default glossary
  * @apiVersion 3.1.0
- * @apiParam (Param) {ObjectId} org The _id of the organization the user wishes to be set as their default
+ * @apiParam (Param) {ObjectId} glossary The _id of the glossary the user wishes to be set as their default
  */
-userRouter.post('/defaultOrg/:org', user.updateDefaultOrg);
+userRouter.post('/defaultGlossary/:glossary', user.updateDefaultGlossary);
 
 userRouter.post('/password-check/:id', user.checkAndChangePassword);
 
@@ -286,43 +286,43 @@ userRouter.get('/list', user.listUsers);
 // mount user router on api router
 router.use('/user', userRouter);
 
-//////////////////////////////////// Organization Endpoints ///////////////////////////////////4
+//////////////////////////////////// Glossary Endpoints ///////////////////////////////////4
 
 //
-var organizationRouter = express.Router();
+var glossaryRouter = express.Router();
 
 /**
- * @apiDefine OrganizationManagement Organization Management
- * Organizations have replaced Components and Component Ids in this iteration of the KeyTerms API. One difference introduced with the change to Organizations is the concept of QCs and Admins.
- * <br><br>Organizational Admins are Users (which are organization members) who will be given administrative permissions for this Organization. They will be able to create new users, add existing users to this organization, etc...
- * <br><br>Organizational QCs are Users (which are organization members) who will be given "approval" permissions for this Organization. This means they will be able to approve or reject nominations and add, modify, or remove Entries directly (without nominating) inside this organization
- * <br><br>QCs and Admins can be the same User or separate Users or any combination in between. It's completely up to the Organization.
- * <br><br><b>Note:</b>&nbsp;There is a difference between an Organizational Admin and a KeyTerms (or server) Admin. Org Admins can only perform administrative actions on their respective organizations
+ * @apiDefine GlossaryManagement Glossary Management
+ * Glossaries have replaced Components and Component Ids in this iteration of the KeyTerms API. One difference introduced with the change to Glossaries is the concept of QCs and Admins.
+ * <br><br>Glossary Admins are Users (which are glossary members) who will be given administrative permissions for this Glossary. They will be able to create new users, add existing users to this glossary, etc...
+ * <br><br>Glossary QCs are Users (which are glossary members) who will be given "approval" permissions for this Glossary. This means they will be able to approve or reject nominations and add, modify, or remove Entries directly (without nominating) inside this glossary
+ * <br><br>QCs and Admins can be the same User or separate Users or any combination in between. It's completely up to the Glossary.
+ * <br><br><b>Note:</b>&nbsp;There is a difference between an Glossary Admin and a KeyTerms (or server) Admin. Glossary Admins can only perform administrative actions on their respective glossaries
  */
 
 
 /**
- * @apiDefine returnOrg
- * @apiSuccess (2xx : Response Body) {string} name Name of the organization
- * @apiSuccess (2xx : Response Body) {string} description Description of the organization
- * @apiSuccess (2xx : Response Body) {string} abbreviation org's abbrev
- * @apiSuccess (2xx : Response Body) {string} path The organization's path
- * @apiSuccess (2xx : Response Body) {boolean} globalBlock A flag indicating whether the organization's Entries are globally restricted
- * @apiSuccess (2xx : Response Body) {[string]} langList A list of languages associated with this organization
- * @apiSuccess (2xx : Response Body) {timestamp} lastModified Tracks the last time an update operation was performed on this organization
- * @apiSuccess (2xx : Response Body) {[Entry]} entries The entries submitted to the organization. This will probably be empty
- * @apiSuccess (2xx : Response Body) {[Nomination]} nominations The nominations submitted to the organization. This will probably be empty
- * @apiSuccess (2xx : Response Body) {[User]} qcs The list of QCs that are associated with the organization
- * @apiSuccess (2xx : Response Body) {[User]} admins The list of admins associated with the organization
+ * @apiDefine returnGlossary
+ * @apiSuccess (2xx : Response Body) {string} name Name of the glossary
+ * @apiSuccess (2xx : Response Body) {string} description Description of the glossary
+ * @apiSuccess (2xx : Response Body) {string} abbreviation glossary's abbrev
+ * @apiSuccess (2xx : Response Body) {string} path The glossary's path
+ * @apiSuccess (2xx : Response Body) {boolean} globalBlock A flag indicating whether the glossary's Entries are globally restricted
+ * @apiSuccess (2xx : Response Body) {[string]} langList A list of languages associated with this glossary
+ * @apiSuccess (2xx : Response Body) {timestamp} lastModified Tracks the last time an update operation was performed on this glossary
+ * @apiSuccess (2xx : Response Body) {[Entry]} entries The entries submitted to the glossary. This will probably be empty
+ * @apiSuccess (2xx : Response Body) {[Nomination]} nominations The nominations submitted to the glossary. This will probably be empty
+ * @apiSuccess (2xx : Response Body) {[User]} qcs The list of QCs that are associated with the glossary
+ * @apiSuccess (2xx : Response Body) {[User]} admins The list of admins associated with the glossary
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
  *
  {
-   "name": "testOrg",
-   "description": "TestOrg",
+   "name": "testGlossary",
+   "description": "TestGlossary",
    "abbreviation": "test",
-   "path": "path/to/testOrg",
+   "path": "path/to/testGlossary",
    "globalBlock": false,
    "_id": "57d081fdf87b781e0852de93",
    "langList": [],
@@ -335,15 +335,15 @@ var organizationRouter = express.Router();
  *
  */
 
-organizationRouter.use(auth.authenticate.verifyRequest);
-organizationRouter.use(auth.authorize.ensureSysAdminOrOrgAdmin);
+glossaryRouter.use(auth.authenticate.verifyRequest);
+glossaryRouter.use(auth.authorize.ensureSysAdminOrGlossaryAdmin);
 
 /**
- * @api {get} /api/org/list find all
- * @apiGroup OrganizationManagement
- * @apiName Get all Organizations
+ * @api {get} /api/glossary/list find all
+ * @apiGroup GlossaryManagement
+ * @apiName Get all Glossaries
  * @apiVersion 3.1.0
- * @apiDescription Returns a list of all organizations
+ * @apiDescription Returns a list of all glossaries
  *
  * @apiSuccessExample Success-Response:
  * NOTE: The entries and nominations fields are filtered out to reduce the size of the returned data
@@ -352,10 +352,10 @@ organizationRouter.use(auth.authorize.ensureSysAdminOrOrgAdmin);
  *
  * [
  {
-   "name": "testOrg",
-   "description": "TestOrg",
+   "name": "testGlossary",
+   "description": "TestGlossary",
    "abbreviation": "test",
-   "path": "path/to/testOrg",
+   "path": "path/to/testGlossary",
    "globalBlock": false,
    "_id": "57d081fdf87b781e0852de93",
    "langList": [],
@@ -364,10 +364,10 @@ organizationRouter.use(auth.authorize.ensureSysAdminOrOrgAdmin);
    "admins": []
  },
  {
-  "name": "exampleOrg",
-  "description": "ExampleOrg",
+  "name": "exampleGlossary",
+  "description": "ExampleGlossary",
   "abbreviation": "example",
-  "path": "path/to/exampleOrg",
+  "path": "path/to/exampleGlossary",
   "globalBlock": false,
   "_id": "57d081fdf87b781e0852da56",
   "langList": [],
@@ -377,93 +377,93 @@ organizationRouter.use(auth.authorize.ensureSysAdminOrOrgAdmin);
 }
  * ]
  */
-organizationRouter.get('/list', orgs.list);
+glossaryRouter.get('/list', glossaries.list);
 
 /**
- * @api {get} /api/org/common find common
- * @apiGroup OrganizationManagement
- * @apiName Get common organization
+ * @api {get} /api/glossary/common find common
+ * @apiGroup GlossaryManagement
+ * @apiName Get common glossary
  * @apiVersion 3.1.0
- * @apiDescription Returns the common organization
- * @apiUse returnOrg
+ * @apiDescription Returns the common glossary
+ * @apiUse returnGlossary
  */
-organizationRouter.get('/getCommon', orgs.getCommon);
+glossaryRouter.get('/getCommon', glossaries.getCommon);
 
 /**
- * @api {post} /api/org/create create
- * @apiGroup OrganizationManagement
- * @apiName Create Organization
- * @apiDescription Creates a an organization with the submitted properties. Returns a json representation of the organization
+ * @api {post} /api/glossary/create create
+ * @apiGroup GlossaryManagement
+ * @apiName Create Glossary
+ * @apiDescription Creates a an glossary with the submitted properties. Returns a json representation of the glossary
  * @apiVersion 3.1.0
  *
- * @apiParam (Request Body) {string} name Name of the organization
- * @apiParam (Request Body) {string} [description] Description of the organization
- * @apiParam (Request Body) {string} [abbreviation] org's abbrev
- * @apiParam (Request Body) {string} [path] The organization's path
- * @apiParam (Request Body) {boolean} [globalBlock=false] A flag indicating whether the organization's Entries are globally restricted
+ * @apiParam (Request Body) {string} name Name of the glossary
+ * @apiParam (Request Body) {string} [description] Description of the glossary
+ * @apiParam (Request Body) {string} [abbreviation] glossary's abbrev
+ * @apiParam (Request Body) {string} [path] The glossary's path
+ * @apiParam (Request Body) {boolean} [globalBlock=false] A flag indicating whether the glossary's Entries are globally restricted
  *
  * @apiParamExample {json} Request-Example:
- *	path: /api/org/create
+ *	path: /api/glossary/create
  *
  *	body: {
- *	  "name": "testOrg",
- *	  "description": "TestOrg",
+ *	  "name": "testGlossary",
+ *	  "description": "TestGlossary",
  *	  "abbreviation": "test",
- *	  "path": "path/to/testOrg"
+ *	  "path": "path/to/testGlossary"
  *	}
  *
- * @apiUse returnOrg
+ * @apiUse returnGlossary
  *
  **/
-organizationRouter.post('/create', auth.authorize.ensureAdmin, orgs.create);
+glossaryRouter.post('/create', auth.authorize.ensureAdmin, glossaries.create);
 
 /**
- * @apiDefine orgIdParam
- * @apiParam {Organization} id The _id for the specific organization
+ * @apiDefine glossaryIdParam
+ * @apiParam {Glossary} id The _id for the specific glossary
  */
-//Anything with in the organization Router with :id in the address has the organization looked up automatically
-organizationRouter.param('id', orgs.idParam);
+//Anything with in the glossary Router with :id in the address has the glossary looked up automatically
+glossaryRouter.param('id', glossaries.idParam);
 
-organizationRouter.route('/o/:id')
+glossaryRouter.route('/o/:id')
 
 /**
- * @api {get} /api/org/o/:id find one
- * @apiGroup OrganizationManagement
- * @apiName Find Organization
+ * @api {get} /api/glossary/o/:id find one
+ * @apiGroup GlossaryManagement
+ * @apiName Find Glossary
  * @apiVersion 3.1.0
- * @apiDescription Returns information about a given organization
- * @apiUse orgIdParam
- * @apiUse returnOrg
+ * @apiDescription Returns information about a given glossary
+ * @apiUse glossaryIdParam
+ * @apiUse returnGlossary
  */
-.get(orgs.read)
+.get(glossaries.read)
 
-.post(orgs.update)
+.post(glossaries.update)
 
 /**
- * @api {delete} /api/org/o/:id delete
- * @apiGroup OrganizationManagement
+ * @api {delete} /api/glossary/o/:id delete
+ * @apiGroup GlossaryManagement
  * @apiName Delete Entry
  * @apiVersion 3.1.0
- * @apiDescription Deletes an organization
- * @apiUse orgIdParam
+ * @apiDescription Deletes an glossary
+ * @apiUse glossaryIdParam
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
  *
  */
-.delete(orgs.delete);
+.delete(glossaries.delete);
 
 /**
- * @api {post} /api/org/addQC/o/:id add QC
- * @apiGroup OrganizationManagement
+ * @api {post} /api/glossary/addQC/o/:id add QC
+ * @apiGroup GlossaryManagement
  * @apiName Add a QC
  * @apiVersion 3.1.0
- * @apiDescription Adds a QC to an organization
+ * @apiDescription Adds a QC to an glossary
  *
- * @apiUse orgIdParam
- * @apiParam (Request Body) {User} qcID The _id for the user to be promoted to Organizational QC
+ * @apiUse glossaryIdParam
+ * @apiParam (Request Body) {User} qcID The _id for the user to be promoted to Glossary QC
  * @apiParamExample {json} Request-Example:
- *   path: /api/org/addQC/57d081fdf87b781e0852de93
+ *   path: /api/glossary/addQC/57d081fdf87b781e0852de93
  *
  *   body: {
  *     "qcID": "57a4ed8a5dea6f5841348cdd"
@@ -473,19 +473,19 @@ organizationRouter.route('/o/:id')
  * HTTP/1.1 200 OK
  *
  */
-organizationRouter.post('/addQC/:id', orgs.addQC);
+glossaryRouter.post('/addQC/:id', glossaries.addQC);
 
 /**
- * @api {post} /api/org/addAdmin/:id add admin
- * @apiGroup OrganizationManagement
+ * @api {post} /api/glossary/addAdmin/:id add admin
+ * @apiGroup GlossaryManagement
  * @apiName Add a Admin
  * @apiVersion 3.1.0
- * @apiDescription Adds an admin to an organization with a given id
- * @apiUse orgIdParam
- * @apiParam (Request Body) {ObjectId} adminID The _id for the user to be promoted to Organizational Admin
+ * @apiDescription Adds an admin to an glossary with a given id
+ * @apiUse glossaryIdParam
+ * @apiParam (Request Body) {ObjectId} adminID The _id for the user to be promoted to Glossary Admin
  *
  * @apiParamExample {json} Request-Example:
- *   path: /api/org/addAdmin/57d081fdf87b781e0852de93
+ *   path: /api/glossary/addAdmin/57d081fdf87b781e0852de93
  *
  *   body: {
  *     "adminID": "57a4ed8a5dea6f5841348cdd"
@@ -495,18 +495,18 @@ organizationRouter.post('/addQC/:id', orgs.addQC);
  * HTTP/1.1 200 OK
  *
  */
-organizationRouter.post('/addAdmin/:id', orgs.addAdmin);
+glossaryRouter.post('/addAdmin/:id', glossaries.addAdmin);
 
 /**
- * @api {post} /api/org/removeQC/:id remove QC
- * @apiGroup OrganizationManagement
+ * @api {post} /api/glossary/removeQC/:id remove QC
+ * @apiGroup GlossaryManagement
  * @apiName remove a QC
  * @apiVersion 3.1.0
- * @apiDescription Removes a QC from a given organization.
- * @apiUse orgIdParam
+ * @apiDescription Removes a QC from a given glossary.
+ * @apiUse glossaryIdParam
  * @apiParam (Request Body) {User} qcID The _id for the user to be removed from their QC position
  * @apiParamExample {json} Request-Example:
- *   path: /api/org/removeQC/57d081fdf87b781e0852de93
+ *   path: /api/glossary/removeQC/57d081fdf87b781e0852de93
  *
  *   body: {
  *     "qcID": "57a4ed8a5dea6f5841348cdd"
@@ -516,19 +516,19 @@ organizationRouter.post('/addAdmin/:id', orgs.addAdmin);
  * HTTP/1.1 200 OK
  *
  */
-organizationRouter.post('/removeQC/:id', orgs.removeQC);
+glossaryRouter.post('/removeQC/:id', glossaries.removeQC);
 
 /**
- * @api {post} /api/org/removeAdmin/:id remove admin
- * @apiGroup OrganizationManagement
+ * @api {post} /api/glossary/removeAdmin/:id remove admin
+ * @apiGroup GlossaryManagement
  * @apiName Remove Admin
  * @apiVersion 3.1.0
- * @apiDescription Removes an admin from an organization
- * @apiUse orgIdParam
+ * @apiDescription Removes an admin from an glossary
+ * @apiUse glossaryIdParam
  * @apiParam (Request Body) {ObjectId} adminID The _id for the user to be removed from their Admin position
  *
  * @apiParamExample {json} Request-Example:
- *   path: /api/org/removeAdmin/57d081fdf87b781e0852de93
+ *   path: /api/glossary/removeAdmin/57d081fdf87b781e0852de93
  *
  *   body: {
  *     "adminID": "57a4ed8a5dea6f5841348cdd"
@@ -538,15 +538,15 @@ organizationRouter.post('/removeQC/:id', orgs.removeQC);
  * HTTP/1.1 200 OK
  *
  */
-organizationRouter.post('/removeAdmin/:id', orgs.removeAdmin);
+glossaryRouter.post('/removeAdmin/:id', glossaries.removeAdmin);
 
 /**
- * @api {get} /api/org/members/:id find org users
- * @apiGroup OrganizationManagement
+ * @api {get} /api/glossary/members/:id find glossary users
+ * @apiGroup GlossaryManagement
  * @apiName Get Users
  * @apiVersion 3.1.0
- * @apiDescription Returns all users for a given organization
- * @apiUse orgIdParam
+ * @apiDescription Returns all users for a given glossary
+ * @apiUse glossaryIdParam
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
@@ -558,8 +558,8 @@ organizationRouter.post('/removeAdmin/:id', orgs.removeAdmin);
  *    "username": "lsky",
  *    "_id": "57a4ed8a5dea6f5841348cdd",
  *    "isAdmin": false,
- *    "organizations": ["57a4ed8a5dea6f58415ae3d3", "57a4ed8a5dea6f58415ae3e7"],
- *    "currentOrg": "57a4ed8a5dea6f58415ae3d3"
+ *    "glossaries": ["57a4ed8a5dea6f58415ae3d3", "57a4ed8a5dea6f58415ae3e7"],
+ *    "currentGlossary": "57a4ed8a5dea6f58415ae3d3"
  *  },
  *  {
  *    "fullName": "Darth Vader",
@@ -567,21 +567,21 @@ organizationRouter.post('/removeAdmin/:id', orgs.removeAdmin);
  *    "username": "NotYourFather",
  *    "_id": "57a4ed8a5dea6f5841348a43",
  *    "isAdmin": false,
- *    "organizations": ["57a4ed8a5dea6f58415ae4f5", "57a4ed8a5dea6f58415aed29"],
- *    "currentOrg": "57a4ed8a5dea6f58415ae4f5"
+ *    "glossaries": ["57a4ed8a5dea6f58415ae4f5", "57a4ed8a5dea6f58415aed29"],
+ *    "currentGlossary": "57a4ed8a5dea6f58415ae4f5"
  *  }
  * ]
  */
-//organizationRouter.get('/members/:id', orgs.getUsers);
+//glossaryRouter.get('/members/:id', glossaries.getUsers);
 
-organizationRouter.route('/members/:id')
+glossaryRouter.route('/members/:id')
 /**
- * @api {get} /api/org/members/:id find org users
- * @apiGroup OrganizationManagement
+ * @api {get} /api/glossary/members/:id find glossary users
+ * @apiGroup GlossaryManagement
  * @apiName Get Users
  * @apiVersion 3.1.0
- * @apiDescription Returns all users for a given organization
- * @apiUse orgIdParam
+ * @apiDescription Returns all users for a given glossary
+ * @apiUse glossaryIdParam
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
@@ -593,8 +593,8 @@ organizationRouter.route('/members/:id')
  *    "username": "lsky",
  *    "_id": "57a4ed8a5dea6f5841348cdd",
  *    "isAdmin": false,
- *    "organizations": ["57a4ed8a5dea6f58415ae3d3", "57a4ed8a5dea6f58415ae3e7"],
- *    "currentOrg": "57a4ed8a5dea6f58415ae3d3"
+ *    "glossaries": ["57a4ed8a5dea6f58415ae3d3", "57a4ed8a5dea6f58415ae3e7"],
+ *    "currentGlossary": "57a4ed8a5dea6f58415ae3d3"
  *  },
  *  {
  *    "fullName": "Darth Vader",
@@ -602,18 +602,18 @@ organizationRouter.route('/members/:id')
  *    "username": "NotYourFather",
  *    "_id": "57a4ed8a5dea6f5841348a43",
  *    "isAdmin": false,
- *    "organizations": ["57a4ed8a5dea6f58415ae4f5", "57a4ed8a5dea6f58415aed29"],
- *    "currentOrg": "57a4ed8a5dea6f58415ae4f5"
+ *    "glossaries": ["57a4ed8a5dea6f58415ae4f5", "57a4ed8a5dea6f58415aed29"],
+ *    "currentGlossary": "57a4ed8a5dea6f58415ae4f5"
  *  }
  * ]
  */
-.get(orgs.getMembers)
+.get(glossaries.getMembers)
 
-.put(orgs.addMembers)
+.put(glossaries.addMembers)
 
-.post(orgs.updateMembers);
+.post(glossaries.updateMembers);
 
-router.use('/org', organizationRouter);
+router.use('/glossary', glossaryRouter);
 
 //////////////////////////////////// Entry Endpoints ///////////////////////////////////
 
@@ -629,25 +629,25 @@ router.use('/org', organizationRouter);
 router.use(auth.authenticate.verifyRequest);
 
 // This endpoint must be placed after the verifyRequest function
-// This not included in the Org Router on purpose
+// This not included in the Glossary Router on purpose
 /**
- * @api {get} /api/orgPermissions check user permissions
+ * @api {get} /api/glossaryPermissions check user permissions
  * @apiGroup Authentication
- * @apiName Organization Permissions
+ * @apiName Glossary Permissions
  * @apiVersion 3.1.0
- * @apiDescription Returns the user's organizational permissions for their current organization
+ * @apiDescription Returns the user's glossary permissions for their current glossary
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
  *
  * {
- *   isOrgAdmin: true,
- *   isOrgQC: true,
- *   orgName: "testOrg"
+ *   isGlossaryAdmin: true,
+ *   isGlossaryQC: true,
+ *   glossaryName: "testGlossary"
  * }
  *
  */
-router.get('/orgPermissions', orgs.checkOrgPermissions);
+router.get('/glossaryPermissions', glossaries.checkGlossaryPermissions);
 
 var entryRouter = express.Router();
 
@@ -675,11 +675,11 @@ var entryRouter = express.Router();
 
 /**
  * @apiDefine entryBodyParams
- * @apiParam (Request Body) {string="org","usr","dft","dep"} status The Entry's ownership status <br>See <a target='_blank' href='../api/enums'>/api/enums/</a> for more info
+ * @apiParam (Request Body) {string="glossary","usr","dft","dep"} status The Entry's ownership status <br>See <a target='_blank' href='../api/enums'>/api/enums/</a> for more info
  * @apiParam (Request Body) {string} schemaVersion Which API version this Entry is being created against <br><a target='_blank' href='../api/status'>/api/status/</a> for more info
- * @apiParam (Request Body) {type="term","per","org","loc","event"} type The type of Entry this Entry will be. <br>See <a target='_blank' href='../api/enums'>/api/enums/</a> for more info
+ * @apiParam (Request Body) {type="term","per","glossary","loc","event"} type The type of Entry this Entry will be. <br>See <a target='_blank' href='../api/enums'>/api/enums/</a> for more info
 
- * @apiParam (Request Body) {boolean} [isShared=true] A flag representing whether or not the Entry will be shared with out Organizations
+ * @apiParam (Request Body) {boolean} [isShared=true] A flag representing whether or not the Entry will be shared with out Glossaries
  * @apiParam (Request Body) {boolean} [isDeprecated=false] A flag representing whether or not the Entry was created against an old schema version
  * @apiParam (Request Body) {[TermObj]} [terms] A list of Term objects (not _id references) <br>See the Request Example (below) or <a target='_blank' href='../api/schema'>/api/schema</a> for more info on TermObjs
  * @apiParam (Request Body) {[TermLinkObj]} [termLinks] A list of Term Link objects. Note: Term Links are created using term indices. After the entry is processed, the indices are replaced with IDs.  <br>See the Request Example (below) or <a target='_blank' href='../api/schema'>/api/schema</a> for more info on TermLinkObjs
@@ -690,7 +690,7 @@ var entryRouter = express.Router();
  * path: /api/entry/create
  *
  * body: {
- *   "status": "org",
+ *   "status": "glossary",
  *   "schemaVersion": "3.1.0",
  *   "type": "term",
  *   "terms": [
@@ -747,7 +747,7 @@ router.get('/mydrafts', entries.getUserEntries);
  * @apiGroup Entries
  * @apiName Entry Create
  * @apiVersion 3.1.0
- * @apiDescription Creates an Entry within the user's current organization and returns a JSON representation of the created Entry. See <a target='_blank' href='../api/schema'>/api/schema</a> for more info on the Entry schema
+ * @apiDescription Creates an Entry within the user's current glossary and returns a JSON representation of the created Entry. See <a target='_blank' href='../api/schema'>/api/schema</a> for more info on the Entry schema
  *
  * @apiUse entryBodyParams
  *
@@ -856,7 +856,7 @@ router.use('/entry', entryRouter);
  * @apiGroup Nominations
  * @apiName getNominations
  * @apiVersion 3.1.0
- * @apiDescription  An array of all nominations for user's current organization
+ * @apiDescription  An array of all nominations for user's current glossary
  * @apiUse nominationsSuccess
  *
  */
@@ -964,7 +964,7 @@ nominationRouter.get('/:id', nominations.read);
  * HTTP/1.1 200 OK
  *
  */
-nominationRouter.post('/reject/:id', auth.authorize.ensureOrgQc, nominations.reject);
+nominationRouter.post('/reject/:id', auth.authorize.ensureGlossaryQc, nominations.reject);
 
 // POST /api/nominate/approve/:id
 /**
@@ -993,7 +993,7 @@ nominationRouter.post('/reject/:id', auth.authorize.ensureOrgQc, nominations.rej
  *   {Entry}
  * }
  */
-nominationRouter.post('/approve/:id', auth.authorize.ensureOrgQc, nominations.validateEntry, nominations.approve);
+nominationRouter.post('/approve/:id', auth.authorize.ensureGlossaryQc, nominations.validateEntry, nominations.approve);
 
 // mounts nomination-specific error handling middleware
 nominationRouter.use(nominations.errorHandlers);
@@ -1007,7 +1007,7 @@ router.use('/nomination', nominationRouter);
  * @apiDefine tagSuccess
  * @apiSuccess (2xx : Response Body) {ObjectId} _id The auto-generated hash key for this object
  * @apiSuccess (2xx : Response Body) {string} content The tag string
- * @apiSuccess (2xx : Response Body) {Organization} org The _id of the Organization this Tag belongs to
+ * @apiSuccess (2xx : Response Body) {Glossary} glossary The _id of the Glossary this Tag belongs to
  * @apiSuccess (2xx : Response Body) {[Entry]} entries The list of Entry _ids that are tagged with this Tag
  *
  * @apiSuccessExample Success-Response:
@@ -1016,7 +1016,7 @@ router.use('/nomination', nominationRouter);
  * {
  *   "_id": "580a6eaa09ce69ce0a8b2794",
  *   "content": "tagExample",
- *   "org": "57d2cec262a15afc0dc8a8ca",
+ *   "glossary": "57d2cec262a15afc0dc8a8ca",
  *   "entries": [
  *     "580a6eaa09ce69ce0a8b2792",
  *     "580a6eae09ce69ce0a8b2798",
@@ -1027,7 +1027,7 @@ router.use('/nomination', nominationRouter);
 
 var tagRouter = express.Router();
 
-tagRouter.get('/orgTag/:content', tags.read);
+tagRouter.get('/glossaryTag/:content', tags.read);
 
 // TODO: revisit this
 /**
@@ -1097,11 +1097,11 @@ tagRouter.post('/addEntry/:tag', tags.validateEntry, tags.addEntryToTag);
 tagRouter.post('/removeEntry/:tag', tags.validateEntry, tags.removeEntryFromTag);
 
 /**
- * @api {get} /api/tags/orgTags find all
+ * @api {get} /api/tags/glossaryTags find all
  * @apiGroup Tags
- * @apiName getOrgTags
+ * @apiName getGlossaryTags
  * @apiVersion 3.1.0
- * @apiDescription Returns all tags for the user's current organization
+ * @apiDescription Returns all tags for the user's current glossary
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
@@ -1110,7 +1110,7 @@ tagRouter.post('/removeEntry/:tag', tags.validateEntry, tags.removeEntryFromTag)
  *   {
  *     "_id": "580a6eaa09ce69ce0a8b2794",
  *     "content": "tagExample",
- *     "org": "57d2cec262a15afc0dc8a8ca",
+ *     "glossary": "57d2cec262a15afc0dc8a8ca",
  *     "entries": [
  *       "580a6eaa09ce69ce0a8b2792",
  *       "580a6eae09ce69ce0a8b2798",
@@ -1120,7 +1120,7 @@ tagRouter.post('/removeEntry/:tag', tags.validateEntry, tags.removeEntryFromTag)
  *   {
  *     "_id": "580a6eaa09ce69ce0a8b279a",
  *     "content": "anotherTagExample",
- *     "org": "57d2cec262a15afc0dc8a8ca",
+ *     "glossary": "57d2cec262a15afc0dc8a8ca",
  *     "entries": [
  *       "580a6eaa09ce69ce0a8b2791",
  *       "580a6eae09ce69ce0a8b2795",
@@ -1131,14 +1131,14 @@ tagRouter.post('/removeEntry/:tag', tags.validateEntry, tags.removeEntryFromTag)
  * ]
  *
  */
-tagRouter.get('/orgTags', tags.getOrgTags);
+tagRouter.get('/glossaryTags', tags.getGlossaryTags);
 
 /**
  * @api {get} /api/tags/search/:tag search entries by tag
  * @apiGroup Search
  * @apiName Search By Tag
  * @apiVersion 3.1.0
- * @apiDescription Returns Entries which belong to the user's current organization that are tagged with the passed <code>:tag</code> param
+ * @apiDescription Returns Entries which belong to the user's current glossary that are tagged with the passed <code>:tag</code> param
  *
  * @apiUse tagTagParam
  *
@@ -1178,7 +1178,7 @@ tagRouter.param('id', tags.idParam);
  *
  * @apiUse tagSuccess
  */
-tagRouter.post('/rename/:id', auth.authorize.ensureOrgQc, tags.renameTag);
+tagRouter.post('/rename/:id', auth.authorize.ensureGlossaryQc, tags.renameTag);
 
 /**
  * @api {delete} /api/tags/del/:id delete
@@ -1193,7 +1193,7 @@ tagRouter.post('/rename/:id', auth.authorize.ensureOrgQc, tags.renameTag);
  * HTTP/1.1 200 OK
  *
  */
-tagRouter.delete('/del/:id', auth.authorize.ensureOrgQc, tags.deleteTag);
+tagRouter.delete('/del/:id', auth.authorize.ensureGlossaryQc, tags.deleteTag);
 
 router.use('/tags', tagRouter);
 
@@ -1202,20 +1202,20 @@ router.use('/tags', tagRouter);
 var searchRouter = express.Router();
 
 /**
- * @api {post} /api/search/org search entries by term [POST]
+ * @api {post} /api/search/glossary search entries by term [POST]
  * @apiGroup Search
  * @apiName Basic Search [POST]
  * @apiVersion 3.1.0
  * @apiDescription Search for Entries within the user's current glossary, all of the user's glossaries, or all glossaries, given a specific langCode and SearchTerm
  *
  * @apiParam (Request Body) {string {3}} langCode A 3 letter language code to specify which language to search on <br> See <a href='#api-Language_Utilities-langcodes'>langCodes</a> or <a target='_blank' href='../api/langcodes'>/api/langcodes</a> for more info
- * @apiParam (Request Body) {string} searchTerm The term or phrase to search for within the user's current organization
+ * @apiParam (Request Body) {string} searchTerm The term or phrase to search for within the user's current glossary
  * @apiParam (Request Body) {string} glossScope A string specifying which glossaries to search
  * @apiParam (Query Parameters) {boolean} [exact=false] If true, only exact matches will be returned. Defaults to false if not provided
  *
  *
  * @apiParamExample Request-Example:
- * path: /api/search/org
+ * path: /api/search/glossary
  *
  * body: {
  * 	  langCode: 'eng',
@@ -1225,29 +1225,29 @@ var searchRouter = express.Router();
  * @apiUse entrySuccess
  *
  */
-searchRouter.post('/org', search.langCodeParam, search.searchTermParam, search.searchOrgEntries);
+searchRouter.post('/glossary', search.langCodeParam, search.searchTermParam, search.searchGlossaryEntries);
 
 /**
- * @api {get} /api/search/org search entries by term [GET]
+ * @api {get} /api/search/glossary search entries by term [GET]
  * @apiGroup Search
  * @apiName Basic Search [GET]
  * @apiVersion 3.1.0
- * @apiDescription Search for Entries within the user's current organization given a specific langCode and SearchTerm
+ * @apiDescription Search for Entries within the user's current glossary given a specific langCode and SearchTerm
  *
  * @apiParam (Query Parameters) {string {3}} langCode A 3 letter language code to specify which language to search on <br> See <a href='#api-Language_Utilities-langcodes'>langCodes</a> or <a target='_blank' href='../api/langcodes'>/api/langcodes</a> for more info
- * @apiParam (Query Parameters) {string} searchTerm The term or phrase to search for within the user's current organization. This string is expected to be URI encoded
+ * @apiParam (Query Parameters) {string} searchTerm The term or phrase to search for within the user's current glossary. This string is expected to be URI encoded
  * @apiParam (Query Parameters) {boolean} [exact=false] If true, only exact matches will be returned. Defaults to false if not provided
  *
  *
  * @apiParamExample Request-Example:
- * path: /api/search/org?langCode=eng&searchTerm=hello+world
+ * path: /api/search/glossary?langCode=eng&searchTerm=hello+world
  *
  * body: { }
  *
  * @apiUse entrySuccess
  *
  */
-searchRouter.get('/org', search.langCodeParam, search.searchTermParam, search.searchOrgEntries);
+searchRouter.get('/glossary', search.langCodeParam, search.searchTermParam, search.searchGlossaryEntries);
 
 searchRouter.route('/default')
 .get(search.langCodeParam, search.searchTermParam, search.glossScopeParam, search.searchSharedEntries)
@@ -1261,23 +1261,23 @@ var download = require('./downloads');
 var downloadRouter = express.Router();
 
 /**
- * @api {get} /api/download/org download org entries
+ * @api {get} /api/download/glossary download glossary entries
  * @apiGroup Downloads
- * @apiName Download Organization
+ * @apiName Download Glossary
  * @apiVersion 3.1.0
- * @apiDescription Returns either a JSON file or a raw JSON RESTful response. Used to download every entry of an organization
+ * @apiDescription Returns either a JSON file or a raw JSON RESTful response. Used to download every entry of an glossary
  *
  * @apiParam (Query Parameters) {boolean} [file=true] If false, returns a raw JSON RESTful response. If true, the user is prompted to download a JSON file. Defaults to true if not provided
  * @apiParam (Query Parameters) {number} [limit] If provided, the resulting array will be truncated to match the limit value
- * @apiParam (Query Parameters) {string} [org="currentOrg"] If set to a valid organization's abbreviation, the search will be run against the given organization's Entries. If the given organization has their globalBlock flag set to true, an error will be returned. Defaults to the user's currentOrg if not provided
+ * @apiParam (Query Parameters) {string} [glossary="currentGlossary"] If set to a valid glossary's abbreviation, the search will be run against the given glossary's Entries. If the given glossary has their globalBlock flag set to true, an error will be returned. Defaults to the user's currentGlossary if not provided
  *
  * @apiParamExample Request-Example:
- * path: /api/download/org
+ * path: /api/download/glossary
  *
  * @apiUse entrySuccess
  *
  */
-downloadRouter.get('/org', download.orgToJSON);
+downloadRouter.get('/glossary', download.glossaryToJSON);
 
 
 /**
@@ -1290,9 +1290,9 @@ downloadRouter.get('/org', download.orgToJSON);
  * @apiParam (Query Parameters) {boolean} [file=true] If false, returns a raw JSON RESTful response. If true, the user is prompted to download a JSON file. Defaults to true if not provided
  * @apiParam (Query Parameters) {number} [limit] If provided, the resulting array will be truncated to match the limit value
  * @apiParam (Query Parameters) {string {3}} langCode A 3 letter language code to specify which language to search on <br> See <a href='#api-Language_Utilities-langcodes'>langCodes</a> or <a target='_blank' href='../api/langcodes'>/api/langcodes</a> for more info
- * @apiParam (Query Parameters) {string} searchTerm The term or phrase to search for within the user's current organization. This string is expected to be URI encoded
+ * @apiParam (Query Parameters) {string} searchTerm The term or phrase to search for within the user's current glossary. This string is expected to be URI encoded
  * @apiParam (Query Parameters) {boolean} [exact=false] If true, only exact matches will be returned. Defaults to false if not provided
- * @apiParam (Query Parameters) {string} [org="currentOrg"] If set to a valid organization's abbreviation, the search will be run against the given organization's Entries. If the given organization has their globalBlock flag set to true an error will be returned. Defaults to the user's currentOrg if not provided
+ * @apiParam (Query Parameters) {string} [glossary="currentGlossary"] If set to a valid glossary's abbreviation, the search will be run against the given glossary's Entries. If the given glossary has their globalBlock flag set to true an error will be returned. Defaults to the user's currentGlossary if not provided
  *
  * @apiParamExample Request-Example:
  * path: /api/download/query?langCode=eng&searchTerm=hello+world

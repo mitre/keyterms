@@ -29,7 +29,7 @@ var log = require('../../utils/logger').logger;
 
 var Entry = mongoose.model('Entry');
 var Nomination = mongoose.model('Nomination');
-var Org = mongoose.model('Organization');
+var Glossary = mongoose.model('Glossary');
 var $Entry = require('../../db').interfaces.$Entry;
 
 // requires the Express middleware format of req, res, next
@@ -75,7 +75,7 @@ exports.create = function (req, res, next) {
 		req.body.createdBy = new mongoose.Types.ObjectId(req.body.createdBy);
 	}
 
-	$Entry.createEntry(req.body, req.org)
+	$Entry.createEntry(req.body, req.glossary)
 	.then( function (doc) {
 		return doc.populateForGUI();
 	})
@@ -100,8 +100,8 @@ exports.read = function (req, res, next) {
 			case 'me':
 				failedAuthorization = entry.createdBy._id.toString() !== req.user._id.toString();
 				break;
-			case 'org':
-				failedAuthorization = entry.org._id.toString() !== req.org._id.toString();
+			case 'glossary':
+				failedAuthorization = entry.glossary._id.toString() !== req.glossary._id.toString();
 				break;
 			case 'any':
 				// purposely do nothing, no authorization required
@@ -125,7 +125,7 @@ exports.read = function (req, res, next) {
 // CR(U)D Operation
 // POST /entry/:id
 exports.update = function (req, res, next) {
-	$Entry.updateEntry(req.params.id, req.body, req.org._id)
+	$Entry.updateEntry(req.params.id, req.body, req.glossary._id)
 	.then( function (doc) {
 		return doc.populateForGUI();
 	})
@@ -140,7 +140,7 @@ exports.update = function (req, res, next) {
 // CRU(D) Operation
 // DELETE /entry/:id - removes the entry from the database
 exports.delete = function (req, res, next) {
-	$Entry.removeEntry(req.params.id, req.org)
+	$Entry.removeEntry(req.params.id, req.glossary)
 	.then( function () {
 		res.sendStatus(204);
 	}).catch(next);
@@ -166,7 +166,7 @@ exports.getUserEntries = function (req, res, next) {
 
 	// http://mongoosejs.com/docs/api.html#model_Model.populate
 	// http://stackoverflow.com/questions/19222520/populate-nested-array-in-mongoose
-	Org.populate(req.org, {
+	Glossary.populate(req.glossary, {
 		path: 'entries',
 		match: match,
 		model: 'Entry',
@@ -180,14 +180,14 @@ exports.getUserEntries = function (req, res, next) {
 				model: 'Tag'
 			},
 			{
-				path: 'org',
-				model: 'Organization',
+				path: 'glossary',
+				model: 'Glossary',
 				select: 'name abbreviation'
 			}
 		]
 	})
-	.then( function (org) {
-		res.json(org.entries);
+	.then( function (glossary) {
+		res.json(glossary.entries);
 	}).catch(next);
 };
 
