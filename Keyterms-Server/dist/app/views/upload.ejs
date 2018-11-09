@@ -25,7 +25,7 @@
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown" uib-dropdown>
                     <a class="dropdown-toggle" uib-dropdown-toggle>
-                        {{::fm.org.name}} ({{::fm.org.abbreviation}})
+                        {{::fm.glossary.name}} ({{::fm.glossary.abbreviation}})
                         <i class="fa fa-fw fa-users"></i>
                     </a>
                 </li>
@@ -48,12 +48,12 @@
             <form class="form-horizontal" name="uploadForm" novalidate ng-submit="submit()">
                 <fieldset>
                     <legend>KeyTerms File Upload Client</legend>
-                    <!-- Organization Select -->
+                    <!-- Glossary Select -->
                     <div class="form-group">
-                        <label for="org" class="col-lg-2 control-label">Glossary</label>
+                        <label for="glossary" class="col-lg-2 control-label">Glossary</label>
                         <div class="col-lg-4">
-                            <select class="form-control" id="org" name="org" ng-options="option.name for option in fm.orgs" ng-model="fm.org" required>
-                                <!--<option value="{{currentOrgAbr}}"> {{::currentOrg}} ({{::currentOrgAbr}})</option>-->
+                            <select class="form-control" id="glossary" name="glossary" ng-options="option.name for option in fm.glossaries" ng-model="fm.glossary" required>
+                                <!--<option value="{{currentGlossaryAbr}}"> {{::currentGlossary}} ({{::currentGlossaryAbr}})</option>-->
 
                             </select>
                         </div>
