@@ -38,7 +38,7 @@ describe('02-01 Testing APIs Entry CRUD endpoints and operations', function() {
     var rawEntryData = TestEnv.mockEntry;
 
     var entryId = '';
-    var orgId = '';
+    var glossaryId = '';
 
     var entryUpdate = TestEnv.mockEntry2;
     entryUpdate.viewScope = 'any';
@@ -59,9 +59,9 @@ describe('02-01 Testing APIs Entry CRUD endpoints and operations', function() {
 		.expect('Content-Type', /json/)
 		.expect(function(res) {
 			entryId = res.body._id;
-			orgId = res.body.org._id || res.body.org;
-			orgBody = res.body.org;
-			//console.log(orgId);
+			glossaryId = res.body.glossary._id || res.body.glossary;
+			glossaryBody = res.body.glossary;
+			//console.log(glossaryId);
 			//console.log(res.body);
 			// Test that all fields exist
 			expect(res.body).to.be.an('object');
@@ -71,7 +71,7 @@ describe('02-01 Testing APIs Entry CRUD endpoints and operations', function() {
 			expect(res.body).to.have.property('schemaVersion');
 			expect(res.body).to.have.property('modificationDate');
 			expect(res.body).to.have.property('type', 'term');
-			expect(res.body).to.have.property('org', orgBody);
+			expect(res.body).to.have.property('glossary', glossaryBody);
 
 			expect(res.body).to.have.property('terms');
 			expect(res.body).to.have.property('termLinks');
@@ -89,9 +89,9 @@ describe('02-01 Testing APIs Entry CRUD endpoints and operations', function() {
 	        if (err) return done(err);
 
 			// TODO: revisit this test
-	        // Test that org contains entry
+	        // Test that glossary contains entry
 	        request
-	        .get('/api/org/o/' + orgId)
+	        .get('/api/glossary/g/' + glossaryId)
 	        .expect(function(response) {
 				expect(response.body).to.have.property('entries');
 				expect(response.body.entries).to.be.greaterThan(0);
@@ -112,13 +112,13 @@ describe('02-01 Testing APIs Entry CRUD endpoints and operations', function() {
 			// Test that all fields exist and are correct
 			expect(res.body).to.be.an('object');
 			expect(res.body).to.have.property('_id', entryId.toString());
-			expect(res.body).to.have.property('editScope', 'org');
-			expect(res.body).to.have.property('viewScope', 'org');
+			expect(res.body).to.have.property('editScope', 'glossary');
+			expect(res.body).to.have.property('viewScope', 'glossary');
 			expect(res.body).to.have.property('isDraft', false);
 			expect(res.body).to.have.property('schemaVersion');
 			expect(res.body).to.have.property('modificationDate');
 			expect(res.body).to.have.property('type', 'term');
-			expect(res.body.org).to.have.property('_id', orgId.toString());
+			expect(res.body.glossary).to.have.property('_id', glossaryId.toString());
 		})
 		.end(function(err, res) {
 			//entryUpdate = Object.assign({}, res.body);
@@ -173,7 +173,7 @@ describe('02-01 Testing APIs Entry CRUD endpoints and operations', function() {
 
 	it('should fail to read a non-existant Entry', function(done) {
 		request
-		.get('/api/entry/' + orgId)
+		.get('/api/entry/' + glossaryId)
 		.expect(404, done);
 	});
 
@@ -214,7 +214,7 @@ describe('02-01 Testing APIs Entry CRUD endpoints and operations', function() {
 
 	it('should fail to update a non-existant Entry', function(done) {
 		request
-		.post('/api/entry/' + orgId)
+		.post('/api/entry/' + glossaryId)
 		.send(entryUpdate)
 		.expect(404, done);
 	});
@@ -233,9 +233,9 @@ describe('02-01 Testing APIs Entry CRUD endpoints and operations', function() {
 		.end(function(err, res) {
 	        if (err) return done(err);
 
-	        // Test that org no longer contains entry
+	        // Test that glossary no longer contains entry
 	        request
-	        .get('/api/org/o/' + orgId)
+	        .get('/api/glossary/g/' + glossaryId)
 	        .expect(function(response) {
 				expect(response.body).to.have.property('entries');
 				expect(response.body.entries).to.not.contain(entryId);
@@ -248,7 +248,7 @@ describe('02-01 Testing APIs Entry CRUD endpoints and operations', function() {
 
 	it('should fail to delete a non-existant Entry', function(done) {
 		request
-		.delete('/api/entry/' + orgId)
+		.delete('/api/entry/' + glossaryId)
 		.expect(404, done);
 	});
 

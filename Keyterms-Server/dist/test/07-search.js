@@ -38,7 +38,7 @@ describe("07-01 Testing Search API", function() {
     var tag = '';
     var tagContent = '';
     var entry_id = '';
-    var org_id = '';
+    var glossary_id = '';
     var tag_id = '';
     var term_id = '';
     var entry = '';
@@ -74,12 +74,12 @@ describe("07-01 Testing Search API", function() {
 		done();
 	});
 
-	// it('should search org for Entries by Term (get)', function(done) {
+	// it('should search glossary for Entries by Term (get)', function(done) {
 	// 	entry = env.termDocs[0];
 	// 	term = entry.terms[0];
     //
 	// 	request
-	// 	.get('/api/search/org?langCode=eng&searchTerm=PANCAKES')
+	// 	.get('/api/search/glossary?langCode=eng&searchTerm=PANCAKES')
 	// 	.expect(200)
 	// 	.expect('Content-Type', /json/)
 	// 	.expect(function(res) {
@@ -93,10 +93,10 @@ describe("07-01 Testing Search API", function() {
 	// 	});
 	// });
     //
-	// it('should search org for Entries by Term (post)', function(done) {
+	// it('should search glossary for Entries by Term (post)', function(done) {
     //
 	// 	request
-	// 	.post('/api/search/org')
+	// 	.post('/api/search/glossary')
 	// 	.send({ langCode: term.langCode, searchTerm: term.termText })
 	// 	.expect(200)
 	// 	.expect('Content-Type', /json/)
@@ -119,7 +119,7 @@ describe("07-01 Testing Search API", function() {
 		done();
 	});
 
-	// The difference between 'default' and 'org' search is well not documented
+	// The difference between 'default' and 'glossary' search is well not documented
 	it('should search default for Entries by Term (get)', function(done) {
         entry = env.termDocs[0];
 		term = entry.terms[0];

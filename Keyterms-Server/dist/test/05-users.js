@@ -39,11 +39,11 @@ describe('05-01 Testing User API', function () {
     var rawEntryData = TestEnv.mockEntry;
 
     var entryId = '';
-    var orgId = '';
+    var glossaryId = '';
     var user = '';
     var currentUser = '';
-    var org0_id = '';
-    var org1_id = '';
+    var glossary0_id = '';
+    var glossary1_id = '';
     var user_id = '';
     var user1_id = '';
     var user3_id = '';
@@ -130,7 +130,7 @@ describe('05-01 Testing User API', function () {
 
     it('should fail to read a non-existant user', function(done) {
         request
-        .get('/api/user/u/' + org0_id)
+        .get('/api/user/u/' + glossary0_id)
         .expect(404, done);
     });
 
@@ -184,7 +184,7 @@ describe('05-01 Testing User API', function () {
         update.username = 'test';
 
         request
-        .post('/api/user/u/' + org0_id)
+        .post('/api/user/u/' + glossary0_id)
         .send(update)
         .expect(404, done);
     });
@@ -199,16 +199,16 @@ describe('05-01 Testing User API', function () {
         .expect(404, done);
     });
 
-    it('should change the active org', function(done) {
+    it('should change the active glossary', function(done) {
 
-        org1_id = env.org._id;
+        glossary1_id = env.glossary._id;
 
         request
-        .post('/api/user/activeOrg/' + org1_id)
+        .post('/api/user/activeGlossary/' + glossary1_id)
         .expect(200)
         .expect('Content-Type', /json/)
         .expect(function(res) {
-            expect(res.body).to.have.property('currentOrg', org1_id.toString());
+            expect(res.body).to.have.property('currentGlossary', glossary1_id.toString());
         })
         .end(function(err, res) {
             done(err);
@@ -233,7 +233,7 @@ describe('05-01 Testing User API', function () {
 
     it('should fail to remove a non-existant user', function(done) {
         request
-        .delete('/api/user/u/' + org0_id)
+        .delete('/api/user/u/' + glossary0_id)
         .expect(404, done);
     });
 
