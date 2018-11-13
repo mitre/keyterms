@@ -42,9 +42,9 @@ var UserSchema = new Schema({
     fullName:           {type: String, required: true},
     isAdmin:            {type: Boolean, default: false},
     certOnly:           {type: Boolean, default: false},
-    organizations:      [{type: Schema.Types.ObjectId, ref: 'Organization'}],
-    currentOrg:         {type: Schema.Types.ObjectId, ref: 'Organization'},
-    defaultOrg:         {type: Schema.Types.ObjectId, ref: 'Organization'},
+    glossaries:         [{type: Schema.Types.ObjectId, ref: 'Glossary'}],
+    currentGlossary:    {type: Schema.Types.ObjectId, ref: 'Glossary'},
+    defaultGlossary:    {type: Schema.Types.ObjectId, ref: 'Glossary'},
     isDeactivated:   	{type: Boolean, default: false}
 });
 /* eslint-enable key-spacing, comma-style */
@@ -115,61 +115,59 @@ UserSchema.methods.changePassword = function (newPassword) {
     return this.save();
 };
 
-UserSchema.methods.updateDefaultOrg = function (targetOrg) {
-	if (this.organizations.indexOf(targetOrg) === -1 && targetOrg !== null) {
-		var err = new Error('User is not a member of the target Organization');
+UserSchema.methods.updateDefaultGlossary = function (targetGlossary) {
+	if (this.glossaries.indexOf(targetGlossary) === -1 && targetGlossary !== null) {
+		var err = new Error('User is not a member of the target Glossary');
 		err.notAMember = true;
 		return Promise.reject(err);
 	}
 
-	this.defaultOrg = targetOrg;
+	this.defaultGlossary = targetGlossary;
 	return this.save()
 		.then(function (user) {
 			return user.populate({
-				path: 'organizations',
-				model: 'Organization',
+				path: 'glossaries',
+				model: 'Glossary',
 				select: 'name abbreviation admins qcs langList'
 			}).execPopulate();
 		});
 };
 
-UserSchema.methods.switchActiveOrg = function (targetOrg) {
-    if (this.organizations.indexOf(targetOrg) === -1) {
-        var err = new Error('User is not a member of the target Organization');
+UserSchema.methods.switchActiveGlossary = function (targetGlossary) {
+    if (this.glossaries.indexOf(targetGlossary) === -1) {
+        var err = new Error('User is not a member of the target Glossary');
         err.notAMember = true;
         return Promise.reject(err);
     }
 
-    this.currentOrg = targetOrg;
+    this.currentGlossary = targetGlossary;
     return this.save()
     .then(function (user) {
         return user.populate({
-            path: 'organizations',
-            model: 'Organization',
+            path: 'glossaries',
+            model: 'Glossary',
             select: 'name abbreviation admins qcs langList'
         }).execPopulate();
     });
 };
 
-UserSchema.methods.joinOrg = function (orgId) {
-    var index = this.organizations.indexOf(orgId);
+UserSchema.methods.joinGlossary = function (glossaryId) {
+    var index = this.glossaries.indexOf(glossaryId);
 
     if (index !== -1) { return Promise.resolve(this); }
 
-    this.organizations.push(orgId);
+    this.glossaries.push(glossaryId);
 
     return this.save();
 };
 
-UserSchema.methods.leaveOrg = function (orgId) {
-    var index = this.organizations.indexOf(orgId);
+UserSchema.methods.leaveGlossary = function (glossaryId) {
+    var index = this.glossaries.indexOf(glossaryId);
 
     if (index === -1) { return Promise.resolve(this); }
 
-    this.organizations.pull(orgId);
+    this.glossaries.pull(glossaryId);
     return this.save();
 };
 
 module.exports = mongoose.model('User', UserSchema);
-
-
