@@ -24,11 +24,44 @@
  */
 
 var xlsParser = require('./../xlsAbstract');
+var NLP = require('./../../../../utils/nlpServices');
 var log = require('../../includes').log;
 
 class simple extends xlsParser {
     parse() {
 
+        var self = this;
+        var termMap = {};
+        var lastEntryId = 0;
+        console.log("Simple test");
+        return new Promise( function (resolve) {
+
+            self.ws.eachRow( function (row, rowNum) {
+
+                log.verbose('Parsing row #', rowNum);
+                if (rowNum < 2) { return; }
+
+                // handy shortcut function that references the header map
+                // and returns the value of the row's cell via column name
+                var extract = function (field) {
+                    return row.values[self.headerPos[field]];
+                };
+
+                // add entry to import queue
+                if (lastEntryId > 0) {
+                    self.queueEntry(lastEntryId);
+                }
+                // reset parser variables
+                termMap = {}; // reset term map
+                var entry = self.createEntry();
+                console.log("Test");
+                lastEntryId = rowNum;
+
+                for (var i = 1; i <= Object.keys(self.headers).length; i++) {
+                    console.log(self.headers[i]);
+                }
+            })
+        })
     }
 }
 
