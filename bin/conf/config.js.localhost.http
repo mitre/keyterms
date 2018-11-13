@@ -89,24 +89,31 @@ config.db = {
 	pass: ''
 };
 
+
 // NLP Services configurations
+
 config.nlp = {
 	// base url for the NLP Services server
-	url: 'http://localhost:8080/NLPServices/svc',
-
-	// if false, http is used rather than https
-	useHTTPS: false,
+	// url: 'http://localhost:8080/NLPServices/svc',
+	// url: 'https://localhost:8443/NLPServices/svc',
+	
+        // if false, http is used rather than https
+	 useHTTPS: false,
+	 protocol: 'http:',
+     hostname: 'localhost',
+     port: 8080,
+	 endpoint: '/NLPServices/svc',
 
 	// these are the certs for NLP Services, only used if useHTTPS=true
-	certs: config.server.SSLCerts			// by default, we re-use the same certs the KeyTerms API is served with
-
+	// by default, we re-use the same certs the KeyTerms API is served with
+	certs: config.server.SSLCerts		
+	
 	// uncomment this to include specific certs for NLP
 	// certs: {
 	// 	key: __dirname+ '/certs/key.pem',
 	// 	cert: __dirname+ '/certs/cert.pem',
 	// 	ca: [__dirname+ '/certs/ca.pem']
-	// }
-
+	// 	}
 };
 
 // ElasticSearch configurations
