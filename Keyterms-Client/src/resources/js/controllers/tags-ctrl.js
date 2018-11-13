@@ -28,7 +28,7 @@ function ($scope, $route, $uibModal, tagList, KeyTerms, UserSvc) {
 	console.log('Tags ctrl loaded!');
 
 	$scope.pageName = 'Manage Tags';
-	$scope.qc = UserSvc.getUser().isOrgQC;
+	$scope.qc = UserSvc.getUser().isGlossaryQC;
 
 	// live data demo
 	// Sort the tag list case insensitively

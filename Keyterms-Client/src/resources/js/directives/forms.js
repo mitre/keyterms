@@ -481,12 +481,12 @@ app.directive('entrySubmit', ['$route', '$uibModal', 'globals', 'keytermsClient.
 					var viewScope = $scope.entryData.viewScope.value;
 
 
-					if (!!ent._id && !!ent.org) {
+					if (!!ent._id && !!ent.glossary) {
 						return viewScope === 'any' ||
-							(viewScope === 'org' && usr.currentOrg === ent.org);
+							(viewScope === 'glossary' && usr.currentGlossary === ent.glossary);
 					}
 					else {
-						return viewScope === 'any' || viewScope === 'org';
+						return viewScope === 'any' || viewScope === 'glossary';
 					}
 				};
 
@@ -496,7 +496,7 @@ app.directive('entrySubmit', ['$route', '$uibModal', 'globals', 'keytermsClient.
 					// return true;
 					var usr = UserSvc.getUser();
 
-					if (usr.isOrgQC) {
+					if (usr.isGlossaryQC) {
 						return true;
 					}
 
@@ -666,7 +666,7 @@ app.directive('entrySubmit', ['$route', '$uibModal', 'globals', 'keytermsClient.
 								return onSubmitModal($scope.entryData, autoApprove);
 							}
 							else {
-								if (UserSvc.getUser().isOrgQC) {
+								if (UserSvc.getUser().isGlossaryQC) {
 									return onPublish();
 								}
 								else {

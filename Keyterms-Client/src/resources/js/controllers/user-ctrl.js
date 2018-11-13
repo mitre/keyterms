@@ -28,27 +28,27 @@ function ($scope, KeyTerms, user, uiToast, UserService) {
     $scope.user = user;
     $scope.password = {};
 
-    // Populate user's default org dropdown
-    if(user.defaultOrg){
-		$scope.selectedDefaultOrg = user.organizations.find(function(org){
-			if(org._id === user.defaultOrg){
-				return org;
+    // Populate user's default glossary dropdown
+    if(user.defaultGlossary){
+		$scope.selectedDefaultGlossary = user.glossaries.find(function(glossary){
+			if(glossary._id === user.defaultGlossary){
+				return glossary;
 			}
 		});
 	} else {
-		$scope.selectedDefaultOrg = false;
+		$scope.selectedDefaultGlossary = false;
 	}
 
 
 
-	$scope.updateSelectedDefaultOrg = function (org) {
-		$scope.selectedDefaultOrg = org;
+	$scope.updateSelectedDefaultGlossary = function (glossary) {
+		$scope.selectedDefaultGlossary = glossary;
 	};
 
-	$scope.submitDefaultOrgChange = function () {
-		var orgId = $scope.selectedDefaultOrg ? $scope.selectedDefaultOrg._id : false;
+	$scope.submitDefaultGlossaryChange = function () {
+		var glossaryId = $scope.selectedDefaultGlossary ? $scope.selectedDefaultGlossary._id : false;
 
-		UserService.updateUserDefaultOrg(orgId).then( function(response){
+		UserService.updateUserDefaultGlossary(glossaryId).then( function(response){
 			console.log(response);
 			uiToast.trigger('Your default glossary has been updated.');
 
