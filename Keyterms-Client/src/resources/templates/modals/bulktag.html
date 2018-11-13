@@ -100,11 +100,11 @@
 			</p>
 		</div>
 		<div class="modal-body text-center">
-			<p class="text-danger" ng-show="!isCorrectOrg()">Entries that don't belong to your current Glossary will not be tagged</p>
+			<p class="text-danger" ng-show="!isCorrectGlossary()">Entries that don't belong to your current Glossary will not be tagged</p>
 		</div>
 		<div class="modal-footer">
 			<button class="btn btn-warning" type="button" ng-click="ok(true)" ng-if="!isApproveOnly" ng-disabled="tagData.toAdd.length < 1">Nominate Tags</button>
-			<button class="btn btn-warning" type="button" ng-click="ok(false)" ng-if="isApproveOnly || isOrgQC" ng-disabled="tagData.toAdd.length < 1">Tag</button>
+			<button class="btn btn-warning" type="button" ng-click="ok(false)" ng-if="isApproveOnly || isGlossaryQC" ng-disabled="tagData.toAdd.length < 1">Tag</button>
 			<button class="btn btn-primary" type="button" ng-click="cancel()">Cancel</button>
 		</div>
 	</div>

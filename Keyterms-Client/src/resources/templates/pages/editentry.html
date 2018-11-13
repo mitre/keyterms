@@ -30,11 +30,11 @@
   			<li ng-class='{ "active" : viewing == "preview" }' ng-click='viewing = "preview"'>Preview</li>
   		</ul>
 		<p class="text-center draft-label" ng-if="::entryData.isDraft">ENTRY DRAFT</p>
-  		<p class="banner-heading heading-top">{{:: entryData.bannerText || entryData.org.name}}</p>
+  		<p class="banner-heading heading-top">{{:: entryData.bannerText || entryData.glossary.name}}</p>
 		<entry-tabbed-form ng-switch-when="edit"></entry-tabbed-form>
 <!-- Preview Display -->
 		<display-entry entry="entryData" entry-border="false" entry-classifiy="false" ng-switch-when="preview"></display-entry>
-  		<p class="banner-heading heading-bot">{{:: entryData.bannerText || entryData.org.name }}</p>
+  		<p class="banner-heading heading-bot">{{:: entryData.bannerText || entryData.glossary.name }}</p>
 		<p class="text-center draft-label" ng-if="::entryData.isDraft">ENTRY DRAFT</p>
 	</div>
 </div>

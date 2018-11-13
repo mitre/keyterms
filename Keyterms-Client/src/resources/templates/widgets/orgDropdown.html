@@ -26,11 +26,11 @@
     <div class="select-tag btn-group" uib-dropdown keyboard-nav auto-close="always" is-open="isOpen" on-toggle="focusInput()">
         <div class="btn-select" uib-dropdown-toggle style="cursor: pointer; box-shadow: none !important; min-width: unset">
             <i class="fa fa-sitemap"></i>
-            {{user.orgName}} <span class="caret" style=""></span>
+            {{user.glossaryName}} <span class="caret" style=""></span>
         </div>
         <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
-            <li role="menuitem" ng-repeat="org in user.organizations">
-                <a ng-click="orgChange(org)" href="">{{::org.name}}</a>
+            <li role="menuitem" ng-repeat="glossary in user.glossaries">
+                <a ng-click="glossaryChange(glossary)" href="">{{::glossary.name}}</a>
             </li>
         </ul>
     </div>
