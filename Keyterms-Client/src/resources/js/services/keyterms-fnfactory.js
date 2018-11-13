@@ -130,8 +130,8 @@ function ($q, $location, $uibModal, KeytermsClientInt, globals, uiToast) {
 				templateUrl: 'resources/templates/modals/bulkdelete.html',
 				controller: ['$scope', '$uibModalInstance', '$location', 'user.service', 'selected', function ($scope, $uibModalInstance, $location, User, selected) {
 					$scope.bulk = selected.length > 1 ? 'Bulk' : '';
-					var isOrgQC = User.getUser().isOrgQC;
-					$scope.isOrgQC = isOrgQC;
+					var isGlossaryQC = User.getUser().isGlossaryQC;
+					$scope.isGlossaryQC = isGlossaryQC;
 					$scope.isApproveOnly = isApproveOnly;
 					$scope.selected = selected;
 
@@ -166,10 +166,10 @@ function ($q, $location, $uibModal, KeytermsClientInt, globals, uiToast) {
 						$uibModalInstance.dismiss();
 					};
 
-                    $scope.isCorrectOrg = function () {
+                    $scope.isCorrectGlossary = function () {
 
                         for (var index in $scope.selected) {
-                            if($scope.selected[index].org._id !== User.getUser().currentOrg) {
+                            if($scope.selected[index].glossary._id !== User.getUser().currentGlossary) {
 
                                 return false;
                             }
@@ -241,7 +241,7 @@ function ($q, $location, $uibModal, KeytermsClientInt, globals, uiToast) {
 						tagText: ''
 					};
 					$scope.isApproveOnly = isApproveOnly;
-					$scope.isOrgQC = User.getUser().isOrgQC;
+					$scope.isGlossaryQC = User.getUser().isGlossaryQC;
 
 					// finds the intersection between all the selected Entry's tags
 					if (Entries.length >= 2) {
@@ -270,10 +270,10 @@ function ($q, $location, $uibModal, KeytermsClientInt, globals, uiToast) {
 						$scope.tagData.toAdd.splice(index, 1);
 					};
 
-                    $scope.isCorrectOrg = function () {
+                    $scope.isCorrectGlossary = function () {
 
                         for (var index in $scope.entries) {
-                            if($scope.entries[index].org._id !== User.getUser().currentOrg) {
+                            if($scope.entries[index].glossary._id !== User.getUser().currentGlossary) {
 
                                 return false;
                             }

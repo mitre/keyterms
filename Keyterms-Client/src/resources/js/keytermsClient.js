@@ -125,7 +125,7 @@ app.config(function ($routeProvider, $locationProvider, $httpProvider) {
 					if (success) {
 						var user = User.getUser();
 
-						// If the user has a default org then skip showing the org popup
+						// If the user has a default glossary then skip showing the glossary popup
 						$rootScope.showOrgPopup = !user.defaultOrg;
 						$rootScope.showNav = true;
 						var next = _lastPath === User.lastPath ? _lastPath : _lastPath === '/search' ? User.lastPath : _lastPath;
@@ -362,7 +362,7 @@ app.run(['$rootScope', '$location', 'user.service', 'globals', function ($rootSc
 	$rootScope.$on('$routeChangeError', function (event, curr, prev, err) {
 		// Some operations, like switching Organizations, caused the current $route to reload.
 		// Sometimes reloading the $route results in a 403 (Forbidden), usually caused by the
-		// swapping of the organization context. "history.back()" sends the user back one step,
+		// swapping of the glossary context. "history.back()" sends the user back one step,
 		// before they performed the operation which threw a 403
 		if (err.status === 403 && err.data === 'Forbidden') {
 			history.back();
