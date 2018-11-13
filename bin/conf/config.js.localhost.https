@@ -31,8 +31,9 @@ config.server = {
 	},
 	SSLCerts: {
 		key: __dirname+ '/certs/default.key',
+		passphrase: '',
 		cert: __dirname+ '/certs/default.crt',
-		ca: [__dirname+ '/certs/ca/ca.cert.pem','/certs/default.crt'] 
+		ca: [__dirname+ '/certs/ca/ca.cert.pem','/certs/default.crt']
 	},
 	TLSOptions: {
 		requestCert: true,
@@ -96,7 +97,7 @@ config.nlp = {
 	// base url for the NLP Services server
 	// url: 'http://localhost:8080/NLPServices/svc',
 	// url: 'https://localhost:8443/NLPServices/svc',
-	
+
         // if false, http is used rather than https
 	 useHTTPS: true,
 	 protocol: 'https:',
@@ -106,8 +107,8 @@ config.nlp = {
 
 	// these are the certs for NLP Services, only used if useHTTPS=true
 	// by default, we re-use the same certs the KeyTerms API is served with
-	certs: config.server.SSLCerts		
-	
+	certs: config.server.SSLCerts
+
 	// uncomment this to include specific certs for NLP
 	// certs: {
 	// 	key: __dirname+ '/certs/key.pem',
@@ -116,4 +117,3 @@ config.nlp = {
 	// 	}
 
 };
-
