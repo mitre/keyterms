@@ -76,14 +76,58 @@ class simple extends xlsParser {
 
                     var entry = self.createEntry();
                     lastEntryId = rowNum;
-                    //loop through languages to get the number of term columns
-                    Object.keys(langCodeMap).forEach( function (lang) {
-                        var term = {};
-                        term.termText = extract(lang);
-                        term.langCode = langCodeMap[lang];
-                        console.log(term);
-                        entry.terms.push(term);
-                    });
+
+                    Object.keys(self.headerPos).forEach( function (header) {
+
+                        //----- TAG LOGIC --------
+                        if (header.toLowerCase().includes("tags")) {
+
+                            var temp = extract(header);
+                            var tempArr = temp.split(",");
+
+                            tempArr.forEach( function (str) {
+                                entry.tags.push(str);
+                            });
+                        }
+
+                        //------ NOTE LOGIC -----
+                        else if (header.toLowerCase().includes("note")) {
+
+                            var note = {};
+                            note.text = extract(header);
+
+                            if( header.includes("_")) {
+                                note.type = header.slice(header.indexOf("_") + 1);
+                            }
+
+                            else {
+                                note.type = "general";
+                            }
+
+                            entry.notes.push(note);
+
+                        }
+
+                        //------ TERM LOGIC ---------
+                        else {
+
+                            //loop through languages to get the number of term columns
+                            Object.keys(langCodeMap).forEach( function (lang) {
+                                var term = {};
+                                term.termText = extract(lang);
+                                term.langCode = langCodeMap[lang];
+                                console.log(term);
+                                entry.terms.push(term);
+                            });
+
+
+                        }
+
+                    })
+
+
+
+
 
                 })
             })
@@ -92,21 +136,4 @@ class simple extends xlsParser {
     }
 }
 
-var checkHeaders = function (headers, langCodeMap) {
-    return new Promise.each(Object.keys(headers), function (resolve) {
-
-            NLP.getISO(header)
-                .then( function (res) {
-
-                    if (res.length != 0) {
-                        langCodeMap[res[0].english_name] = res[0].code;
-                    }
-                })
-                .catch( function (err) {
-                    log.error(err);
-                })
-        console.log("length: ", Object.keys(langCodeMap).length);
-        resolve(langCodeMap);
-    })
-}
 module.exports = simple;
