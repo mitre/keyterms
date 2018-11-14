@@ -93,19 +93,20 @@ class simple extends xlsParser {
                         //------ NOTE LOGIC -----
                         else if (header.toLowerCase().includes("note")) {
 
-                            var note = {};
-                            note.text = extract(header);
+                            if(extract(header) != null) {
+                                var note = {};
+                                note.text = extract(header);
 
-                            if( header.includes("_")) {
-                                note.type = header.slice(header.indexOf("_") + 1);
+                                if (header.includes("_")) {
+                                    note.type = header.slice(header.indexOf("_") + 1).toLowerCase();
+                                }
+
+                                else {
+                                    note.type = "general";
+                                }
+
+                                entry.notes.push(note);
                             }
-
-                            else {
-                                note.type = "general";
-                            }
-
-                            entry.notes.push(note);
-
                         }
 
                         //------ TERM LOGIC ---------
@@ -125,12 +126,13 @@ class simple extends xlsParser {
 
                     })
 
+                    // update entry within entries map
+                    self.entries[rowNum] = entry;
 
+                });
 
-
-
-                })
-            })
+                self.queueLastEntry(lastEntryId, resolve);
+            });
         })
 
     }
