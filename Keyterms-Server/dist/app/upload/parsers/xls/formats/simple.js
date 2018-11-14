@@ -33,36 +33,80 @@ class simple extends xlsParser {
         var self = this;
         var termMap = {};
         var lastEntryId = 0;
-        console.log("Simple test");
-        return new Promise( function (resolve) {
+        var langCodeMap = {};
+        var promises = [];
 
-            self.ws.eachRow( function (row, rowNum) {
+        Object.keys(self.headerPos).forEach( function (header) {
+            promises.push(new Promise(function (resolve, reject) {
+                NLP.getISO(header)
+                    .then( function (res) {
 
-                log.verbose('Parsing row #', rowNum);
-                if (rowNum < 2) { return; }
+                        if (res.length != 0) {
+                            langCodeMap[res[0].english_name] = res[0].code;
+                            console.log(header);
+                        }
+                        resolve(true);
+                    })
+                    .catch( function (err) {
+                        log.error(err);
+                    })
+            }))
+        })
 
-                // handy shortcut function that references the header map
-                // and returns the value of the row's cell via column name
-                var extract = function (field) {
-                    return row.values[self.headerPos[field]];
-                };
+        Promise.all(promises)
+        .then( function (res) {
 
-                // add entry to import queue
-                if (lastEntryId > 0) {
-                    self.queueEntry(lastEntryId);
-                }
-                // reset parser variables
-                termMap = {}; // reset term map
-                var entry = self.createEntry();
-                console.log("Test");
-                lastEntryId = rowNum;
+            return new Promise( function (resolve) {
 
-                for (var i = 1; i <= Object.keys(self.headers).length; i++) {
-                    console.log(self.headers[i]);
-                }
+                self.ws.eachRow( function (row, rowNum) {
+
+                    log.verbose('Parsing row #', rowNum);
+                    if (rowNum < 2) { return; }
+
+                    // handy shortcut function that references the header map
+                    // and returns the value of the row's cell via column name
+                    var extract = function (field) {
+                        return row.values[self.headerPos[field]];
+                    };
+
+                    // add entry to import queue
+                    if (lastEntryId > 0) {
+                        self.queueEntry(lastEntryId);
+                    }
+
+                    var entry = self.createEntry();
+                    lastEntryId = rowNum;
+                    //loop through languages to get the number of term columns
+                    Object.keys(langCodeMap).forEach( function (lang) {
+                        var term = {};
+                        term.termText = extract(lang);
+                        term.langCode = langCodeMap[lang];
+                        console.log(term);
+                        entry.terms.push(term);
+                    });
+
+                })
             })
         })
+
     }
 }
 
+var checkHeaders = function (headers, langCodeMap) {
+    return new Promise.each(Object.keys(headers), function (resolve) {
+
+            NLP.getISO(header)
+                .then( function (res) {
+
+                    if (res.length != 0) {
+                        langCodeMap[res[0].english_name] = res[0].code;
+                    }
+                })
+                .catch( function (err) {
+                    log.error(err);
+                })
+        console.log("length: ", Object.keys(langCodeMap).length);
+        resolve(langCodeMap);
+    })
+}
 module.exports = simple;
