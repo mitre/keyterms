@@ -31,7 +31,6 @@ class simple extends xlsParser {
     parse() {
 
         var self = this;
-        var termMap = {};
         var lastEntryId = 0;
         var langCodeMap = {};
         var promises = [];
@@ -52,7 +51,7 @@ class simple extends xlsParser {
             }))
         })
 
-        Promise.all(promises)
+       return Promise.all(promises)
         .then( function (res) {
 
             return new Promise( function (resolve) {
@@ -77,7 +76,6 @@ class simple extends xlsParser {
                     lastEntryId = rowNum - 1;
 
                     Object.keys(self.headerPos).forEach( function (header) {
-                        console.log("header: ", header);
                         //----- TAG LOGIC --------
                         if (header.toLowerCase().includes("tags")) {
 
@@ -111,25 +109,19 @@ class simple extends xlsParser {
                         //------ TERM LOGIC ---------
                         else {
 
-                            //loop through languages to get the number of term columns
-                           // Object.keys(langCodeMap).forEach( function (lang) {
                             var term = {};
                             term.termText = extract(header);
                             term.langCode = langCodeMap[header];
-                            console.log(header);
                             entry.terms.push(term);
-                          //  });
-
 
                         }
-
                     })
 
                     // update entry within entries map
                     self.entries[rowNum - 1] = entry;
 
                 });
-
+                console.log("lastEntry: ", lastEntryId);
                 self.queueLastEntry(lastEntryId, resolve);
             });
         })
