@@ -43,7 +43,6 @@ class simple extends xlsParser {
 
                         if (res.length != 0) {
                             langCodeMap[res[0].english_name] = res[0].code;
-                            console.log(header);
                         }
                         resolve(true);
                     })
@@ -75,10 +74,10 @@ class simple extends xlsParser {
                     }
 
                     var entry = self.createEntry();
-                    lastEntryId = rowNum;
+                    lastEntryId = rowNum - 1;
 
                     Object.keys(self.headerPos).forEach( function (header) {
-
+                        console.log("header: ", header);
                         //----- TAG LOGIC --------
                         if (header.toLowerCase().includes("tags")) {
 
@@ -113,13 +112,13 @@ class simple extends xlsParser {
                         else {
 
                             //loop through languages to get the number of term columns
-                            Object.keys(langCodeMap).forEach( function (lang) {
-                                var term = {};
-                                term.termText = extract(lang);
-                                term.langCode = langCodeMap[lang];
-                                console.log(term);
-                                entry.terms.push(term);
-                            });
+                           // Object.keys(langCodeMap).forEach( function (lang) {
+                            var term = {};
+                            term.termText = extract(header);
+                            term.langCode = langCodeMap[header];
+                            console.log(header);
+                            entry.terms.push(term);
+                          //  });
 
 
                         }
@@ -127,7 +126,7 @@ class simple extends xlsParser {
                     })
 
                     // update entry within entries map
-                    self.entries[rowNum] = entry;
+                    self.entries[rowNum - 1] = entry;
 
                 });
 

@@ -97,7 +97,6 @@ exports.getISO = function (language) {
 
     log.debug('Calling language lookup Services...' + language);
 
-    //language = encodeURIComponent(language);
     var url = `${config.url}iso/language?query=${language}`;
 
 	return fetch(url)
