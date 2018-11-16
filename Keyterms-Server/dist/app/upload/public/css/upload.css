@@ -89,3 +89,32 @@ form p.help-block,
 .preserve-newlines {
     white-space: pre-wrap;
 }
+
+/*input[type="checkbox"] {*/
+    /*!* taken from http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css/ *!*/
+    /*!* vertically centers checkbox *!*/
+    /*position: relative;*/
+    /*top: 50%;*/
+    /*-webkit-transform: translateY(-50%);*/
+    /*-ms-transform: translateY(-50%);*/
+    /*transform: translateY(-50%);*/
+/*}*/
+
+input[type="checkbox"]:hover:after {
+    border-color: #2196f3 !important;
+}
+
+/*input[type="checkbox"]:after, .checkbox input[type="checkbox"], .checkbox-inline input[type="checkbox"]:after {*/
+    /*content: "";*/
+    /*display: block;*/
+    /*width: 18px;*/
+    /*height: 18px;*/
+    /*margin-top: -2px;*/
+    /*margin-right: 5px;*/
+    /*border: 2px solid #666666;*/
+    /*border-radius: 2px;*/
+    /*-webkit-transition: 240ms;*/
+    /*-o-transition: 240ms;*/
+    /*transition: 240ms;*/
+    /*-webkit-appearance: none;*/
+/*}*/
