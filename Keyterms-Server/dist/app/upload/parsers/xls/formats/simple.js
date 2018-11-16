@@ -106,6 +106,12 @@ class simple extends xlsParser {
                             }
                         }
 
+                        //set entry type if one is given. 'term' is default
+                        else if (header.toLowerCase().includes("EntryType")) {
+                            entry.type = extract(header);
+
+                        }
+
                         //------ TERM LOGIC ---------
                         else {
 
