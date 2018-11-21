@@ -92,3 +92,20 @@ exports.callService = function (termText, langCode, index) {
 		return err;
 	});
 };
+
+exports.getISO = function (language) {
+
+    log.debug('Calling language lookup Services...' + language);
+
+    var url = `${config.url}iso/language?query=${language}`;
+
+	return fetch(url)
+	.then( function (resp) {
+		return resp;
+    })
+	.catch( function (err) {
+        log.warn('Error while querying NLP Services!');
+        log.error(err);
+        return err;
+    });
+};
