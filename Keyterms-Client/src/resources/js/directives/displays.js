@@ -162,7 +162,9 @@ app.directive('selectAll', function () {
 					scope.buttonText = 'Select All';
 					scope.allSelected = false;
 					// Always iterate over the entire search results if we're deselecting to make sure that elements on other pages also get deselected
-					scope.searchResults.forEach( item => item.checkVal = false);
+					scope.searchResults.forEach( function(item) {
+						item.checkVal = false
+					});
 				}
 			};
 
