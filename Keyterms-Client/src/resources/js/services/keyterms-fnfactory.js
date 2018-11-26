@@ -220,7 +220,7 @@ function ($q, $location, $uibModal, KeytermsClientInt, globals, uiToast) {
 
     cb.exportSelected = function (scope) {
         return function () {
-            var selected = scope.filteredResults.filter(item => !!item.checkVal);
+            var selected = scope.searchResults.filter(item => !!item.checkVal);
 			var exportUrl = apiUrl + 'api/download/selected?entries=' + selected.map(item => item._id).join();
             window.location.assign(exportUrl);
         };

@@ -127,19 +127,21 @@ app.directive('selectAll', function () {
 		scope: {
 			filteredResults: '=filteredResults',
 			searchResults: '=searchResults',
-			crossPageSelected: '=crossPageSelected' //todo: have to change this to an object if we want to pass by ref.
 		},
 		templateUrl: 'resources/templates/widgets/selectAll.html',
 		link: function (scope, elem, attrs) {
 			scope.pageSelected = false;
 			scope.allSelected = false;
 			scope.buttonText = 'Select All';
-			scope.hasPagedResults = 'filteredResults' in scope ? scope.searchResults > scope.filteredResults : false;
 
 			scope.selectedCount = function () {
 				return scope.searchResults.filter(function (item) {
 					return item.checkVal;
 				}).length
+			};
+
+			scope.hasPagedResults = function () {
+				return 'filteredResults' in scope ? scope.searchResults > scope.filteredResults : false;
 			};
 
 			// Select / Deselect All on Page
@@ -175,8 +177,8 @@ app.directive('selectAll', function () {
 				} else {
 					scope.searchResults.forEach(function (item) {
 						item.checkVal = false;
-						scope.toggleSelectPage();
-					})
+					});
+					scope.toggleSelectPage();
 				}
 			}
 
