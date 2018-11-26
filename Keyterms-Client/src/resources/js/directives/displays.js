@@ -119,3 +119,67 @@ app.directive('displayEntryList', ['keyterms.fnFactory', 'globals', function (fn
 		}
 	};
 }]);
+
+app.directive('selectAll', function () {
+	return {
+		restrict: 'E',
+		replace: true,
+		scope: {
+			filteredResults: '=filteredResults',
+			searchResults: '=searchResults',
+			crossPageSelected: '=crossPageSelected' //todo: have to change this to an object if we want to pass by ref.
+		},
+		templateUrl: 'resources/templates/widgets/selectAll.html',
+		link: function (scope, elem, attrs) {
+			scope.pageSelected = false;
+			scope.allSelected = false;
+			scope.buttonText = 'Select All';
+			scope.hasPagedResults = 'filteredResults' in scope ? scope.searchResults > scope.filteredResults : false;
+
+			scope.selectedCount = function () {
+				return scope.searchResults.filter(function (item) {
+					return item.checkVal;
+				}).length
+			};
+
+			// Select / Deselect All on Page
+			scope.toggleSelectPage = function () {
+				// Toggle
+				scope.pageSelected = !scope.pageSelected;
+
+				// Deal with the filtered results, if we have them, otherwise deal with all of the search results
+				var list = 'filteredResults' in scope ? scope.filteredResults : scope.searchResults;
+
+				// Change Button Text & Reset allSelected
+				if (scope.pageSelected) {
+					scope.buttonText = 'Deselect All';
+					list.forEach(function (item) {
+						item.checkVal = true;
+					});
+				} else {
+					scope.buttonText = 'Select All';
+					scope.allSelected = false;
+					// Always iterate over the entire search results if we're deselecting to make sure that elements on other pages also get deselected
+					scope.searchResults.forEach( item => item.checkVal = false);
+				}
+			};
+
+			scope.toggleCrossPageSelect = function () {
+				// Toggle the value
+				scope.allSelected = !scope.allSelected;
+
+				if (scope.allSelected) {
+					scope.searchResults.forEach(function (item) {
+						item.checkVal = true;
+					});
+				} else {
+					scope.searchResults.forEach(function (item) {
+						item.checkVal = false;
+						scope.toggleSelectPage();
+					})
+				}
+			}
+
+		}
+	}
+});

@@ -1,0 +1,31 @@
+<div id="select-all-container">
+	<style>
+		#select-all-container {
+			display: inline;
+		}
+		a {
+			cursor: pointer;
+		}
+		.select-status {
+			display: inline;
+			margin-left: 10px;
+			background: #0f94f647;
+			padding: 5px;
+			border-radius: 3px;
+		}
+	</style>
+	<button class="btn btn-primary btn-sm" ng-click="toggleSelectPage()">
+		<i class="fa fa-fw" ng-class="{'fa-check-square': pageSelected, 'fa-square': !pageSelected}"></i>
+		{{buttonText}}
+	</button>
+	<div ng-if="hasPagedResults && pageSelected" class="select-status">
+		<span ng-if="pageSelected && !allSelected">
+			{{selectedCount()}} Items Selected.
+			<a class="cursor-pointer" ng-click="toggleCrossPageSelect()">Select all {{::searchResults.length}} items.</a>
+		</span>
+		<span ng-if="allSelected">
+			{{selectedCount()}} Items Selected.
+			<a ng-click="toggleCrossPageSelect()">Clear Selection</a>
+		</span>
+	</div>
+</div>

@@ -121,7 +121,7 @@ function ($q, $location, $uibModal, KeytermsClientInt, globals, uiToast) {
 				// arg is a number, therefore single deletion
 				selected.push(scope.filteredResults[arg]);
 			} else {
-				selected = scope.filteredResults.filter(item => !!item.checkVal);
+				selected = scope.searchResults.filter(item => !!item.checkVal);
 			}
 
 			uiToast.setLimit(1);
@@ -326,7 +326,7 @@ function ($q, $location, $uibModal, KeytermsClientInt, globals, uiToast) {
 				size: 'lg',
 				resolve: {
 					Entries: function () {
-						return scope.filteredResults.filter(item => item.checkVal);
+						return scope.searchResults.filter(item => item.checkVal);
 					}
 				}
 			});
