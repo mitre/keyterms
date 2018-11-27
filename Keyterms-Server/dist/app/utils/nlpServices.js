@@ -103,7 +103,7 @@ var fetch = function (url) {
 
 // SSL FETCH
 var fetchHttps = function (requestParams) {
-    
+
     options.path = nlpConfig.endpoint + requestParams;
     log.debug('NLP services request path: ' + options.path);
 	return new Promise( function (resolve, reject) {
@@ -130,7 +130,7 @@ var fetchHttps = function (requestParams) {
      }).on("error", (err) => {
           log.error("Error:  "+err.message);
           reject(err);
-      }); 
+      });
    });
 });
 };
@@ -154,7 +154,7 @@ exports.callService = function (termText, langCode, index) {
 		log.error('Error while querying NLP Services!'+err.message);
 		return err;
 	});
-  } 
+  }
   // HTTP FETCH
   else {
 
@@ -170,4 +170,19 @@ exports.callService = function (termText, langCode, index) {
   }
 };
 
+exports.getISO = function (language) {
 
+    log.debug('Calling language lookup Services...' + language);
+
+    var url = `${config.url}iso/language?query=${language}`;
+
+	return fetch(url)
+	.then( function (resp) {
+		return resp;
+    })
+	.catch( function (err) {
+        log.warn('Error while querying NLP Services!');
+        log.error(err);
+        return err;
+    });
+};

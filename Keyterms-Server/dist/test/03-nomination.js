@@ -276,7 +276,7 @@ describe('03-01 Testing APIs Nomination endpoints and operations', function () {
 			.expect(200)
 			.expect(function(response) {
 				expect(response.body).to.be.an('object');
-				expect(response.body.terms.length).to.be(5); //hardcoded to account for nlp terms added after entry is created
+				expect(response.body.terms.length).to.be.above(env.termDocs[0].tags.length - 1); // accounts for any NLP terms that may have been added after entry creation
 				expect(response.body.termLinks).to.not.be.empty();
 				expect(response.body.tags.length).to.be(env.termDocs[0].tags.length);
 				expect(response.body.notes.length).to.be(env.termDocs[0].notes.length);
