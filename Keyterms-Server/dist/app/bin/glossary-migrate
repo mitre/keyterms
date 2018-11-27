@@ -9,8 +9,11 @@ targetDb.init({performCheck: false})
 .then(function() {
     var db = mongoose.connection.db;
 
-    // Convert all Organizations to Glossaries
-    return convertOrgsToGlossaries(db)
+    return Promise.resolve()
+    .then(function() {
+        // Convert all Organizations to Glossaries
+        return convertOrgsToGlossaries(db);
+    })
     .then(function() {
         // Refactor user 'organizations' field to 'glossaries'
         return refactorUserOrgToGlossary(db);
@@ -65,5 +68,6 @@ var refactorEntryOrgToGlossary = function(db) {
 }
 
 var refactorTagOrgToGlossary = function(db) {
+    console.log('Refactoring fields in "tags" collection...');
     return db.collection('tags').updateMany({}, { $rename: {'org': 'glossary'}});
 }
