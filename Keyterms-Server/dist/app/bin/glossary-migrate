@@ -1,0 +1,126 @@
+/*
+ * NOTICE
+ * This software was produced for the U.S. Government and is subject to the
+ * Rights in Data-General Clause 5.227-14 (May 2014).
+ * Copyright 2018 The MITRE Corporation. All rights reserved.
+ * Approved for Public Release; Distribution Unlimited. Case 18-2165
+ *
+ * This project contains content developed by The MITRE Corporation.
+ * If this code is used in a deployment or embedded within another project,
+ * it is requested that you send an email to opensource@mitre.org
+ * in order to let us know where this software is being used.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#!/usr/bin/env node
+
+var mongoose = require('mongoose');
+var targetDb = require('../db');
+var Promise = require('bluebird');
+
+var elastic = require('../utils/elasticSearch');
+
+var sourceUri = process.argv[2];
+
+var Organization = mongoose.model('Organization');
+var User = mongoose.model('User');
+var Term = mongoose.model('Term');
+var Entry = mongoose.model('Entry');
+var $Entry = targetDb.interfaces.$Entry;
+
+if (!sourceUri) {
+	throw new Error('Missing command-line param: Source Mongo Uri. Exiting...');
+}
+
+var glossaryMap = {};
+var userMap = {};
+var entryMap = {};
+var ERRORS = [];
+
+targetDb.init({performCheck: false})
+.then(function() {
+    var db = mongoose.connection.db;
+
+    // Convert all Organizations to Glossaries
+    return convertOrgsToGlossaries(db)
+    .then(function(glossaries) {
+        // Place each glossary in a map for easy access.
+		// Keyed by Component.Path or Component.Abbreviation (each are used interchangeably into old version)
+		glossaries.forEach( function (gloss) {
+			if (!(gloss.path in glossaryMap))
+				glossaryMap[gloss.path] = gloss;
+
+			if (!(gloss.abbreviation in glossaryMap))
+				glossaryMap[gloss.abbreviation] = gloss;
+		});
+
+        // Refactor user 'organizations' field to 'glossaries'
+        return refactorUserOrgToGlossary(db);
+    })
+    .then(function(users) {
+        // Place each user in a map for easy access.
+		// Keyed by email, because emails *should* be unique. (Ignore possibility of multiple accounts)
+		users.forEach( function (user) {
+			if (!(user.email in userMap))
+				userMap[user.email] = user;
+		});
+
+        // Refactor entry 'org' field to 'glossary'
+        return refactorEntryOrgToGlossary(db);
+    })
+    .then(function(entries) {
+
+        // Refactor tag 'org' field to 'glossary'
+        return refactorTagOrgToGlossary(db);
+    })
+    .then( function () {
+		console.log('\n\nDone.');
+		return true;
+	})
+	.catch( function (err) {
+		console.error('Catch all fired!');
+		console.error(err.message);
+		console.log('\n\n');
+		console.error(err);
+	})
+	.finally( function () {
+		mongoose.disconnect();
+		srcDb.close();
+		console.log('Data Migration Complete!\n\n');
+	});
+});
+
+var convertOrgsToGlossaries = function(db) {
+    return db.collection('organizations').rename('glossaries');
+}
+
+var refactorUserOrgToGlossary = function(db) {
+    return db.users.updateMany({}, { $rename: {'organizations': 'glossaries', 'currentOrg': 'currentGlossary', 'defaultOrg': 'defaultGlossary'}});
+}
+
+var refactorEntryOrgToGlossary = function(db) {
+    return db.entries.updateMany({}, { $rename: {'org': 'glossary'}})
+    .then(function(entries) {
+        // For any entries that have 'org' as the view scope, change it to 'glossary'
+        return db.entries.updateMany({'viewScope': 'org'}, { $set: {'viewScope': 'glossary'}});
+    })
+    .then(function(entries) {
+        // For any entries that have 'org' as the edit scope, change it to 'glossary'
+        return db.entries.updateMany({'editScope': 'org'}, { $set: {'editScope': 'glossary'}});
+    });
+}
+
+var refactorTagOrgToGlossary = function(db) {
+    return db.tags.updateMany({}, { $rename: {'org': 'glossary'}});
+}

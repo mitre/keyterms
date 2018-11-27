@@ -52,15 +52,15 @@ exports.nominationTypes = exports.nominationTypeINFO.map(type => type.value);
 
 //**********************************************************************************************************************
 exports.entryTypesINFO = [
-    { value: 'term',    	name: 'Term',           	desc: 'generic term or collocation'},
-    { value: 'attribute',   name: 'Attribute',          desc: 'an attribute of an entity'},
-    { value: 'document',    name: 'Document',           desc: 'an entry that describes a document'},
-    { value: 'event',   	name: 'Event',          	desc: 'an entry that describes an event'},
-    { value: 'location',    name: 'Location',       	desc: 'name of a place or landmark'},
-    { value: 'glossary',    name: 'Glossary',   	    desc: 'name of a company or group'},
-    { value: 'passage',    	name: 'Passage',       	    desc: 'multi-sentence entries'},
-    { value: 'person',     	name: 'Person',         	desc: 'name of a person'},
-    { value: 'phrase',     	name: 'Phrase',       	    desc: 'a short phrase, clause or sentence'}
+    { value: 'term',    	 name: 'Term',           	desc: 'generic term or collocation'},
+    { value: 'attribute',    name: 'Attribute',          desc: 'an attribute of an entity'},
+    { value: 'document',     name: 'Document',           desc: 'an entry that describes a document'},
+    { value: 'event',   	 name: 'Event',          	desc: 'an entry that describes an event'},
+    { value: 'location',     name: 'Location',       	desc: 'name of a place or landmark'},
+    { value: 'organization', name: 'Organization',  	    desc: 'name of a company or group'},
+    { value: 'passage',    	 name: 'Passage',       	    desc: 'multi-sentence entries'},
+    { value: 'person',     	 name: 'Person',         	desc: 'name of a person'},
+    { value: 'phrase',     	 name: 'Phrase',       	    desc: 'a short phrase, clause or sentence'}
 ];
 exports.entryTypes = exports.entryTypesINFO.map(type => type.value);
 
