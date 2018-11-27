@@ -2,7 +2,9 @@
 
 var mongoose = require('mongoose');
 var targetDb = require('../db');
+var Promise = require('bluebird');
 
+console.log('Connecting to database...');
 targetDb.init({performCheck: false})
 .then(function() {
     var db = mongoose.connection.db;
@@ -38,21 +40,26 @@ targetDb.init({performCheck: false})
 });
 
 var convertOrgsToGlossaries = function(db) {
+    console.log('Renaming "organizations" collection to "glossaries"...');
     return db.collection('organizations').rename('glossaries');
 }
 
 var refactorUserOrgToGlossary = function(db) {
+    console.log('Refactoring fields in "users" collection...');
     return db.collection('users').updateMany({}, { $rename: {'organizations': 'glossaries', 'currentOrg': 'currentGlossary', 'defaultOrg': 'defaultGlossary'}});
 }
 
 var refactorEntryOrgToGlossary = function(db) {
+    console.log('Refactoring fields in "entries" collection...');
     return db.collection('entries').updateMany({}, { $rename: {'org': 'glossary'}})
     .then(function() {
         // For any entries that have 'org' as the view scope, change it to 'glossary'
+        console.log('Updating entries viewScope values...');
         return db.collection('entries').updateMany({'viewScope': 'org'}, { $set: {'viewScope': 'glossary'}});
     })
     .then(function() {
         // For any entries that have 'org' as the edit scope, change it to 'glossary'
+        console.log('Updating entries editScope values...');
         return db.collection('entries').updateMany({'editScope': 'org'}, { $set: {'editScope': 'glossary'}});
     });
 }
