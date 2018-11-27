@@ -42,21 +42,21 @@ var convertOrgsToGlossaries = function(db) {
 }
 
 var refactorUserOrgToGlossary = function(db) {
-    return db.users.updateMany({}, { $rename: {'organizations': 'glossaries', 'currentOrg': 'currentGlossary', 'defaultOrg': 'defaultGlossary'}});
+    return db.collection('users').updateMany({}, { $rename: {'organizations': 'glossaries', 'currentOrg': 'currentGlossary', 'defaultOrg': 'defaultGlossary'}});
 }
 
 var refactorEntryOrgToGlossary = function(db) {
-    return db.entries.updateMany({}, { $rename: {'org': 'glossary'}})
-    .then(function(entries) {
+    return db.collection('entries').updateMany({}, { $rename: {'org': 'glossary'}})
+    .then(function() {
         // For any entries that have 'org' as the view scope, change it to 'glossary'
-        return db.entries.updateMany({'viewScope': 'org'}, { $set: {'viewScope': 'glossary'}});
+        return db.collection('entries').updateMany({'viewScope': 'org'}, { $set: {'viewScope': 'glossary'}});
     })
-    .then(function(entries) {
+    .then(function() {
         // For any entries that have 'org' as the edit scope, change it to 'glossary'
-        return db.entries.updateMany({'editScope': 'org'}, { $set: {'editScope': 'glossary'}});
+        return db.collection('entries').updateMany({'editScope': 'org'}, { $set: {'editScope': 'glossary'}});
     });
 }
 
 var refactorTagOrgToGlossary = function(db) {
-    return db.tags.updateMany({}, { $rename: {'org': 'glossary'}});
+    return db.collection('tags').updateMany({}, { $rename: {'org': 'glossary'}});
 }
