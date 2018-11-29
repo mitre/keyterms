@@ -27,6 +27,7 @@
 var path = require('path');
 
 var config = require('../config').server;
+var db = require('../config').db;
 var env = process.env.NODE_ENV || 'TEST';
 process.env.NODE_ENV = env;
 var testConfig = {};
@@ -37,14 +38,9 @@ if (/prod/i.test(env))
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 // Database (Mongo) configurations
-testConfig.db = {
-	host: 'kttest02.mitre.org',
-	port: 27017,
-	db: 'KeyTermsTest',
-	secured: false,		// set to true if Mongo instance is username/password protected
-	user: '',
-	pass: ''
-};
+// Use configured Mongo connection, but use KeyTermsTest db instead
+testConfig.db = db;
+testConfig.db.db = 'KeyTermsTest';
 
 testConfig.logSetup = {
 	level: 'silly',

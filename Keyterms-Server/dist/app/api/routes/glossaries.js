@@ -145,7 +145,7 @@ exports.getMembers = function (req, res, next) {
 					var list = resp.nonMembers;
 
 					// if member of glossary
-					if (user.glossarys.indexOf(req.glossaryDoc._id) !== -1) {
+					if (user.glossaries.indexOf(req.glossaryDoc._id) !== -1) {
 						userObj.qc = req.glossaryDoc.qcs.indexOf(user._id) !== -1;
 						userObj.admin = req.glossaryDoc.admins.indexOf(user._id) !== -1;
 						list = resp.members;
@@ -164,7 +164,7 @@ exports.getMembers = function (req, res, next) {
 			});
 		}
 		else {
-			return User.find({ glossarys: req.glossaryDoc._id }).select('-password').exec();
+			return User.find({ glossaries: req.glossaryDoc._id }).select('-password').exec();
 		}
 	})
 	.then( function (users) {
