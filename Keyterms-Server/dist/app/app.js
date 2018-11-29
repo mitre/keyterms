@@ -102,7 +102,7 @@ app.use(corsgate({
 }));
 
 // only mount api docs in dev mode
-if (!isProd && !isTestRun) {
+if (!isTestRun) {
 	// warn user if the only file in ../doc/dist is .gitkeep
 	if (fs.readdirSync(path.join(__dirname, '../docs/dist')).length <= 1) {
 		log.warn('Api docs have not yet been generated, run `npm run gen-docs` to generate the latest API documentation');

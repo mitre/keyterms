@@ -37,7 +37,8 @@
 				glossary: '',
 				file: {},
 				ext: '',
-				format: ''
+				format: '',
+				generateTag: false
 			};
 			return Object.assign({}, clean);
 		};
@@ -74,6 +75,7 @@
 		$scope.submit = function () {
 			// HTML5 FormData API is needed to send a multipart form via Angular
 			var fd = new FormData();
+
 			Object.keys($scope.fm).forEach( function (key) {
 				fd.append(key, $scope.fm[key]);
 			});
