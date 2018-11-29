@@ -31,7 +31,7 @@ var Entry = mongoose.model('Entry');
 
 // GET /api/browse/terms/:langCode
 exports.browseTerms = function (req, res, next) {
-	elastic.exploreOrgTerms(req.glossary._id.toString(), req.params.langCode)
+	elastic.exploreGlossaryTerms(req.glossary._id.toString(), req.params.langCode)
 	.then( function (resp) {
 		res.json(resp.aggregations.entries.buckets);
 	})

@@ -424,10 +424,10 @@ glossaryRouter.post('/create', auth.authorize.ensureAdmin, glossaries.create);
 //Anything with in the glossary Router with :id in the address has the glossary looked up automatically
 glossaryRouter.param('id', glossaries.idParam);
 
-glossaryRouter.route('/o/:id')
+glossaryRouter.route('/g/:id')
 
 /**
- * @api {get} /api/glossary/o/:id find one
+ * @api {get} /api/glossary/g/:id find one
  * @apiGroup GlossaryManagement
  * @apiName Find Glossary
  * @apiVersion 3.1.0
@@ -440,7 +440,7 @@ glossaryRouter.route('/o/:id')
 .post(glossaries.update)
 
 /**
- * @api {delete} /api/glossary/o/:id delete
+ * @api {delete} /api/glossary/g/:id delete
  * @apiGroup GlossaryManagement
  * @apiName Delete Entry
  * @apiVersion 3.1.0
@@ -454,7 +454,7 @@ glossaryRouter.route('/o/:id')
 .delete(glossaries.delete);
 
 /**
- * @api {post} /api/glossary/addQC/o/:id add QC
+ * @api {post} /api/glossary/addQC/:id add QC
  * @apiGroup GlossaryManagement
  * @apiName Add a QC
  * @apiVersion 3.1.0

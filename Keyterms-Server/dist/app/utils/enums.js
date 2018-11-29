@@ -65,7 +65,6 @@ exports.entryTypesINFO = [
 exports.entryTypes = exports.entryTypesINFO.map(type => type.value);
 
 //**********************************************************************************************************************
-exports.noteTypes = 'usage,example,pos,meaning,source,general,nominate'.split(',');
 exports.noteTypesINFO = [
     { value: 'general', 	  name: 'General',        	  desc: 'general type of overview note'},
     { value: 'example', 	  name: 'Example',        	  desc: 'example of how the term is used'},
@@ -80,6 +79,7 @@ exports.noteTypesINFO = [
 	{ value: 'routing',       name: 'Routing',            desc: 'where the term should be used'},
 	{ value: 'status',        name: 'Status',             desc: 'is the term used, deprecated, active, etc.'}
 ];
+exports.noteTypes = exports.noteTypesINFO.map(type => type.value);
 
 //**********************************************************************************************************************
 exports.orthTypesINFO = [

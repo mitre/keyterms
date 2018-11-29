@@ -174,7 +174,7 @@ exports.getISO = function (language) {
 
     log.debug('Calling language lookup Services...' + language);
 
-    var url = `${config.url}iso/language?query=${language}`;
+    var url = `${nlpConfig.protocol}\/\/${nlpConfig.hostname}:${nlpConfig.port}${nlpConfig.endpoint}\/iso\/language?query=${language}`;
 
 	return fetch(url)
 	.then( function (resp) {
