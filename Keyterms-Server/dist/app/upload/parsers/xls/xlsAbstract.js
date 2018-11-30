@@ -96,7 +96,7 @@ class xlsParser extends ImporterBase {
 			}
 
 			else {
-            	throw new Error('Incorrect headers');
+            	//throw new Error('Incorrect headers');
 			}
         });
 		log.verbose('headers: ', self.orderedHeaders);

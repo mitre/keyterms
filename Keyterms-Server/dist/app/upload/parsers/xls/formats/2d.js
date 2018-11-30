@@ -69,9 +69,13 @@ class XLS2D extends xlsParser {
                     lastEntryId = extract("entry");
                 }
 
-                switch (extract("field")) {
-                    case 'TERM':
-                    case 'Term':
+                var switchHeader = extract("field").toLocaleLowerCase();
+                if (switchHeader.includes('_')) {
+                    switchHeader = switchHeader.substr(0, switchHeader.indexOf('_'));
+                }
+
+                console.log("here: ", switchHeader);
+                switch (switchHeader) {
                     case 'term':
 
                         var term = {};
@@ -88,7 +92,7 @@ class XLS2D extends xlsParser {
                             if(extract(header)) {
 
                                 var termNote = {};
-
+                                termNote.text = extract(header);
                                 if (header.includes("_")) {
                                     termNote.type = header.slice(header.indexOf("_") + 1).toLowerCase();
                                 }
@@ -123,19 +127,17 @@ class XLS2D extends xlsParser {
                         }
 
                         break;
-                    case 'TAG':
-                    case 'Tag':
+
 					case 'tag':
                         entry.tags.push(extract("value"));
 
                         break;
-                    case 'NOTE':
-                    case 'Note':
                     case 'note':
+                        console.log("ARE WE HERE");
                         var note = {};
                         var header = extract("field");
                         note.text = extract("value");
-
+                        console.log("note text: ", note.text);
                         if (header.includes("_")) {
                             note.type = header.slice(header.indexOf("_") + 1).toLowerCase();
                         }
