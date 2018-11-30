@@ -44,6 +44,14 @@ class XLS2D extends xlsParser {
                     return row.values[self.headerPos[field]];
                 };
 
+                //--------------TESTING DYNAMIC HEADER LOCATION STARTS HERE-----------------
+                Object.keys(self.headerPos).forEach( function (header) {
+
+
+                });
+
+
+
                 var entry = self.entries[extract(self.headers[1])];
                 if (entry === undefined) {
                     // this means a new entry is being processed
