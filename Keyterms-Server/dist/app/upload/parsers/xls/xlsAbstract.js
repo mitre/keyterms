@@ -79,6 +79,10 @@ class xlsParser extends ImporterBase {
             	self.orderedHeaders["variety"] = index;
 			}
 
+			else if(header.includes("script")) {
+            	self.orderedHeaders["script"] = index;
+			}
+
 			else if(header.includes("from")) {
             	self.orderedHeaders["linkedFrom"] = index;
 			}
@@ -88,7 +92,7 @@ class xlsParser extends ImporterBase {
 			}
 
 			else if(header.includes("note")) {
-            	self.orderedHeaders["notes"].push(index);
+            	self.orderedHeaders["notes"].push(val);
 			}
 
 			else {
