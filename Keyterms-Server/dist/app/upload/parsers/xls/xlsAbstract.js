@@ -63,7 +63,7 @@ class xlsParser extends ImporterBase {
             	self.orderedHeaders["field"] = index;
 			}
 
-			else if(header.inludes("value")) {
+			else if(header.includes("value")) {
             	self.orderedHeaders["value"] = index;
 			}
 
@@ -99,7 +99,7 @@ class xlsParser extends ImporterBase {
             	throw new Error('Incorrect headers');
 			}
         });
-		log.verbose('headers: ', self.headers);
+		log.verbose('headers: ', self.orderedHeaders);
 	}
 
 	parse () {

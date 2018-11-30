@@ -41,12 +41,20 @@ class XLS2D extends xlsParser {
                 // handy shortcut function that references the header map
                 // and returns the value of the row's cell via column name
                 var extract = function (field) {
-                    return row.values[self.orderedHeaders[field]];
+
+                    if(field.toLocaleLowerCase().includes("note")) {
+                        return row.values[self.headerPos[field]];
+                    }
+
+                    else {
+                        return row.values[self.orderedHeaders[field]];
+                    }
+
                 };
 
                 //--------------TESTING DYNAMIC HEADER LOCATION STARTS HERE-----------------
 
-                var entry = self.entries[extract(self.orderedHeaders["entry"])];
+                var entry = self.entries[extract("entry")];
                 if (entry === undefined) {
                     // this means a new entry is being processed
 
@@ -58,24 +66,26 @@ class XLS2D extends xlsParser {
                     termMap = {}; // reset term map
                     entry = self.createEntry();
 
-                    lastEntryId = extract(self.orderedHeaders["entry"]);
+                    lastEntryId = extract("entry");
                 }
 
-                switch (extract(self.orderedHeaders["field"])) {
+                switch (extract("field")) {
                     case 'TERM':
                     case 'Term':
                     case 'term':
-                        var term = {};
-                        term.termText = extract(self.orderedHeaders["value"]);
-                        term.langCode = extract(self.orderedHeaders["lang"]);
-                        term.variety = extract(self.orderedHeaders["variety"]);
-                        term.script = extract(self.orderedHeaders["script"]);
 
+                        var term = {};
+                        term.termText = extract("value");
+                        term.langCode = extract("language");
+                        term.variety = extract("variety");
+                        term.script = extract("script");
+                        console.log("term text: ", term.termText);
+                        console.log("langCode: ", term.langCode);
                         var tempArr = [];
 
                         self.orderedHeaders["notes"].forEach( function (header) {
 
-                            if(extract(self.headerPos[header])) {
+                            if(extract(header)) {
 
                                 var termNote = {};
 
@@ -103,11 +113,11 @@ class XLS2D extends xlsParser {
                         termMap[entry.terms.length] = entry.terms[entry.terms.length - 1];
 
                         // is linked?
-                        if (!!extract(self.headers[8])) {
+                        if (!!extract("linkedFrom")) {
                             var link = {};
                             link.lhs = entry.terms[entry.terms.length - 1];
-                            link.rhs = termMap[extract(self.orderedHeaders["linkedFrom"])];
-                            link.relationType = extract(self.orderedHeaders["linkType"]);
+                            link.rhs = termMap[extract("linkedFrom")];
+                            link.relationType = extract("linkType");
 
                             entry.termLinks.push(link);
                         }
@@ -116,14 +126,15 @@ class XLS2D extends xlsParser {
                     case 'TAG':
                     case 'Tag':
 					case 'tag':
-                        entry.tags.push(extract(self.orderedHeaders["value"]));
+                        entry.tags.push(extract("value"));
 
                         break;
                     case 'NOTE':
                     case 'Note':
+                    case 'note':
                         var note = {};
-                        var header = extract(self.orderedHeaders["field"]);
-                        note.text = extract(self.orderedHeaders["value"]);
+                        var header = extract("field");
+                        note.text = extract("value");
 
                         if (header.includes("_")) {
                             note.type = header.slice(header.indexOf("_") + 1).toLowerCase();
@@ -141,7 +152,7 @@ class XLS2D extends xlsParser {
                 }
 
                 // update entry within entries map
-                self.entries[extract(self.orderedHeaders["entry"])] = entry;
+                self.entries[extract("entry")] = entry;
             });
 
             self.queueLastEntry(lastEntryId, resolve);
