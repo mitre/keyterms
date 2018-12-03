@@ -13,7 +13,7 @@ if ! whoami | grep -q "root$"; then
 fi
 
 # Prompt for OS
-AVAILABLE_OS=$(ls -dm */ | sed -e 's/centos7/CENTOS7/g' | sed -e 's/\///g' | sed -e 's/, /|/g')
+AVAILABLE_OS=$(cd $SCRIPT_DIR; ls -dm */ | tr -d '/' | tr -s ', ' '|' | awk '{gsub(/centos7/,"CENTOS7")}1')
 read -p "Choose the operating system that KeyTerms is being installed on ($AVAILABLE_OS): " oschoice
 oschoice=$(echo $oschoice | awk '{tolower($0)}')
 if [ -z "$oschoice" ]; then
@@ -23,6 +23,7 @@ if [ -z "$(find $SCRIPT_DIR -mindepth 1 -maxdepth 1 -type d -name $oschoice)" ];
     echo 'Invalid option. Exiting'
     exit 0
 fi
+OS_DIR="$SCRIPT_DIR/$oschoice"
 ln -fs "$oschoice" "$SCRIPT_DIR/chosen-os"
 
 # Prompt for proxy settings
@@ -51,12 +52,12 @@ case "$envchoice" in
     local|LOCAL)
         # Run the local setup script
         echo 'Running local setup...'
-        NEXT_SCRIPT=$oschoice/setup.sh
+        NEXT_SCRIPT=$OS_DIR/setup.sh
         ;;
     offline|OFFLINE)
         # Run the build-deploy script
         echo 'Running offline deployment build...'
-        NEXT_SCRIPT=$oschoice/build-deploy.sh
+        NEXT_SCRIPT=$OS_DIR/build-deploy.sh
         ;;
     *)
         echo 'Invalid choice. Exiting'
