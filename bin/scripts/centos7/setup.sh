@@ -100,9 +100,9 @@ if [ $PROMPT_JAVA -ne 0 ]; then
             exit 0
             ;;
         *)
-            java_rpm=jdk-11_linux-x64_bin.rpm
+            java_rpm=jdk-11.0.1_linux-x64_bin.rpm
             echo "... downloading Java 11 ..."
-            curl -# -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/11+28/55eed80b163941c8885ad9298e6d786a/$java_rpm -O
+            curl -# -L -b "oraclelicense=a" https://download.oracle.com/otn-pub/java/jdk/11.0.1+13/90cf5d8f270a4347a95050320eef3fb7/$java_rpm -O
             if [ $? -ne 0 ]; then
                 echo '... download failed.'
                 echo 'Exiting'; exit 0

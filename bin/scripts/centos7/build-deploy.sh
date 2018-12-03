@@ -34,7 +34,7 @@ echo 'Preparing dependencies...'
 cd $proj_root/deploy/keyterms/lib/
 
 # Java
-ARCHIVE="jdk-11_linux-x64_bin.rpm"
+ARCHIVE="jdk-11.0.1_linux-x64_bin.rpm"
 echo ' '
 read -p "Java 9 or higher is required for KeyTerms. Java 11 is recommended. Include packaged Java 11? (Y|n) " javachoice
 case "$javachoice" in
@@ -47,7 +47,7 @@ case "$javachoice" in
             echo '... Java 11 already downloaded. Continuing ...'
         else
             echo '... downloading Java 11 ...'
-            curl -# -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/11+28/55eed80b163941c8885ad9298e6d786a/$ARCHIVE -O
+            curl -# -L -b "oraclelicense=a" https://download.oracle.com/otn-pub/java/jdk/11.0.1+13/90cf5d8f270a4347a95050320eef3fb7/$ARCHIVE -O
             if [ $? -ne 0 ]; then
                 echo '... download failed. Java will not be included.'
             fi
