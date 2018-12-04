@@ -31,7 +31,7 @@ var Promise = require('bluebird');
 var elastic = require('../../utils/elasticSearch');
 var log = require('../../utils/logger').logger;
 
-var orgMap = {};
+var glossaryMap = {};
 
 var testElasticConnection = function () {
 	return elastic.ping()
@@ -44,17 +44,17 @@ var testElasticConnection = function () {
 	});
 };
 
-var reindexOrg = function (org) {
-	orgMap[org._id.toString()] = true;
+var reindexGlossary = function (gloss) {
+	glossaryMap[gloss._id.toString()] = true;
 
-	if (org.entries.length < 1) {
-		log.info(`Skipping Org ${org._id} because it contains no entries`);
+	if (gloss.entries.length < 1) {
+		log.info(`Skipping Glossary ${gloss._id} because it contains no entries`);
 		return Promise.resolve(true);
 	}
 
-	log.info(`Reindexing Org ${org._id}...`);
+	log.info(`Reindexing Glossary ${gloss._id}...`);
 
-	return elastic.deleteOrgIndex(org._id)
+	return elastic.deleteGlossaryIndex(gloss._id)
 	.catch( function (err) {
 		log.warn('Index did not previously exist');
 		if (err.body.error.reason == 'no such index') {
@@ -65,12 +65,12 @@ var reindexOrg = function (org) {
 		throw err;
 	})
 	.then( function () {
-		return Promise.mapSeries(org.entries, function (entry) {
-			return elastic.indexEntry(entry, org._id);
+		return Promise.mapSeries(gloss.entries, function (entry) {
+			return elastic.indexEntry(entry, gloss._id);
 		})
 	})
 	.then( function () {
-		log.verbose(`Re-indexed ${org.entries.length} entries from Org ${org._id}`);
+		log.verbose(`Re-indexed ${gloss.entries.length} entries from Glossary ${gloss._id}`);
 	});
 };
 
@@ -82,18 +82,18 @@ var db = require('../../db').init({performCheck: false})
 	return testElasticConnection();
 })
 .then( function () {
-    var Org = mongoose.model('Organization');
+    var Glossary = mongoose.model('Glossary');
 
-    // Get all Org Docs with entries references populated
-    return Org.find({}).populate([
+    // Get all Glossary Docs with entries references populated
+    return Glossary.find({}).populate([
         {
             path: 'entries',
             model: 'Entry'
             // no need to populate Terms, the Elastic util/interface does that for us
         }
     ]).exec()
-        .then(function (orgDocs) {
-            return Promise.mapSeries(orgDocs, reindexOrg);
+        .then(function (glossaryDocs) {
+            return Promise.mapSeries(glossaryDocs, reindexGlossary);
         })
         .then(function () {
             // query elastic for all indices
@@ -102,15 +102,15 @@ var db = require('../../db').init({performCheck: false})
 				return Promise.mapSeries(Object.keys(indices), function (indexName) {
                     if (indexName.includes("kt_")) {
                         indexName = indexName.slice(3);
-                        if (!(indexName in orgMap)) {
+                        if (!(indexName in glossaryMap)) {
                             //var temp = index.split("_")[1];
-                            return elastic.deleteOrgIndex(indexName);
+                            return elastic.deleteGlossaryIndex(indexName);
                         }
                     }
                 });
 			});
-            // .then => iterate over the list and check if the org exists in the orgMap
-            // if ( ! (id in orgMap) ) {}
+            // .then => iterate over the list and check if the glossary exists in the glossaryMap
+            // if ( ! (id in glossaryMap) ) {}
             //		if not, delete the index
         })
 })
@@ -118,7 +118,7 @@ var db = require('../../db').init({performCheck: false})
 	console.log(err);
 	process.exit(0);
 })
-.then( function (org) {
+.then( function (gloss) {
 	log.info('Re-indexing completed.');
 	mongoose.disconnect();
 });

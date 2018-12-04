@@ -57,7 +57,7 @@ var initDb = function (_options) {
 
 			if (!options.performCheck) { return resolve(true); }
 
-			var requiredCollections = ['entries', 'nominations', 'organizations', 'sessions', 'terms', 'tags', 'users'];
+			var requiredCollections = ['entries', 'nominations', 'glossaries', 'sessions', 'terms', 'tags', 'users'];
 
 			log.info('Checking for required collections');
 

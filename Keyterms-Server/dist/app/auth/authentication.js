@@ -29,7 +29,7 @@ var log = require('../utils/logger').logger;
 var config = require('../../config').server;
 
 var mongoose = require('mongoose');
-var Org = mongoose.model('Organization');
+var Glossary = mongoose.model('Glossary');
 var User = mongoose.model('User');
 
 exports.verifyRequest = function (req, res, next) {
@@ -39,13 +39,13 @@ exports.verifyRequest = function (req, res, next) {
 	if (!!req.user && typeof req.user === 'object') {
 		log.debug('Request has corresponding session');
 
-		// retrieve the Organization
-		Org.findOne({_id: req.user.currentOrg}).exec()
-		.then( function (org) {
-			req.org = org;
+		// retrieve the Glossary
+		Glossary.findOne({_id: req.user.currentGlossary}).exec()
+		.then( function (glossary) {
+			req.glossary = glossary;
 			next();
 		}).catch( function () {
-			log.error('Org doc not found!');
+			log.error('Glossary doc not found!');
 			res.sendStatus(500);
 		});
 	} else {

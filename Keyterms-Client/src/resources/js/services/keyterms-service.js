@@ -83,8 +83,8 @@ app.factory('keytermsApi', ['$http', '$q', 'ApiUrl', function ($http, $q, ApiUrl
 		return $http.post(authUrl + 'login', credentials);
 	};
 
-	service.checkOrgPermissions = function () {
-		return $http.get(baseApiUrl + '/orgPermissions');
+	service.checkGlossaryPermissions = function () {
+		return $http.get(baseApiUrl + '/glossaryPermissions');
 	};
 
 	service.logout = function () {
@@ -99,7 +99,7 @@ app.factory('keytermsApi', ['$http', '$q', 'ApiUrl', function ($http, $q, ApiUrl
 
 	// expects array of tags
 	service.requestTags = function () {
-		return $http.get(baseApiUrl + '/tags/orgTags');
+		return $http.get(baseApiUrl + '/tags/glossaryTags');
 	};
 
 	// expects 200 status on success
@@ -112,8 +112,8 @@ app.factory('keytermsApi', ['$http', '$q', 'ApiUrl', function ($http, $q, ApiUrl
 		return $http.delete(baseApiUrl + '/tags/del/' + encodeURIComponent(tag));
 	};
 
-	service.getOrgTag = function (tag) {
-		return $http.get(baseApiUrl + '/tags/orgTag/' + encodeURIComponent(tag));
+	service.getGlossaryTag = function (tag) {
+		return $http.get(baseApiUrl + '/tags/glossaryTag/' + encodeURIComponent(tag));
 	};
 
 	service.tagEntry = function (tag, entryId) {
@@ -201,13 +201,13 @@ app.factory('keytermsApi', ['$http', '$q', 'ApiUrl', function ($http, $q, ApiUrl
 		return $http.get(baseApiUrl + '/myentries');
 	};
 
-	service.updateUserOrg = function (orgId) {
-		return $http.post(baseApiUrl + '/user/activeOrg/' + orgId);
+	service.updateUserGlossary = function (glossaryId) {
+		return $http.post(baseApiUrl + '/user/activeGlossary/' + glossaryId);
 	};
 
-	service.updateDefaultOrg = function (orgId) {
-		console.log("Updating the default org to: " + orgId);
-		return $http.post(baseApiUrl + '/user/defaultOrg/' + orgId);
+	service.updateDefaultGlossary = function (glossaryId) {
+		console.log("Updating the default glossary to: " + glossaryId);
+		return $http.post(baseApiUrl + '/user/defaultGlossary/' + glossaryId);
 	};
 
 	// [Converted - 10/3]

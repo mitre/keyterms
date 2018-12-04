@@ -120,12 +120,12 @@
 </head>
 <body ng-app="keyterms-client">
 <div id="keytermsClient-ctrl" ng-controller="keytermsClient-ctrl">
-	<script type="text/ng-template" id="orgPopup.html">
+	<script type="text/ng-template" id="glossaryPopup.html">
 		<div class="modal-header">
 			<h3 class="modal-title" >Select Glossary</h3>
 		</div>
-		<div class="modal-body org-popup-body">
-			<org-dropdown></org-dropdown>
+		<div class="modal-body glossary-popup-body">
+			<glossary-dropdown></glossary-dropdown>
 		</div>
 		<div class="modal-footer">
 			<label>
@@ -202,7 +202,7 @@
 				<div class="user-container">
 					<div class="select-tag btn-group" uib-dropdown keyboard-nav auto-close="always" is-open="isOpen">
 						<div class="btn-select" uib-dropdown-toggle style="cursor: pointer; box-shadow: none; min-width: unset">
-							<span ng-if="isOrgQC()" class="fa fa-thumbs-up"></span>	{{user.getUser().fullName}} <span class="caret" style=""></span>
+							<span ng-if="isGlossaryQC()" class="fa fa-thumbs-up"></span>	{{user.getUser().fullName}} <span class="caret" style=""></span>
 						</div>
 						<ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu rule="menu">
 							<li role="menuitem">
@@ -211,15 +211,15 @@
 						</ul>
 					</div>
 				</div>
-				<div class="org-dropdown-container">
-					<org-dropdown></org-dropdown>
+				<div class="glossary-dropdown-container">
+					<glossary-dropdown></glossary-dropdown>
 				</div>
 			</div>
 		</nav>
 		<div id="page-label-container" >
 			<span class="h4">&nbsp;</span>
 			<span class="h4 pull-left" style="margin-top:0;">{{ currentpageName }}</span>
-			<div ng-if="!$parent.showOrgPopup && showNav" class="pull-right greeting-text" >
+			<div ng-if="!$parent.showGlossaryPopup && showNav" class="pull-right greeting-text" >
 			</div>
 		</div>
 	</div> <!-- End of Header Container -->
@@ -260,7 +260,7 @@
 				</a>
 			</div>
 			<div class="col-xs-6 text-center">
-				<a class="btn btn-link btn-block" target="_blank" href="{{ ::apiUrl }}upload" ng-disabled="!isOrgQC()">
+				<a class="btn btn-link btn-block" target="_blank" href="{{ ::apiUrl }}upload" ng-disabled="!isGlossaryQC()">
 					<p><i class="fa fa-fw fa-upload fa-3x" aria-hidden="true"></i></p>
 					<p>Import</p>
 				</a>

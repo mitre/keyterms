@@ -37,12 +37,12 @@
             <span class="help-block">
                 Preferred Languages
                 <i class="fa fa-fw fa-question-circle text-info"
-                   uib-popover-html="orgPopoverText"
+                   uib-popover-html="glossaryPopoverText"
                    popover-trigger="mouseenter" popover-placement="bottom">
                 </i>
             </span>
             <ul>
-                <li class="animate-langlist" ng-repeat="lang in org.langList | filter:codeFilter track by lang">
+                <li class="animate-langlist" ng-repeat="lang in glossary.langList | filter:codeFilter track by lang">
                     <span class="bull">&bull;</span>
                     <span class="list-code">{{ ::reference[lang].name }} ({{ ::lang }})</span>
                     <i class="fa fa-fw fa-times text-danger i-btn" ng-click="rmLang(lang)"></i>

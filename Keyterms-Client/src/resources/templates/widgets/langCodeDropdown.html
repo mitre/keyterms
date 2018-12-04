@@ -34,7 +34,7 @@
         <li role="menuitem" class="language">
             <a ng-click="onCodeChange(list[0])" href="" ng-keyup="focusLanguage($event)">{{ list[0].name }} ({{ list[0].value }})</a>
         </li>
-        <li ng-if="::orgLangList.length > 0" role="menuitem" class="language" ng-repeat="lang in orgLangList | filter:{ name: codeFilter }">
+        <li ng-if="::glossaryLangList.length > 0" role="menuitem" class="language" ng-repeat="lang in glossaryLangList | filter:{ name: codeFilter }">
             <a ng-click="onCodeChange(lang)" href="" ng-keyup="focusLanguage($event)">{{lang.name}} ({{lang.value}})</a>
         </li>
         <li class="divider" role="separator"></li>

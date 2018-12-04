@@ -30,20 +30,20 @@ var config = require('../../config').elastic;
 var log = require('./logger').logger;
 
 /**
- * An ElasticSearch Index will be created for each Organization.
- * They will all follow the naming convention of "kt_{{ org._id }}".
+ * An ElasticSearch Index will be created for each Glossary.
+ * They will all follow the naming convention of "kt_{{ glossary._id }}".
  *
  * An Index Template was loaded into ElasticSearch, which adds default settings for
- * any index named with the pattern "kt_*". This _template is called "org_index_template"
- * and can be retrieved by sending the following request to ElasticSearch: "GET _template/org_index_template"
+ * any index named with the pattern "kt_*". This _template is called "glossary_index_template"
+ * and can be retrieved by sending the following request to ElasticSearch: "GET _template/glossary_index_template"
  *
  * The combination of the Index naming convention and Index Template eliminate the need to create an Index
- * Once an Organization is created. This will be done automatically once the first Entry is created within
- * the Organization and the "Index this term" query is executed.
+ * Once a Glossary is created. This will be done automatically once the first Entry is created within
+ * the Glossary and the "Index this term" query is executed.
  *
  * Any future changes to the Index configuration will require deleting the Index (and copying all of it's
- * documents before deletion if necessary) as well as deleting the Index template (DELETE _template/org_index_template).
- * Then the Index Template can be re-created with the correct updates (PUT _template/org_index_template w/ body {}). Once
+ * documents before deletion if necessary) as well as deleting the Index template (DELETE _template/glossary_index_template).
+ * Then the Index Template can be re-created with the correct updates (PUT _template/glossary_index_template w/ body {}). Once
  * this is complete, Terms can be indexed freely (as the Index will be automatically created as discussed above).
  * NOTE: Any copied documents will need to be re-indexed AND simply updating the Index Template will NOT update the
  * configurations of any existing Indices (even if they match the pattern), therefore the Indices must be deleted
@@ -162,10 +162,10 @@ exports.ping = function() {
 	return client.ping();
 };
 
-var orgIndexTemplateName = 'org_index_template';
+var glossaryIndexTemplateName = 'glossary_index_template';
 exports.termIndexTemplate = {
 	exists: function () {
-		return client.indices.getTemplate({name: orgIndexTemplateName})
+		return client.indices.getTemplate({name: glossaryIndexTemplateName})
 		.then( function () {
 			return true;
 		})
@@ -181,7 +181,7 @@ exports.termIndexTemplate = {
 	set: function () {
 		return client.indices.putTemplate({
 			order: 100,
-			name: orgIndexTemplateName,
+			name: glossaryIndexTemplateName,
 			body: termIndexTemplate
 		});
 	}
@@ -194,16 +194,16 @@ exports.getIndices = function(){
 };
 // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-indices-delete
 // client.indices.delete()
-exports.deleteOrgIndex = function (orgId) {
+exports.deleteGlossaryIndex = function (glossId) {
 	return client.indices.delete({
-		index: 'kt_' + orgId
+		index: 'kt_' + glossId
 	});
 };
 
 // TODO: write add/remove methods for Terms, Tags, and Notes
 // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-index
 // client.index()
-var indexTerms = function (entry, orgId) {
+var indexTerms = function (entry, glossId) {
 	var actions = [];
 
 	entry.terms.forEach( function (term) {
@@ -212,7 +212,7 @@ var indexTerms = function (entry, orgId) {
 
 		// push action description first
 		actions.push({ index: {
-			_index: 'kt_' + orgId,
+			_index: 'kt_' + glossId,
 			_type: 'term',
 			_id: term._id
 			// NOTE: Running index on the same _id will "replace" the old document in the index
@@ -233,14 +233,14 @@ var indexTerms = function (entry, orgId) {
 	});
 };
 
-var deindexTerms = function (terms, orgId) {
+var deindexTerms = function (terms, glossId) {
 	var actions = [];
 
 	terms.forEach(function (term) {
 		// Push an action to delete the index for each requested term
 		actions.push({
 			delete: {
-				_index: 'kt_' + orgId,
+				_index: 'kt_' + glossId,
 				_type: 'term',
 				_id: term
 			}
@@ -252,25 +252,25 @@ var deindexTerms = function (terms, orgId) {
 };
 
 /* eslint-disable no-unused-vars */
-var indexTags = function (entry, orgId) {
+var indexTags = function (entry, glossId) {
 	// TODO: write this function
 };
 
-var indexNotes = function (entry, orgId) {
+var indexNotes = function (entry, glossId) {
 	// TODO: write this function
 };
 /* eslint-enable no-unused-vars */
 
 // NOTE: Running index on the same _id will "replace" the old document in the index
-exports.indexEntry = function (entry, orgId, delTerms) {
+exports.indexEntry = function (entry, glossId, delTerms) {
 	// resolve the embedded docs within the entry via doc.populate
 	return entry.populate('terms')
 	// .execPopulate() is to .populate()'s as .exec() is to queries (.find(), etc)
 	.execPopulate()
 	.then( function (entry) {
-		var promiseArray = [indexTerms(entry, orgId)];
+		var promiseArray = [indexTerms(entry, glossId)];
 		if (!!delTerms && delTerms.length > 0 ) {
-			promiseArray.push(deindexTerms(delTerms, orgId));
+			promiseArray.push(deindexTerms(delTerms, glossId));
 		}
 
 		return Promise.all(promiseArray);
@@ -289,12 +289,12 @@ exports.indexEntry = function (entry, orgId, delTerms) {
 
 // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-delete
 // client.delete()
-exports.deindexEntry = function (entry, orgId) {
+exports.deindexEntry = function (entry, glossId) {
 	var body = [];
 
 	entry.terms.forEach( function (term) {
 		body.push( { delete: {
-			_index: 'kt_' + orgId,
+			_index: 'kt_' + glossId,
 			_type: 'term',
 			_id: term
 		}});
@@ -374,14 +374,14 @@ var createQueryBody = function (searchTerm, langCode, exact) {
 
 // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-search
 // client.search()
-exports.searchOrgIndex = function (searchTerm, langCode, orgId, exact) {
+exports.searchGlossaryIndex = function (searchTerm, langCode, glossId, exact) {
 
 	//client.indices.refresh({index : ''});
 	var queryBody = createQueryBody(searchTerm, langCode, exact);
 
 	// execute the search query
 	return client.search({
-		index: 'kt_' + orgId,
+		index: 'kt_' + glossId,
 		type: 'term',
 		body: queryBody
 	})
@@ -426,7 +426,7 @@ exports.searchAllTerms = function (tokens) {
 };
 /* eslint-enable no-unused-vars */
 
-exports.exploreOrgTerms = function (orgId, langCode) {
+exports.exploreGlossaryTerms = function (glossId, langCode) {
 	var aggregateQuery = {
 		size: 0,
 		aggs: {
@@ -455,17 +455,17 @@ exports.exploreOrgTerms = function (orgId, langCode) {
 	}
 
 	return client.search({
-		index: 'kt_' + orgId,
+		index: 'kt_' + glossId,
 		type: 'term',
 		body: aggregateQuery
 	})
 		.catch(function (err) {
-			log.warn('Error was thrown during Elastic search execution [`exploreOrgTerms`]...');
+			log.warn('Error was thrown during Elastic search execution [`exploreGlossaryTerms`]...');
 
 			throw err;
 		});
 };
 
-exports.manualRefresh = function (orgId) {
-	return client.indices.refresh({index: orgId});
+exports.manualRefresh = function (glossId) {
+	return client.indices.refresh({index: glossId});
 };

@@ -32,9 +32,9 @@ var log = require('../../utils/logger').logger;
 var Nomination = mongoose.model('Nomination');
 var Entry = mongoose.model('Entry');
 
-// GET /nominations - returns a list of nominations for an organization
+// GET /nominations - returns a list of nominations for a glossary
 exports.getNominations = function (req, res, next) {
-	Nomination.populate(req.org, {
+	Nomination.populate(req.glossary, {
 		path: 'nominations',
 		model: 'Nomination',
 		populate: [
@@ -83,15 +83,15 @@ exports.param = function (req, res, next, nomId) {
 	Nomination.count({_id: nomId})
 	.then( function (count) {
 		if (count === 1) {
-			if (req.org.nominations.indexOf(nomId) === -1) {
-				// if the nom id is not listed within the current org
+			if (req.glossary.nominations.indexOf(nomId) === -1) {
+				// if the nom id is not listed within the current glossary
 				// the user is working in, return 403 - the request isn't
 				// bad and their creds aren't necessarily bad, they just don't
 				// have permission at this moment
 				return res.sendStatus(403);
 			}
 
-			// confirmed to be a member of the user's current org
+			// confirmed to be a member of the user's current glossary
 			return next();
 		}
 		else {
@@ -143,10 +143,10 @@ exports.create = function (req, res, next) {
 	Nomination.create(req.body)
 	.then( function (doc) {
 		res.status(201).json(doc);
-		return req.org.addNom(doc._id);
+		return req.glossary.addNom(doc._id);
 	})
 	.then( function () {
-		log.debug('Nomination added to org');
+		log.debug('Nomination added to glossary');
 	}).catch(next);
 };
 
@@ -213,10 +213,10 @@ exports.reject = function (req, res, next) {
 	Nomination.findOne({_id: req.params.id}).remove().exec()
 	.then( function () {
 		res.json({wasSuccessful: true});
-		return req.org.removeNom(req.params.id);
+		return req.glossary.removeNom(req.params.id);
 	})
 	.then( function () {
-		log.debug('Nomination removed from org');
+		log.debug('Nomination removed from glossary');
 	}).catch(next);
 };
 
@@ -262,7 +262,7 @@ exports.approve = function (req, res, next) {
 	.then( function (result) {
 		res.json(result);
 		return Promise.all([
-			req.org.removeNom(result._id),
+			req.glossary.removeNom(result._id),
 			Nomination.findOne({_id: req.params.id}).remove().exec()
 		]);
 	})
@@ -300,11 +300,11 @@ var approveAdd = function (req, nom) {
 	entryData.nominatedBy = nom.createdBy;
 	entryData.approvedBy = req.user._id;
 
-	return $Entry.createEntry(entryData, req.org);
+	return $Entry.createEntry(entryData, req.glossary);
 };
 
 var approveDel = function (req, nom) {
-	return $Entry.removeEntry(nom.originalEntry, req.org)
+	return $Entry.removeEntry(nom.originalEntry, req.glossary)
 	.then( function () {
 		return {wasSuccessful: true};
 	});
@@ -317,7 +317,7 @@ var approveMod = function (req, nom) {
 		var delta = req.body.delta || nom.delta || null;
 
 		if (!!delta) {
-			updateAsync = $Entry.applyDelta(nom.originalEntry, delta, req.org._id);
+			updateAsync = $Entry.applyDelta(nom.originalEntry, delta, req.glossary._id);
 		}
 		else {
 			var entryData = {};
@@ -330,7 +330,7 @@ var approveMod = function (req, nom) {
 			// }
 
 			entryData = nom.data;
-			updateAsync = $Entry.updateEntry(nom.originalEntry, entryData, req.org._id);
+			updateAsync = $Entry.updateEntry(nom.originalEntry, entryData, req.glossary._id);
 		}
 
 		if (!updateAsync) {

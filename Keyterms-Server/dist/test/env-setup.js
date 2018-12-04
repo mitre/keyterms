@@ -53,21 +53,21 @@ request.set('Origin', 'http://localhost:4000');
 
 var init = function (done) {
 
-	return mongoose.model('Organization').count({})
-	.then( function (orgCount) {
-		if (orgCount == 0)
-			return mongoose.model('Organization').create(mock.standard.org);
+	return mongoose.model('Glossary').count({})
+	.then( function (glossaryCount) {
+		if (glossaryCount == 0)
+			return mongoose.model('Glossary').create(mock.standard.glossary);
 		else
-			return mongoose.model('Organization').findOne(mock.standard.org).exec();
+			return mongoose.model('Glossary').findOne(mock.standard.glossary).exec();
 	})
-	.then( function (org) {
+	.then( function (glossary) {
 		return mongoose.model('User').count({})
 		.then( function (usrCount) {
 			if (usrCount == 0) {
 				var usr = deepCopy(mock.standard.user);
-				usr.organizations = [];
-				usr.organizations.push(org._id);
-				usr.currentOrg = org._id;
+				usr.glossaries = [];
+				usr.glossaries.push(glossary._id);
+				usr.currentGlossary = glossary._id;
 
 				return mongoose.model('User').create(usr);
 			}
@@ -152,20 +152,20 @@ var env = class Env {
 			return dropDb();
 		})
 		.then(function(){
-			return mongoose.model('Organization').create(mock.standard.org)
+			return mongoose.model('Glossary').create(mock.standard.glossary)
 		})
-		.then( function(org) {
-			return mongoose.model('Organization').ensureIndexes()
+		.then( function(glossary) {
+			return mongoose.model('Glossary').ensureIndexes()
 			.then(function () {
-				return org;
+				return glossary;
 			})
 		})
-		.then( function (org) {
-			self.org = org;
+		.then( function (glossary) {
+			self.glossary = glossary;
             var usr = deepCopy(mock.standard.user);
-            usr.organizations = [];
-            usr.organizations.push(org._id);
-            usr.currentOrg = org._id;
+            usr.glossaries = [];
+            usr.glossaries.push(glossary._id);
+            usr.currentGlossary = glossary._id;
 
             return mongoose.model('User').create(usr)
 			.then( function(user) {
@@ -178,8 +178,8 @@ var env = class Env {
 		.then( function (user) {
 			self.user = user;
 
-			self.org.addQC(self.user);
-			self.org.addAdmin(self.user);
+			self.glossary.addQC(self.user);
+			self.glossary.addAdmin(self.user);
 
 			console.log('logging in...', self.user._id);
 
@@ -192,9 +192,9 @@ var env = class Env {
 	}
 
 	_after (done) {
-		return elastic.deleteOrgIndex(this.org._id.toString())
+		return elastic.deleteGlossaryIndex(this.glossary._id.toString())
 		.catch( function (err) {
-			//This error is expected from tests 01-server, 04-organizations, 05-users because no elastic index is created.
+			//This error is expected from tests 01-server, 04-glossaries, 05-users because no elastic index is created.
 			log.warn('Error removing Elastic Index');
 			log.error(err);
 			//console.log('Error removing Elastic Index');
@@ -219,9 +219,9 @@ var env = class Env {
 
 	_beforeEach () {
 		// log.info(this.currentTest.fullTitle());
-		// mongoose.model('Organization').findOne(mock.standard.org).exec()
-		// .then( function (org) {
-		// 	console.log(org.entries);
+		// mongoose.model('Glossary').findOne(mock.standard.glossary).exec()
+		// .then( function (glossary) {
+		// 	console.log(glossary.entries);
 		// })
 	}
 
@@ -247,7 +247,7 @@ var env = class Env {
 			var rawEntry = deepCopy(mock.entries.valid[1]);
 			rawEntry.createdBy = self.user._id;
 
-			Entry.createEntry(rawEntry, self.org)
+			Entry.createEntry(rawEntry, self.glossary)
 			.then( function (doc) {
 				self.termDocs.push(doc);
 				done();
@@ -264,7 +264,7 @@ var env = class Env {
 				entryData = deepCopy(entryData);
 				entryData.createdBy = self.user._id;
 
-				Entry.createEntry(entryData, self.org)
+				Entry.createEntry(entryData, self.glossary)
 				.then(function (doc){
 					self.termDocs.push(doc);
 
@@ -283,7 +283,7 @@ var env = class Env {
 
 			mongoose.model('Nomination').create(newNomination)
 			.then( function (doc) {
-				self.org.addNom(doc._id);
+				self.glossary.addNom(doc._id);
 				self.nomDocs.push(doc);
 				done();
 			})
@@ -305,7 +305,7 @@ var env = class Env {
 
 				doc.originalEntry = doc._id;
 
-				self.org.addNom(doc._id);
+				self.glossary.addNom(doc._id);
 				self.modNomDocs.push(doc);
 
 				done();
@@ -320,7 +320,7 @@ var env = class Env {
 		var self = this;
 
 		before( function (done){
-			elastic.manualRefresh('kt_' + self.org._id)
+			elastic.manualRefresh('kt_' + self.glossary._id)
 			.then(function (res) {
 				done();
 			})

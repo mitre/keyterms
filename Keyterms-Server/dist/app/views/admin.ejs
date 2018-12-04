@@ -28,7 +28,7 @@
         <ul class="nav navbar-nav navbar-right">
             <li class="dropdown" uib-dropdown>
                 <a class="dropdown-toggle" uib-dropdown-toggle>
-                    {{main.currentUser.currentOrg.name}} ({{main.currentUser.currentOrg.abbreviation}})
+                    {{main.currentUser.currentGlossary.name}} ({{main.currentUser.currentGlossary.abbreviation}})
                     <i class="fa fa-fw fa-users"></i>
                     <i class="fa fa-fw fa-caret-down"></i>
                 </a>
@@ -63,7 +63,7 @@
             <a href="users" class="list-group-item" ng-class="{ 'active': main.active == 'users' }">
                 <h4 class="list-group-item-heading">Users</h4>
             </a>
-            <a href="orgs" class="list-group-item" ng-class="{ 'active': main.active == 'orgs' }">
+            <a href="glossaries" class="list-group-item" ng-class="{ 'active': main.active == 'glossaries' }">
                 <h4 class="list-group-item-heading">Glossaries</h4>
             </a>
         </div>

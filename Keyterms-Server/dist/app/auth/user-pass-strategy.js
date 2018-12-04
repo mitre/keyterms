@@ -62,8 +62,8 @@ exports.stratCB = new Strategy(function (username, password, done) {
 			if (isValidPassword) {
 				log.debug('Password correct for ' + user.username);
 				user.populate({
-					path: 'organizations',
-					model: 'Organization',
+					path: 'glossaries',
+					model: 'Glossary',
 					select: 'name langList'
 				}).execPopulate()
 				.then(function (_user) {

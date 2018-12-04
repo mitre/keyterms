@@ -175,23 +175,23 @@ app.directive('dragLink', function () {
 	};
 });
 
-app.directive('orgDropdown', ['user.service', '$route', '$rootScope', function (UserService, $route, $rootScope) {
+app.directive('glossaryDropdown', ['user.service', '$route', '$rootScope', function (UserService, $route, $rootScope) {
 	return {
 		restrict: 'E',
 		replace: true,
 		scope: true,
-		templateUrl: 'resources/templates/widgets/orgDropdown.html',
+		templateUrl: 'resources/templates/widgets/glossaryDropdown.html',
 		link: function (scope, elem, attrs) {
 			scope.user = UserService.getUser();
-			scope.orgChange = function (org) {
+			scope.glossaryChange = function (glossary) {
 				//Todo: lock the user out from interacting with the site until this change is complete
 				UserService.updateUser({
-					orgName: org.name,
-					currentOrg: org._id,
-					langList: org.langList
+					glossaryName: glossary.name,
+					currentGlossary: glossary._id,
+					langList: glossary.langList
 				}).then(function(){
-					if($rootScope.showOrgPopup) {
-						$rootScope.showOrgPopup = false;
+					if($rootScope.showGlossaryPopup) {
+						$rootScope.showGlossaryPopup = false;
 					}
 					scope.user = UserService.getUser();
 					$route.reload();
@@ -214,7 +214,7 @@ app.directive('langCodeDropdown', ['globals', 'user.service',
 			link: function (scope, elem, attrs) {
 				var user = UserService.getUser();
 				scope.list = globals.langCodeList.map(lc => globals.langCodeMap[lc]);
-				scope.orgLangList = user.langList.map(lc => globals.langCodeMap[lc]);
+				scope.glossaryLangList = user.langList.map(lc => globals.langCodeMap[lc]);
 
 				scope.codeFilter = '';
 
@@ -223,7 +223,7 @@ app.directive('langCodeDropdown', ['globals', 'user.service',
 					scope.model = globals.langCodeMap[scope.langDefault];
 				}
 				else if (scope.binding === undefined || scope.binding.value === undefined){
-					scope.model = (scope.orgLangList.length > 0) ? scope.orgLangList[0] : scope.list[0];
+					scope.model = (scope.glossaryLangList.length > 0) ? scope.glossaryLangList[0] : scope.list[0];
 				}
 				else {
 					scope.model = scope.binding;

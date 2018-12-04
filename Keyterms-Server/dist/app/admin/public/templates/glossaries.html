@@ -29,7 +29,7 @@
             <span class="h1 page-title">Glossaries</span>
         </div>
         <div class="col-xs-6 text-right">
-            <a class="btn btn-primary" href="org">+ Glossary</a>
+            <a class="btn btn-primary" href="glossary">+ Glossary</a>
         </div>
     </div>
     <div class="row">
@@ -44,18 +44,18 @@
             <th></th>
         </tr>
         </thead>
-        <tr ng-repeat="o in orgs | dynamicField: {field: ctrls.filterBy, val: ctrls.filter} | filter: {$: ctrls.searchFor}" ng-init="o.actionsOpen = false">
-            <td>{{::o.name}}</td>
-            <td>{{::o.abbreviation}}</td>
-            <td>{{::o.lastModified | date:'short' }}</td>
+        <tr ng-repeat="g in glossaries | dynamicField: {field: ctrls.filterBy, val: ctrls.filter} | filter: {$: ctrls.searchFor}" ng-init="g.actionsOpen = false">
+            <td>{{::g.name}}</td>
+            <td>{{::g.abbreviation}}</td>
+            <td>{{::g.lastModified | date:'short' }}</td>
             <td>
-                <div class="btn-group" uib-dropdown is-open="o.actionsOpen">
+                <div class="btn-group" uib-dropdown is-open="g.actionsOpen">
                     <button type="button" class="btn btn-sm btn-primary" uib-dropdown-toggle>
                         Actions <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu role="menu">
-                        <li role="menuitem"><a href="org/{{::o._id}}">Edit</a></li>
-                        <li role="menuitem"><a href="org/{{::o._id}}/manage">Add/Manage Members</a></li>
+                        <li role="menuitem"><a href="glossary/{{::g._id}}">Edit</a></li>
+                        <li role="menuitem"><a href="glossary/{{::g._id}}/manage">Add/Manage Members</a></li>
                     </ul>
                 </div>
             </td>

@@ -86,7 +86,7 @@ app.factory('keytermsClient.service', ['$q', 'globals', 'keytermsApi', 'componen
 			// do stuff
 			console.log(type);
 		},
-		getOrgTags: function () {
+		getGlossaryTags: function () {
 			return Keyterms.requestTags().then(function (resp) {
 				console.log(resp.data);
 				return resp.data.map(t => Tag.create(t));

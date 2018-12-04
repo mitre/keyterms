@@ -2,8 +2,8 @@ var log = require('../includes').log;
 var ImporterBase = require('../importerBase');
 
 class jsonParser extends ImporterBase {
-    constructor (org, jsonEntryArr, base) {
-        super(org, base);
+    constructor (glossary, jsonEntryArr, base) {
+        super(glossary, base);
 
         log.verbose('Initializing JSON Parser...');
         this.jsonEntries = jsonEntryArr;

@@ -27,7 +27,7 @@ var config = require('./testConfig');
 
 // Namespace of objects to create documents needed for all tests
 exports.standard = {
-	org: {
+	glossary: {
 		name: 'Hogwarts School of Witchcraft and Wizardry',
 		abbreviation: 'Hogwarts',
 		isCommon: true
@@ -142,9 +142,9 @@ exports.nominations = {
 	}
 };
 
-exports.organizations = {
+exports.glossaries = {
 	invalid: {
-		name: 'This is an Invalid Organization'
+		name: 'This is an Invalid Glossary'
 	},
 	valid: [
 		{

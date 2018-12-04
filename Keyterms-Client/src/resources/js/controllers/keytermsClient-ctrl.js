@@ -46,10 +46,10 @@ function ($scope, $location, $q, User, AppVersion, $rootScope, $uibModal, uiToas
 	lastPage.addClass('active');
 
 	$scope.$on('$viewContentLoaded', function (event) {
-        if ( $rootScope.showOrgPopup ) {
+        if ( $rootScope.showGlossaryPopup ) {
             $uibModal.open({
                 animation: false,
-                templateUrl: 'orgPopup.html',
+                templateUrl: 'glossaryPopup.html',
                 size: 'md',
 				scope: $scope,
 				controller: function ($scope, $uibModalInstance) {
@@ -57,8 +57,8 @@ function ($scope, $location, $q, User, AppVersion, $rootScope, $uibModal, uiToas
 
 					$scope.close = function () {
 						if($scope.saveAsDefault){
-							var orgId = $scope.user.getUser().currentOrg;
-							$scope.user.updateUserDefaultOrg(orgId)
+							var glossaryId = $scope.user.getUser().currentGlossary;
+							$scope.user.updateUserDefaultGlossary(glossaryId)
 							.then(function(){
 								$scope.uiToast.trigger("Default glossary saved! You can update your default glossary in 'My Settings'.");
 							});
@@ -67,7 +67,7 @@ function ($scope, $location, $q, User, AppVersion, $rootScope, $uibModal, uiToas
 					};
 				}
             }).closed.then(function(){
-                $rootScope.showOrgPopup = false;
+                $rootScope.showGlossaryPopup = false;
 			});
 		}
 
@@ -82,7 +82,7 @@ function ($scope, $location, $q, User, AppVersion, $rootScope, $uibModal, uiToas
 
 	$scope.apiUrl = ApiUrl;
 
-	$scope.isOrgQC = function () {
-		return User.getUser().isOrgQC;
+	$scope.isGlossaryQC = function () {
+		return User.getUser().isGlossaryQC;
 	}
 }]);

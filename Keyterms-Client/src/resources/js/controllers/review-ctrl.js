@@ -34,14 +34,14 @@ function ($scope, $uibModal, $location, globals, Entry, KeytermsClientInt, Nomin
 	$scope.pageName = 'Approve Modification';
 	$scope.viewScopeList = globals.viewScopeList;
 	$scope.globals = globals;
-	$scope.orgName = user.orgName;
+	$scope.glossaryName = user.glossaryName;
 
 	if (user.isAdmin){
 		// Admins can always approve nominations
 		$scope.canApprove = true;
-	} else if (user.isOrgQC) {
-		// OrgAdmins and OrgQC's can approve nominations for their org
-		$scope.canApprove = user.currentOrg === Nomination.data.org;
+	} else if (user.isGlossaryQC) {
+		// GlossaryAdmins and GlossaryQC's can approve nominations for their glossary
+		$scope.canApprove = user.currentGlossary === Nomination.data.glossary;
 	} else {
 		$scope.canApprove = false;
 	}
@@ -49,9 +49,9 @@ function ($scope, $uibModal, $location, globals, Entry, KeytermsClientInt, Nomin
 	if (Nomination.isGarbage) {
 		$scope.statusMessage = 'Good news! The changes proposed by this nomination have either been implemented already OR were made invalid by subsequent changes. This nomination can safely be removed!';
 	} else if ($scope.canApprove) {
-		$scope.statusMessage = 'You are currently acting as QC for ' + user.orgName + '.';
+		$scope.statusMessage = 'You are currently acting as QC for ' + user.glossaryName + '.';
 	} else {
-		$scope.statusMessage = 'You do not have permission to act as QC for ' + user.orgName + '.';
+		$scope.statusMessage = 'You do not have permission to act as QC for ' + user.glossaryName + '.';
 	}
 
 	$scope.nomType = Nomination.type;

@@ -32,7 +32,7 @@ var expect = require('expect.js');
 
 var mongoose = require('mongoose');
 var Entry = mongoose.model('Entry');
-var Organization = mongoose.model('Organization');
+var Glossary = mongoose.model('Glossary');
 var Tag = mongoose.model('Tag');
 var Term = mongoose.model('Term');
 
@@ -44,7 +44,7 @@ var tag = { content: 'tag1' };
 var term = { termText: 'test crud 1', langCode: 'eng' };
 
 var entry_id = '';
-var org_id = '';
+var glossary_id = '';
 var tag_id = '';
 var term_id = '';
 
@@ -55,11 +55,11 @@ describe('08-01 Testing APIs downloads endpoints', function() {
      */
     before(function(done) {
 
-        // Find starter org
-        Organization.findOne().then(function(response) {
-            org_id = response._id;
-            entry.org = org_id;
-            tag.org = org_id;
+        // Find starter glossary
+        Glossary.findOne().then(function(response) {
+            glossary_id = response._id;
+            entry.glossary = glossary_id;
+            tag.glossary = glossary_id;
 
             // Insert tag
             return Tag.create(tag).then(function(response) {
@@ -84,9 +84,9 @@ describe('08-01 Testing APIs downloads endpoints', function() {
         }).then(function(response) {
             return Tag.update({ _id: tag_id }, { $set: { entries: entry_id }});
 
-        // Update org with entry
+        // Update glossary with entry
         }).then(function(response) {
-            return Organization.update({ _id: org_id }, { $set: { entries: entry_id }});
+            return Glossary.update({ _id: glossary_id }, { $set: { entries: entry_id }});
 
         // Login
         }).then(function(response) {
@@ -106,8 +106,8 @@ describe('08-01 Testing APIs downloads endpoints', function() {
         mongoose.connection.db.dropCollection('entries', function(err, response) {
             mongoose.connection.db.dropCollection('tags', function(err, response) {
                 mongoose.connection.db.dropCollection('terms', function(err, response) {
-                    // reset org
-                    Organization.update({ _id: org_id}, { $unset: { "entries": [] }}).then(function(response) {
+                    // reset glossary
+                    Glossary.update({ _id: glossary_id}, { $unset: { "entries": [] }}).then(function(response) {
                         done();
                     });
                 });
@@ -115,9 +115,9 @@ describe('08-01 Testing APIs downloads endpoints', function() {
         });
     });
 
-    it('should download all Entries in Org', function(done) {
+    it('should download all Entries in Glossary', function(done) {
         request
-        .get('/api/download/org?file=false')
+        .get('/api/download/glossary?file=false')
         .expect(200)
         .expect('Content-Type', /json/)
         .expect(function(res) {
@@ -131,7 +131,7 @@ describe('08-01 Testing APIs downloads endpoints', function() {
         });
     });
 
-    it('should download Org search results', function(done) {
+    it('should download Glossary search results', function(done) {
         request
         .get('/api/download/query?file=false&langCode=eng&searchTerm=test+crud+1')
         .expect(200)
@@ -146,7 +146,7 @@ describe('08-01 Testing APIs downloads endpoints', function() {
         });
     });
 
-    it('should download Org search results with inexact match', function(done) {
+    it('should download Glossary search results with inexact match', function(done) {
         request
         .get('/api/download/query?file=false&langCode=eng&searchTerm=test')
         .expect(200)
@@ -205,7 +205,7 @@ describe('08-01 Testing APIs downloads endpoints', function() {
 
     it('should not find any Entries from invalid ids', function(done) {
         request
-        .get('/api/download/selected?file=false&entries=' + org_id)
+        .get('/api/download/selected?file=false&entries=' + glossary_id)
         .expect(200)
         .expect('Content-Type', /json/)
         .expect(function(res) {

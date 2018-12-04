@@ -23,7 +23,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-    <p class="banner-heading heading-top search-item">{{ :: entry.bannerText || entry.org.name }}</p>
+    <p class="banner-heading heading-top search-item">{{ :: entry.bannerText || entry.glossary.name }}</p>
     <div class="checkbox-container" ng-if="::$parent.showCheckboxes">
         <input type="checkbox" ng-model="entry.checkVal">
     </div>
@@ -39,7 +39,7 @@
                 <span ng-repeat="term in entry.terms | filter: { src : '!nlp', isLabel: false }" ><span ng-if="!term.highlightTermText">{{::term.termText}}</span><span ng-bind-html="::term.highlightTermText" ng-if="!!term.highlightTermText"></span>{{::$last ? '' : ', ' }} </span>
             </div>
             <div class="entry-info">
-                <span class="org-name"   tooltip-placement="bottom" uib-tooltip="Glossary: {{::entry.org.name}}"><i class="fa fa-sitemap"></i> {{::entry.org.name}}</span>
+                <span class="glossary-name"   tooltip-placement="bottom" uib-tooltip="Glossary: {{::entry.glossary.name}}"><i class="fa fa-sitemap"></i> {{::entry.glossary.name}}</span>
                 <span class="view-scope" tooltip-placement="bottom" uib-tooltip="Visible To: {{::$parent.viewScopeList[entry.viewScope]}}"><i class="fa fa-eye"></i> {{::$parent.viewScopeList[entry.viewScope]}}</span>
                 <span class="edit-scope" tooltip-placement="bottom" uib-tooltip="Editable By: {{::$parent.editScopeList[entry.editScope]}}"><i class="fa fa-pencil" ></i> {{::$parent.editScopeList[entry.editScope]}}</span>
             </div>

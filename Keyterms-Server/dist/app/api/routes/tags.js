@@ -31,9 +31,9 @@ var Tag = mongoose.model('Tag');
 var Entry = mongoose.model('Entry');
 var $Entry = require('../../db').interfaces.$Entry;
 
-// GET /api/tags/orgTag/:content
+// GET /api/tags/glossaryTag/:content
 exports.read = function (req, res, next) {
-	Tag.findOne({org: req.org._id, content: decodeURIComponent(req.params.content)}).lean().exec()
+	Tag.findOne({glossary: req.glossary._id, content: decodeURIComponent(req.params.content)}).lean().exec()
 	.then( function (tag) {
 		res.json(tag);
 	})
@@ -44,7 +44,7 @@ exports.read = function (req, res, next) {
 // GET /api/tags/findOrCreate/:tag
 exports.findOrCreateEP = function(req, res, next) {
     log.debug('find or create tagID');
-    Tag.findOrCreateTag(req.params.tag, req.org._id)
+    Tag.findOrCreateTag(req.params.tag, req.glossary._id)
 	.then( function (tagDoc) {
         if (tagDoc) {
 
@@ -59,7 +59,7 @@ exports.findOrCreateEP = function(req, res, next) {
 
 exports.findOrCreateParam = function(req, res, next) {
 	log.debug('find or create tagID');
-	Tag.findOrCreateTag(decodeURIComponent(req.params.tag), req.org._id)
+	Tag.findOrCreateTag(decodeURIComponent(req.params.tag), req.glossary._id)
 	.then( function (tagDoc) {
 		req.ktTag = tagDoc;
 		return next();
@@ -107,12 +107,12 @@ exports.getAllTags = function(req, res, next) {
     }).catch(next);
 };
 
-// GET /api/tags/orgTags
-exports.getOrgTags = function(req, res, next) {
-    log.debug('Get Org Tags');
+// GET /api/tags/glossaryTags
+exports.getGlossaryTags = function(req, res, next) {
+    log.debug('Get Glossary Tags');
 
-	Tag.find({org: req.org._id, entries: {$ne: []}}).exec() //$ne:[] causes no results to return
- 	//Tag.find({org: req.org._id}).exec()
+	Tag.find({glossary: req.glossary._id, entries: {$ne: []}}).exec() //$ne:[] causes no results to return
+ 	//Tag.find({glossary: req.glossary._id}).exec()
 	.then( function (tagDocs) {
 
 		res.json(tagDocs);
@@ -123,7 +123,7 @@ exports.getOrgTags = function(req, res, next) {
 exports.searchByTag = function (req, res, next) {
 	log.debug('Executing search by Tag');
 
-	//Tag.findOne({content: req.params.tag, org: req.org._id})
+	//Tag.findOne({content: req.params.tag, glossary: req.glossary._id})
 	Tag.populate(req.ktTag, {
 		path: 'entries',
 		model: 'Entry',
@@ -163,8 +163,8 @@ exports.searchByTag = function (req, res, next) {
 				select: 'content'
 			},
 			{
-				path: 'org',
-				model: 'Organization',
+				path: 'glossary',
+				model: 'Glossary',
 				select: 'name abbreviation'
 			}
 		]
@@ -176,7 +176,7 @@ exports.searchByTag = function (req, res, next) {
 
 // GET /api/tags/autocomplete/:text
 exports.autocomplete = function (req, res, next) {
-	Tag.find({ org: req.org._id, content: {$regex: req.params.text, $options: 'i'} })
+	Tag.find({ glossary: req.glossary._id, content: {$regex: req.params.text, $options: 'i'} })
 	.then( function (tags) {
 		res.json(tags);
 	}).catch(next);
@@ -197,7 +197,7 @@ exports.renameTag = function (req, res, next) {
 	}
 
 	// Check if the tag's name already exists
-	Tag.count({content: req.body.newTag, org: req.org._id}).exec()
+	Tag.count({content: req.body.newTag, glossary: req.glossary._id}).exec()
 	.then( function (count) {
 		if (count === 0) {
 
@@ -208,7 +208,7 @@ exports.renameTag = function (req, res, next) {
 
 			// re-assign all entries with the existing tag instance
 			// that matches the new tag name that was submitted
-			return Tag.findOne({content: req.body.newTag, org: req.org._id}).exec()
+			return Tag.findOne({content: req.body.newTag, glossary: req.glossary._id}).exec()
 			.then( function (doc) {
 				return req.ktTag.removeOrReplaceFromEntries(doc);
 			});
