@@ -74,7 +74,6 @@ class XLS2D extends xlsParser {
                     switchHeader = switchHeader.substr(0, switchHeader.indexOf('_'));
                 }
 
-                console.log("here: ", switchHeader);
                 switch (switchHeader) {
                     case 'term':
 
@@ -83,8 +82,7 @@ class XLS2D extends xlsParser {
                         term.langCode = extract("language");
                         term.variety = extract("variety");
                         term.script = extract("script");
-                        console.log("term text: ", term.termText);
-                        console.log("langCode: ", term.langCode);
+
                         var tempArr = [];
 
                         self.orderedHeaders["notes"].forEach( function (header) {
@@ -137,7 +135,7 @@ class XLS2D extends xlsParser {
                         var note = {};
                         var header = extract("field");
                         note.text = extract("value");
-                        console.log("note text: ", note.text);
+
                         if (header.includes("_")) {
                             note.type = header.slice(header.indexOf("_") + 1).toLowerCase();
                         }

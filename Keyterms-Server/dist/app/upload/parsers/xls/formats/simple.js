@@ -53,7 +53,7 @@ class simple extends xlsParser {
 
        return Promise.all(promises)
         .then( function (res) {
-
+            console.log("testing here");
             return new Promise( function (resolve) {
 
                 self.ws.eachRow( function (row, rowNum) {
