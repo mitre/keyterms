@@ -114,7 +114,7 @@ if [ $PROMPT_JAVA -ne 0 ]; then
             exit 0
             ;;
         *)
-            ARCHIVE="$LIB_DIR/jdk-11_linux-x64_bin.rpm"
+            ARCHIVE="$LIB_DIR/jdk-11.0.1_linux-x64_bin.rpm"
 
             # Check if Java was bundled
             if ! [ -f $ARCHIVE ]; then
