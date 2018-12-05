@@ -46,16 +46,16 @@
             </div>
             <!-- Default Glossary -->
             <div class="row form-group">
-                <label class="col-sm-3 text-right">Default Glossary</label>
+                <label class="col-sm-3 text-right">Preferred Glossary</label>
                 <div class="col-sm-6">
                     <div uib-dropdown class="btn-group select-tag">
                         <div class="btn btn-primary dropdown-selector" uib-dropdown-toggle>
                             <i class="fa fa-sitemap" ng-if="selectedDefaultGlossary.name"></i>
-                            {{selectedDefaultGlossary.name || "No Default Glossary"}} <span class="caret" style=""></span>
+                            {{selectedDefaultGlossary.name || "No Preferred Glossary"}} <span class="caret" style=""></span>
                         </div>
                         <ul class="dropdown-menu dropdown-menu-left" uib-dropdown-menu role="menu">
                             <li role="menuitem">
-                                <a ng-click="updateSelectedDefaultGlossary(false)" href="">No Default Glossary</a>
+                                <a ng-click="updateSelectedDefaultGlossary(false)" href="">No Preferred Glossary</a>
                             </li>
                             <li role="menuitem" ng-repeat="glossary in user.glossaries">
                                 <a ng-click="updateSelectedDefaultGlossary(glossary)" href="">{{::glossary.name}}</a>

@@ -48,8 +48,8 @@ config.server = {
 
 // Common (default) Glossary configuration
 config.commonGlossary = {
-	name: 'Default Glossary',
-	abbreviation: 'gloss',
+	name: 'Common Glossary',
+	abbreviation: 'common',
 	description: 'Glossary that all users belong to by default'
 }
 
