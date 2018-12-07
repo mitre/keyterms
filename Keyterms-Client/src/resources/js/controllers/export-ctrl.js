@@ -56,7 +56,7 @@ app.controller('export-ctrl', ['$scope', 'globals', 'ApiUrl', function ($scope, 
 
 	$scope.buildQuery = function () {
 		var nextChar = '?';
-		var baseURL = apiUrl + 'api/download/org';
+		var baseURL = apiUrl + 'api/download/glossary';
 		var paramVals = [$scope.formData.creation.startDate, $scope.formData.creation.endDate,
 			$scope.formData.lastMod.startDate, $scope.formData.lastMod.endDate, $scope.formData.langCode.value, $scope.formData.fileType.value];
 

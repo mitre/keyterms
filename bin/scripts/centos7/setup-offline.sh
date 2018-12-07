@@ -114,7 +114,7 @@ if [ $PROMPT_JAVA -ne 0 ]; then
             exit 0
             ;;
         *)
-            ARCHIVE="$LIB_DIR/jdk-11_linux-x64_bin.rpm"
+            ARCHIVE="$LIB_DIR/jdk-11.0.1_linux-x64_bin.rpm"
 
             # Check if Java was bundled
             if ! [ -f $ARCHIVE ]; then
@@ -212,7 +212,7 @@ if [ -e /etc/systemd/system/$TOMCAT_DAEMON ]; then
 
 echo ' '; echo '---------------------------------------------------------------'
 echo 'Checking for Node.js installation...'
-if ! [ -x "$(command -v node)" ] | [ -x "$(command -v nodejs)" ]; then
+if ! [[ -x "$(command -v node)" || -x "$(command -v nodejs)" ]]; then
     read -p "... Node.js not installed. Node.js installation is required for KeyTerms. If you choose not to install, this setup will terminate. Install Node.js (v$SUPPORTED_NODEJS_VERSION) now? (Y|n) " nodechoice
     case "$nodechoice" in
         n|N)
@@ -282,7 +282,7 @@ fi
 
 echo ' '; echo '---------------------------------------------------------------'
 echo 'Checking mongo installation ...'
-if ! [ -x "$(command -v mongo)" ] | [ -x "$(command -v mongod)" ] ; then
+if ! [[ -x "$(command -v mongo)" || -x "$(command -v mongod)" ]] ; then
     echo "... mongo is not installed. If you choose not to install mongo, you must later configure KeyTerms to point to an external mongo server."
     read -p "... Install mongo (v$SUPPORTED_MONGODB_VERSION) now? (Y|n) " mongochoice
     case "$mongochoice" in

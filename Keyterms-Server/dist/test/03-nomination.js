@@ -47,7 +47,7 @@ describe('03-01 Testing APIs Nomination endpoints and operations', function () {
     var nomId = '';
     var entry1_id = '';
     var entry2_id = '';
-    var orgId = '';
+    var glossaryId = '';
     var entryId = '';
     var originialEntry = '';
 
@@ -80,9 +80,9 @@ describe('03-01 Testing APIs Nomination endpoints and operations', function () {
 			if (err) return done(err);
 
 			addId = res.body._id;
-			// Test that org contains nom
+			// Test that glossary contains nom
 			request
-			.get('/api/org/o/' + env.org._id)
+			.get('/api/glossary/g/' + env.glossary._id)
 			.expect(function(response) {
 				expect(response.body).to.have.property('nominations');
 				expect(response.body.nominations).to.be.greaterThan(0);
@@ -186,7 +186,7 @@ describe('03-01 Testing APIs Nomination endpoints and operations', function () {
 
 	it('should fail to read a non-existant Nomination', function(done) {
 		request
-		.get('/api/nomination/' + orgId)
+		.get('/api/nomination/' + glossaryId)
 		.expect(404, done);
 	});
 
@@ -250,7 +250,7 @@ describe('03-01 Testing APIs Nomination endpoints and operations', function () {
 
 	it('should fail to approve a non-existant Nomination', function(done) {
 		request
-		.post('/api/nomination/approve/' + orgId)
+		.post('/api/nomination/approve/' + glossaryId)
 		.expect(404, done);
 	});
 
@@ -289,7 +289,7 @@ describe('03-01 Testing APIs Nomination endpoints and operations', function () {
 
 	it('should fail to reject a non-existant Nomination' , function(done) {
 		request
-		.post('/api/nomination/reject/' + orgId)
+		.post('/api/nomination/reject/' + glossaryId)
 		.expect(404, done);
 	});
 

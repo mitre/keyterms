@@ -27,7 +27,7 @@ var TestEnv = require('./env-setup').TestEnv;
 
 
 
-describe('04-01 Testing Organizaion API endpoints and operations', function() {
+describe('04-01 Testing Glossary API endpoints and operations', function() {
 
     var env = new TestEnv();
 
@@ -37,42 +37,42 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
     var mock = TestEnv.mock;
 
     var entryId = '';
-    var orgId = '';
-    var validOrg = '';
-    var org = '';
+    var glossaryId = '';
+    var validGlossary = '';
+    var glossary = '';
     var user = '';
-    var org0_id = '';
-    var org1_id = '';
+    var glossary0_id = '';
+    var glossary1_id = '';
     var user0_id = '';
     var user1_id = '';
 
-    it('should fail to insert an invalid Organization', function(done) {
+    it('should fail to insert an invalid Glossary', function(done) {
         request
-        .post('/api/org/create')
+        .post('/api/glossary/create')
         .send({ name: 'test' }) // no abbreviation
         .expect(400, done);
     });
 
-    it('should insert a valid Organization', function(done) {
+    it('should insert a valid Glossary', function(done) {
 
         user = env.user;
         user0_id = env.user._id;
 
-        validOrg = Object.assign({}, mock.organizations.valid[1]);
-        validOrg.admins.push(env.user);
+        validGlossary = Object.assign({}, mock.glossaries.valid[1]);
+        validGlossary.admins.push(env.user);
 
         request
-        .post('/api/org/create')
-        .send(validOrg)
+        .post('/api/glossary/create')
+        .send(validGlossary)
         .expect(201)
         .expect('Content-Type', /json/)
         .expect(function(res) {
 
             // Test that all fields exist
             expect(res.body).to.be.an('object');
-            expect(res.body).to.have.property('name', validOrg.name);
-            expect(res.body).to.have.property('description', validOrg.description);
-            expect(res.body).to.have.property('abbreviation', validOrg.abbreviation);
+            expect(res.body).to.have.property('name', validGlossary.name);
+            expect(res.body).to.have.property('description', validGlossary.description);
+            expect(res.body).to.have.property('abbreviation', validGlossary.abbreviation);
             expect(res.body).to.have.property('admins');
             expect(res.body).to.have.property('qcs');
 
@@ -85,68 +85,68 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
         });
     });
 
-    it('should fail to read a non-existant Organizaion', function(done) {
+    it('should fail to read a non-existant Glossary', function(done) {
         request
-        .get('/api/org/o/' + user0_id)
+        .get('/api/glossary/g/' + user0_id)
         .expect(404, done);
     });
 
     it('should fail to read a garbage id', function(done) {
         request
-        .get('/api/org/o/garbage')
+        .get('/api/glossary/g/garbage')
         .expect(404, done);
     });
 
-    it('should read an existing Organizaion', function(done) {
+    it('should read an existing Glossary', function(done) {
 
-        org = env.org;
+        glossary = env.glossary;
 
-        orgId = org._id;
+        glossaryId = glossary._id;
 
         request
-        .get('/api/org/o/' + orgId)
+        .get('/api/glossary/g/' + glossaryId)
         .expect(200)
         .expect('Content-Type', /json/)
         .expect(function(res) {
             // Test that all fields exist and are correct
             expect(res.body).to.be.an('object');
-            expect(res.body).to.have.property('_id', orgId.toString());
-            expect(res.body).to.have.property('name', org.name);
-            expect(res.body).to.have.property('abbreviation', org.abbreviation);
+            expect(res.body).to.have.property('_id', glossaryId.toString());
+            expect(res.body).to.have.property('name', glossary.name);
+            expect(res.body).to.have.property('abbreviation', glossary.abbreviation);
         })
         .end(function(err, res) {
             done(err);
         });
     });
 
-    it('should read all Organizaions', function(done) {
+    it('should read all Glossaries', function(done) {
         request
-        .get('/api/org/list')
+        .get('/api/glossary/list')
         .expect(200)
         .expect('Content-Type', /json/)
         .expect(function(res) {
             expect(res.body).to.be.an('array');
             expect(res.body.length).to.be.greaterThan(0);
-            expect(res.body[1].name).to.be(validOrg.name);
+            expect(res.body[1].name).to.be(validGlossary.name);
         })
         .end(function(err, res) {
             done(err);
         });
     });
 
-    it('should read the common Organization', function(done) {
-        org = env.org;
-        orgId = org._id;
+    it('should read the common Glossary', function(done) {
+        glossary = env.glossary;
+        glossaryId = glossary._id;
 
         request
-        .get('/api/org/getCommon')
+        .get('/api/glossary/getCommon')
         .expect(200)
         .expect('Content-Type', /json/)
         .expect(function(res) {
             expect(res.body).to.be.an('object');
-            expect(res.body).to.have.property('_id', orgId.toString());
-            expect(res.body).to.have.property('name', org.name);
-            expect(res.body).to.have.property('abbreviation', org.abbreviation);
+            expect(res.body).to.have.property('_id', glossaryId.toString());
+            expect(res.body).to.have.property('name', glossary.name);
+            expect(res.body).to.have.property('abbreviation', glossary.abbreviation);
             expect(res.body).to.have.property('isCommon', true);
         })
         .end(function(err, res) {
@@ -154,35 +154,35 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
         });
     });
 
-    it('should read the permissions for the current Organization', function(done) {
+    it('should read the permissions for the current Glossary', function(done) {
         request
-        .get('/api/orgPermissions')
+        .get('/api/glossaryPermissions')
         .expect(200)
         .expect('Content-Type', /json/)
         .expect(function(res) {
             expect(res.body).to.be.an('object');
-            expect(res.body).to.have.property('isOrgAdmin', org.isOrgAdmin);
-            expect(res.body).to.have.property('isOrgQC', org.isOrgQC);
-            expect(res.body).to.have.property('orgName', org.name);
+            expect(res.body).to.have.property('isGlossaryAdmin', glossary.isGlossaryAdmin);
+            expect(res.body).to.have.property('isGlossaryQC', glossary.isGlossaryQC);
+            expect(res.body).to.have.property('glossaryName', glossary.name);
         })
         .end(function(err, res) {
             done(err);
         });
     });
 
-    it('should update an Organization', function(done) {
+    it('should update a Glossary', function(done) {
         done();
     });
 
-    it('should add a User to the Organization', function(done) {
+    it('should add a User to the Glossary', function(done) {
 
         request
-        .post('/api/org/members/' + orgId)
+        .post('/api/glossary/members/' + glossaryId)
         .send([user0_id])
         .expect(200)
         .expect('Content-Type', /json/)
         .expect(function(res) {
-            // check that adding user to org did not make them an admin or QC by default
+            // check that adding user to glossary did not make them an admin or QC by default
 
             expect(res.body.admins).to.not.contain(user0_id.toString());
             expect(res.body.qcs).to.not.contain(user0_id.toString());
@@ -190,11 +190,11 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
         .end(function(err, res) {
             if (err) return done(err);
 
-            // check that user contains this org
+            // check that user contains this glossary
             request
             .get('/api/user/u/' + user0_id)
             .expect(function(response) {
-                expect(response.body.organizations[0]).to.have.property('_id', orgId.toString());
+                expect(response.body.glossaries[0]).to.have.property('_id', glossaryId.toString());
             })
             .end(function(error, response) {
                 done(error);
@@ -202,9 +202,9 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
         });
     });
 
-    it('should read the Users in the Organization', function(done) {
+    it('should read the Users in the Glossary', function(done) {
         request
-        .get('/api/org/members/' + orgId)
+        .get('/api/glossary/members/' + glossaryId)
         .expect(200)
         .expect('Content-Type', /json/)
         .expect(function(res) {
@@ -219,9 +219,9 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
         })
     });
 
-    /*it('should update the Users in the Organization', function(done) {
+    /*it('should update the Users in the Glossary', function(done) {
         request
-        .post('/api/org/members/' + org1_id)
+        .post('/api/glossary/members/' + glossary1_id)
         .send() // something
         .expect(200)
         .expect('Content-Type', /json/)
@@ -235,7 +235,7 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
 
     it('should add a QC', function(done) {
         request
-        .post('/api/org/addQC/' + orgId)
+        .post('/api/glossary/addQC/' + glossaryId)
         .send({qcID : user0_id})
         .expect(200)
         .expect('Content-Type', /json/)
@@ -250,7 +250,7 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
 
     it('should remove a QC', function(done) {
         request
-        .post('/api/org/removeQC/' + orgId)
+        .post('/api/glossary/removeQC/' + glossaryId)
         .send({qcID : user0_id})
         .expect(200)
         .expect('Content-Type', /json/)
@@ -267,7 +267,7 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
 
         // add QC the first time
         request
-        .post('/api/org/addQC/' + orgId)
+        .post('/api/glossary/addQC/' + glossaryId)
         .send({qcID : user0_id})
         .expect(200)
         .expect('Content-Type', /json/)
@@ -276,7 +276,7 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
 
             // attempt to add QC the second time
             request
-            .post('/api/org/addQC/' + orgId)
+            .post('/api/glossary/addQC/' + glossaryId)
             .send({qcID : user0_id})
             .expect(200) // something else?
             .expect('Content-Type', /json/)
@@ -295,7 +295,7 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
 
     it('should add an admin', function(done) {
         request
-        .post('/api/org/addAdmin/' + orgId)
+        .post('/api/glossary/addAdmin/' + glossaryId)
         .send({adminID : user0_id})
         .expect(200)
         .expect('Content-Type', /json/)
@@ -310,7 +310,7 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
 
     it('should remove an admin', function(done) {
         request
-        .post('/api/org/removeAdmin/' + orgId)
+        .post('/api/glossary/removeAdmin/' + glossaryId)
         .send({adminID : user0_id})
         .expect(200)
         .expect('Content-Type', /json/)
@@ -327,7 +327,7 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
 
         // add admin the first time
         request
-        .post('/api/org/addAdmin/' + orgId)
+        .post('/api/glossary/addAdmin/' + glossaryId)
         .send({adminID : user0_id})
         .expect(200)
         .expect('Content-Type', /json/)
@@ -336,7 +336,7 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
 
             // attempt to add admin the second time
             request
-            .post('/api/org/addAdmin/' + orgId)
+            .post('/api/glossary/addAdmin/' + glossaryId)
             .send({adminID : user0_id})
             .expect(200) // something else?
             .expect('Content-Type', /json/)
@@ -353,21 +353,21 @@ describe('04-01 Testing Organizaion API endpoints and operations', function() {
         });
     });
 
-    it('should delete an existing Organization', function(done) {
+    it('should delete an existing Glossary', function(done) {
         request
-        .delete('/api/org/o/' + orgId)
+        .delete('/api/glossary/g/' + glossaryId)
         .expect(204, done);
     });
 
-    it('should fail to delete a non-existant Organization', function(done) {
+    it('should fail to delete a non-existant Glossary', function(done) {
         request
-        .delete('/api/org/o/' + user0_id)
+        .delete('/api/glossary/g/' + user0_id)
         .expect(404, done);
     });
 
     it('should fail to delete a garbage id', function(done) {
         request
-        .delete('/api/org/o/garbage')
+        .delete('/api/glossary/g/garbage')
         .expect(404, done);
     });
 });

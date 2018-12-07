@@ -23,7 +23,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-    <p class='banner-heading heading-top'>{{ ::entry.bannerText || entry.org.name }}</p>
+    <p class='banner-heading heading-top'>{{ ::entry.bannerText || entry.glossary.name }}</p>
     <p class='pending-nominations text-center mod-noms' ng-if="::entry.modNoms > 0">
         <span>Modifications have been nominated for this entry.</span>
     </p>
@@ -87,7 +87,7 @@
                 <li>
                     <i class="fa fa-sitemap fa-li"></i>
                     <label>Glossary:</label>
-                    <div class="content">{{ ::entry.org.name }}</div>
+                    <div class="content">{{ ::entry.glossary.name }}</div>
                 </li>
                 <li>
                     <i class="fa fa-eye fa-li"></i>
@@ -131,5 +131,5 @@
             </ul>
         </div>
     </div>
-    <p class='banner-heading heading-bot'>{{ ::entry.bannerText || entry.org.name }}</p>
+    <p class='banner-heading heading-bot'>{{ ::entry.bannerText || entry.glossary.name }}</p>
 </div>

@@ -76,7 +76,7 @@ describe(`01-01 Testing server response from ${testConfig.server.url}$`, functio
 		.expect(function(res) {
 			expect(res.body).to.be.an('object');
 			expect(res.body).to.have.property('_id');
-			expect(res.body).to.have.property('org');
+			expect(res.body).to.have.property('glossary');
 			expect(res.body).to.have.property('createdBy');
 			expect(res.body).to.have.property('terms');
 			expect(res.body).to.have.property('termLinks');

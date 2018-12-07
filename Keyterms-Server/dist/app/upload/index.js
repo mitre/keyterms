@@ -46,7 +46,7 @@ router.use('/plugin', express.static(path.join(__dirname, 'plugin')));
 
 router.use(auth.authenticate.processCert);
 
-// ensure the user is an qc of *any* organization
+// ensure the user is an qc of *any* glossary
 router.use(auth.authorize.ensureQcOfAny);
 
 router.use(fileUploader());
@@ -87,12 +87,12 @@ router.get('/', function (req, res) {
 		fileTypes: formats.fileTypes,
 		fileFormats: formats.fileTypeMap,
 		user: req.user,
-		orgs: req.qcOf
+		glossaries: req.qcOf
 	};
 
 	res.render('upload', {
 		includes: JSON.stringify(includes),
-		orgs: includes.orgs,
+		glossaries: includes.glossaries,
 		viewScopes: enums.viewScopeTypesINFO,
 		ctrlPath: ctrlPath
 	});
@@ -100,7 +100,7 @@ router.get('/', function (req, res) {
 
 /**
  * Note:
- * All endpoints after this point require organization authorization
+ * All endpoints after this point require glossary authorization
  */
 router.use(auth.authenticate.verifyRequest);
 

@@ -40,14 +40,14 @@ describe("06-01 Testing Tag API", function(){
     var tag1_id = '';
     var tag2 = '';
     var entry_id = '';
-    var org_id = '';
+    var glossary_id = '';
     var testTag = '';
 
     env.addSingleTerm();
 
     it('should create a Tag', function(done) {
 
-        org_id = env.org._id;
+        glossary_id = env.glossary._id;
         testTag = 'thing';
         request
 		.get('/api/tags/findOrCreate/' + testTag)
@@ -58,7 +58,7 @@ describe("06-01 Testing Tag API", function(){
 			// Test that all fields exist and are correct
             expect(res.body).to.be.an('object');
             expect(res.body).to.have.property('content', testTag);
-            expect(res.body).to.have.property('org', org_id.toString());
+            expect(res.body).to.have.property('glossary', glossary_id.toString());
 		})
 		.end(function(err, res) {
             done(err);
@@ -75,19 +75,19 @@ describe("06-01 Testing Tag API", function(){
             expect(res.body).to.be.an('object');
             expect(res.body).to.have.property('_id', tag1_id.toString());
             expect(res.body).to.have.property('content', testTag);
-            expect(res.body).to.have.property('org', org_id.toString());
+            expect(res.body).to.have.property('glossary', glossary_id.toString());
         })
         .end(function(err, res) {
             done(err);
         });
     })
 
-    it("should read all Tags in current org", function(done){
+    it("should read all Tags in current glossary", function(done){
 
         tag2 = env.termDocs[0].tags[0];
 
         request
-        .get('/api/tags/orgTags')
+        .get('/api/tags/glossaryTags')
         .expect(200)
         .expect('Content-Type', /json/)
         .expect(function(res){
@@ -153,7 +153,7 @@ describe("06-01 Testing Tag API", function(){
         });
 	});
 
-    it('should fail to rename a Tag to a name that already exists in this org', function(done) {
+    it('should fail to rename a Tag to a name that already exists in this glossary', function(done) {
 
         //console.log("tag1_id: ", tag1_id);
         //console.log("tag2_id: ", tag2);

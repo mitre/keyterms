@@ -100,9 +100,9 @@ if [ $PROMPT_JAVA -ne 0 ]; then
             exit 0
             ;;
         *)
-            java_rpm=jdk-11_linux-x64_bin.rpm
+            java_rpm=jdk-11.0.1_linux-x64_bin.rpm
             echo "... downloading Java 11 ..."
-            curl -# -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/11+28/55eed80b163941c8885ad9298e6d786a/$java_rpm -O
+            curl -# -L -b "oraclelicense=a" https://download.oracle.com/otn-pub/java/jdk/11.0.1+13/90cf5d8f270a4347a95050320eef3fb7/$java_rpm -O
             if [ $? -ne 0 ]; then
                 echo '... download failed.'
                 echo 'Exiting'; exit 0
@@ -200,7 +200,7 @@ if [ -e /etc/systemd/system/$TOMCAT_DAEMON ]; then
 
 echo ' '; echo '---------------------------------------------------------------'
 echo 'Checking for Node.js installation...'
-if ! [ -x "$(command -v node)" ] | [ -x "$(command -v nodejs)" ]; then
+if ! [[ -x "$(command -v node)" || -x "$(command -v nodejs)" ]]; then
     read -p "... Node.js not installed. Node.js installation is required for KeyTerms. If you choose not to install, this setup will terminate. Install Node.js (v$SUPPORTED_NODEJS_VERSION) now? (Y|n) " nodechoice
     case "$nodechoice" in
         n|N)
@@ -274,7 +274,7 @@ npm config set https-proxy $https_proxy
 
 echo ' '; echo '---------------------------------------------------------------'
 echo 'Checking mongo installation ...'
-if ! [ -x "$(command -v mongo)" ] | [ -x "$(command -v mongod)" ] ; then
+if ! [[ -x "$(command -v mongo)" || -x "$(command -v mongod)" ]] ; then
     echo "... mongo is not installed. If you choose not to install mongo, you must later configure KeyTerms to point to an external mongo server."
     read -p "... Install mongo (v$SUPPORTED_MONGODB_VERSION) now? (Y|n) " mongochoice
     case "$mongochoice" in

@@ -67,8 +67,8 @@
                         <tr class="animate-repeat" ng-repeat="user in $modal.toAdd">
                             <td>{{ ::user.fullName }}</td>
                             <td>{{ ::user.email }}</td>
-                            <td class="text-center"><input type="checkbox" ng-model="user.isOrgAdmin"></td>
-                            <td class="text-center"><input type="checkbox" ng-model="user.isOrgQC"></td>
+                            <td class="text-center"><input type="checkbox" ng-model="user.isGlossaryAdmin"></td>
+                            <td class="text-center"><input type="checkbox" ng-model="user.isGlossaryQC"></td>
                             <td><i class="fa fa-fw fa-lg fa-times text-danger i-btn" ng-click="$modal.rmUser($index)"></i></td>
                         </tr>
                     </table>

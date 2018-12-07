@@ -157,12 +157,12 @@ var addUserTerms = function (entry, terms) {
 	});
 };
 
-var createEntry = function (data, orgDoc) {
+var createEntry = function (data, glossaryDoc) {
 	var terms = data.terms || [];
 	var links = data.termLinks || [];
 	var tags = data.tags || [];
 
-	data.org = orgDoc._id;
+	data.glossary = glossaryDoc._id;
 	var entry = new Entry(data);
 
 	entry.createdBy = data.createdBy;
@@ -173,19 +173,19 @@ var createEntry = function (data, orgDoc) {
 
 		entry.termLinks = processTermLinks(entry.terms.filter(e => e.src === 'user'), links);
 
-		return entry.addToOrCreateTags(tags, orgDoc._id);
+		return entry.addToOrCreateTags(tags, glossaryDoc._id);
 	})
 	.then( function () {
 		// Store the entry instance into mongo
 		return entry.save();
 	})
 	.then( function () {
-		// Add this newly create Entry doc to it's corresponding organization
-		return orgDoc.addEntry(entry._id);
+		// Add this newly create Entry doc to it's corresponding glossary
+		return glossaryDoc.addEntry(entry._id);
 	})
 	.then( function () {
 		// Interfaces with ElasticSearch and indexes the Entry to later be searchable
-		return elastic.indexEntry(entry, orgDoc._id)
+		return elastic.indexEntry(entry, glossaryDoc._id)
 		.then( function () {
 
 			return entry;
@@ -196,24 +196,24 @@ exports.createEntry = createEntry;
 
 // NOTE: Some of this functionality was moved to
 // the entrySchema.pre('remove', ...) hook, however
-// a few steps of deletion need access to the Org,
+// a few steps of deletion need access to the Glossary,
 // therefore need to be executed here
 
 // Interface method for removing Entry instances
-var removeEntry = function (id, orgDoc) {
-	// Remove Entry _id from Organization
-	return orgDoc.removeEntry(id)
+var removeEntry = function (id, glossaryDoc) {
+	// Remove Entry _id from Glossary
+	return glossaryDoc.removeEntry(id)
 	.then( function () {
 		// Find the Entry to obtain all Term references
 		return Entry.findOne({_id: id}).exec();
 	})
 	.then( function (doc) {
 		// returns the entry doc after execution
-		return doc.removeFromTags(orgDoc._id);
+		return doc.removeFromTags(glossaryDoc._id);
 	})
 	.then( function (doc) {
 		// returns the entry doc after execution
-		return elastic.deindexEntry(doc, orgDoc._id);
+		return elastic.deindexEntry(doc, glossaryDoc._id);
 	})
 	.then( function (doc) {
 		// triggers the mongoose pre.remove hook
@@ -230,7 +230,7 @@ var processNotesDelta = function (item, delta) {
 	item.notes = item.notes.concat(delta.notes.add || []);
 };
 
-var applyDelta = function (entry, delta, orgId) {
+var applyDelta = function (entry, delta, glossaryId) {
 	// console.log(JSON.stringify(delta, null, 4));
 
 	// Create all the new Terms (processing them from NLP Services, resolves with nlp-transliterations)
@@ -384,7 +384,7 @@ var applyDelta = function (entry, delta, orgId) {
 	})
 	// Adds tags to entry
 	.then( function () {
-		return entry.addToOrCreateTags(delta.tags.add, orgId);
+		return entry.addToOrCreateTags(delta.tags.add, glossaryId);
 	})
 	// Updates entry metadata
 	.then( function () {
@@ -400,13 +400,13 @@ var applyDelta = function (entry, delta, orgId) {
 	// Re-indexes the entry into Elastic
 	.then( function () {
 		// Interfaces with ElasticSearch and indexes the Entry to later be searchable
-		return elastic.indexEntry(entry, orgId, delta.terms.del)
+		return elastic.indexEntry(entry, glossaryId, delta.terms.del)
 		.then( function () {
 			return entry;
 		});
 	});
 };
-exports.applyDelta = function (id, delta, orgId) {
+exports.applyDelta = function (id, delta, glossaryId) {
 	return Entry.findOne({_id: id}).populate([
 		{
 			path: 'tags',
@@ -419,11 +419,11 @@ exports.applyDelta = function (id, delta, orgId) {
 		}
 	]).exec()
 	.then( function (entryDoc) {
-		return applyDelta(entryDoc, delta, orgId);
+		return applyDelta(entryDoc, delta, glossaryId);
 	});
 };
 
-exports.updateEntry = function (id, data, orgId) {
+exports.updateEntry = function (id, data, glossaryId) {
 	return Entry.findOne({_id: id})
 	.populate([
 		{
@@ -437,11 +437,11 @@ exports.updateEntry = function (id, data, orgId) {
 	])
 	.exec()
 	.then( function (entryDoc) {
-		//return updateEntry(entryDoc, data, orgId);
+		//return updateEntry(entryDoc, data, glossaryId);
 
 		var delta = entryDoc.calcDelta(data);
 
-		return applyDelta(entryDoc, delta, orgId);
+		return applyDelta(entryDoc, delta, glossaryId);
 	});
 };
 
@@ -453,12 +453,12 @@ exports.validateParam = function (req, res, next, entryId) {
 	Entry.count({_id: entryId}).exec()
 	.then( function (count) {
 		if (count === 1) {
-			if (req.org.entries.indexOf(entryId) === -1) {
-				// if the entry id is not listed within the current org
+			if (req.glossary.entries.indexOf(entryId) === -1) {
+				// if the entry id is not listed within the current glossary
 				// the user is working in, return 403 - the request isn't
 				// bad and their creds aren't necessarily bad, they just don't
 				// have permission at this instance
-				log.warn('Entry does not belong to req.org');
+				log.warn('Entry does not belong to req.glossary');
 				return res.sendStatus(403);
 			}
 

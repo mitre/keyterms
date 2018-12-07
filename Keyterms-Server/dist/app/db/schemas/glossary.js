@@ -30,7 +30,7 @@ var log = require('../../utils/logger').logger;
 var elastic = require('../../utils/elasticSearch');
 
 /* eslint-disable key-spacing, comma-style */
-var organizationSchema = mongoose.Schema({
+var glossarySchema = mongoose.Schema({
     name: 					{type: String, required: true, unique: true, dropDups: true}
     , description: 			{type: String}
     , path: 				{type: String, default: '/'}
@@ -46,16 +46,16 @@ var organizationSchema = mongoose.Schema({
 });
 /* eslint-enable key-spacing, comma-style */
 
-//organizationSchema.set('autoIndex', true);
+//glossarySchema.set('autoIndex', true);
 
-organizationSchema.pre('save', function (next) {
+glossarySchema.pre('save', function (next) {
 	this.lastModified = Date.now();
 	next();
 });
 
-organizationSchema.pre('remove', function (next) {
-	// Deletes the ElasticSearch Index bound to this Organization
-	elastic.deleteOrgIndex(this._id)
+glossarySchema.pre('remove', function (next) {
+	// Deletes the ElasticSearch Index bound to this Glossary
+	elastic.deleteGlossaryIndex(this._id)
 	.then(next)
 	.catch( function (err) {
 		// an error will be thrown if the index does not exist, however is this not an
@@ -73,10 +73,10 @@ organizationSchema.pre('remove', function (next) {
 	});
 });
 
-organizationSchema.methods.removeOrganization = function () {
+glossarySchema.methods.removeGlossary = function () {
     var self = this;
     return new Promise(function (resolve, reject) {
-        log.debug('removing Organization');
+        log.debug('removing Glossary');
         self.entries.forEach(function (entry) {
             entry.remove();
         });
@@ -84,23 +84,23 @@ organizationSchema.methods.removeOrganization = function () {
     });
 };
 
-organizationSchema.methods.updateMetadata = function (body) {
-	var org = this;
+glossarySchema.methods.updateMetadata = function (body) {
+	var glossary = this;
 	var metaFields = ['name', 'abbreviation', 'path', 'description', 'globalBlock', 'langList'];
 
 	metaFields.forEach( function (field) {
-		org[field] = body[field];
+		glossary[field] = body[field];
 	});
 
 	return this.save();
 };
 
-organizationSchema.methods.addEntry = function (entryId) {
+glossarySchema.methods.addEntry = function (entryId) {
 	this.entries.push(entryId);
 	return this.save();
 };
 
-organizationSchema.methods.removeEntry = function (entryId) {
+glossarySchema.methods.removeEntry = function (entryId) {
 	this.entries.pull(entryId);
 	return this.save()
 	.catch( function (err) {
@@ -110,17 +110,17 @@ organizationSchema.methods.removeEntry = function (entryId) {
 	});
 };
 
-organizationSchema.methods.addNom = function (nomId) {
+glossarySchema.methods.addNom = function (nomId) {
 	this.nominations.push(nomId);
 	return this.save();
 };
 
-organizationSchema.methods.removeNom = function (nomId) {
+glossarySchema.methods.removeNom = function (nomId) {
 	this.nominations.pull(nomId);
 	return this.save();
 };
 
-organizationSchema.methods.addQC = function (qc) {
+glossarySchema.methods.addQC = function (qc) {
     log.debug('adding QC');
     if (this.qcs.indexOf(qc) === -1) {
         this.qcs.push(qc);
@@ -131,7 +131,7 @@ organizationSchema.methods.addQC = function (qc) {
     return Promise.resolve(this);
 };
 
-organizationSchema.methods.addAdmin = function (admin) {
+glossarySchema.methods.addAdmin = function (admin) {
     log.debug('adding Admin');
     if (this.admins.indexOf(admin) === -1) {
         this.admins.push(admin);
@@ -143,18 +143,18 @@ organizationSchema.methods.addAdmin = function (admin) {
 };
 
 
-organizationSchema.methods.removeQC = function (qc) {
+glossarySchema.methods.removeQC = function (qc) {
     log.debug('removing QC');
     this.qcs.pull(qc);
     return this.save();
 };
 
-organizationSchema.methods.removeAdmin = function (admin) {
+glossarySchema.methods.removeAdmin = function (admin) {
     log.debug('removing Admin');
     this.admins.pull(admin);
     return this.save();
 };
 
 
-exports.organizationSchemea = organizationSchema;
-exports.Organization = mongoose.model('Organization', organizationSchema);
+exports.glossarySchemea = glossarySchema;
+exports.Glossary = mongoose.model('Glossary', glossarySchema);

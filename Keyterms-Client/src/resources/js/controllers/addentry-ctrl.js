@@ -34,8 +34,8 @@ function ($scope, $anchorScroll, $location, Entry, $routeParams, globals, UserSe
 	$scope.formView = 'terms';
 
 	$scope.entryData = Entry.getDefault();
-    $scope.userOrg = UserService.getCurrentOrg();
-    console.log($scope.userOrg);
+    $scope.userGlossary = UserService.getCurrentGlossary();
+    console.log($scope.userGlossary);
 
 	//Populate default language from URL
 	var langList = globals.langCodeList.map(lc => globals.langCodeMap[lc]);

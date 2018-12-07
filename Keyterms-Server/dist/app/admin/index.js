@@ -48,20 +48,20 @@ router.get('/logout', (req, res) => res.redirect('/logout'));
 router.get('/(*)?', function(req, res, next) {
 	req.user.populate([
 		{
-			path: 'currentOrg',
-			model: 'Organization',
+			path: 'currentGlossary',
+			model: 'Glossary',
 			select: 'name abbreviation'
 		}, {
-			path: 'organizations',
-			model: 'Organization',
+			path: 'glossaries',
+			model: 'Glossary',
 			select: 'name abbreviation'
 		}
 	]).execPopulate()
 	.then( function (_user) {
 		var user = _user.toObject();
 		user.password = undefined;
-		user.isOrgAdmin = (req.org.admins.indexOf(user._id) !== -1);
-		user.isOrgQC = (req.org.qcs.indexOf(user._id) !== -1);
+		user.isGlossaryAdmin = (req.glossary.admins.indexOf(user._id) !== -1);
+		user.isGlossaryQC = (req.glossary.qcs.indexOf(user._id) !== -1);
 
 		res.render('admin', {user: JSON.stringify(user)});
 	})

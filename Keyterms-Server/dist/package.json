@@ -12,7 +12,7 @@
     "gen-docs": "apidoc -i ./app -o ./docs/dist -t ./docs/template > /dev/null",
     "init-cli": "node ./app/bin/cli/init",
     "admin-cli": "node ./app/bin/cli/admin",
-    "org-cli": "node ./app/bin/cli/org",
+    "glossary-cli": "node ./app/bin/cli/glossary",
     "reindex": "./app/bin/cli/reindex",
     "clean-tags": "./app/bin/cli/cleantags"
   },

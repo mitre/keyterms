@@ -125,8 +125,8 @@ app.config(function ($routeProvider, $locationProvider, $httpProvider) {
 					if (success) {
 						var user = User.getUser();
 
-						// If the user has a default org then skip showing the org popup
-						$rootScope.showOrgPopup = !user.defaultOrg;
+						// If the user has a default glossary then skip showing the glossary popup
+						$rootScope.showGlossaryPopup = !user.defaultGlossary;
 						$rootScope.showNav = true;
 						var next = _lastPath === User.lastPath ? _lastPath : _lastPath === '/search' ? User.lastPath : _lastPath;
 						// _lastPath stores last path attempt when 401 error was returned
@@ -168,7 +168,7 @@ app.config(function ($routeProvider, $locationProvider, $httpProvider) {
 		resolve: {
 			tagList: ['keytermsClient.service', function (KeytermsClientInt) {
 				// TODO: Handle errors!
-				return KeytermsClientInt.getOrgTags();
+				return KeytermsClientInt.getGlossaryTags();
 			}]
 		}
 	})
@@ -200,7 +200,7 @@ app.config(function ($routeProvider, $locationProvider, $httpProvider) {
 		}],
 		resolve: {
 			Tag: ['$route', 'keytermsApi', function ($route, KeyTerms) {
-				return KeyTerms.getOrgTag($route.current.params.tag)
+				return KeyTerms.getGlossaryTag($route.current.params.tag)
 				.then( function (resp) {
 					console.log(resp);
 					return {tag: resp.data.content, count: resp.data.entries.length};
@@ -360,9 +360,9 @@ app.run(['$rootScope', '$location', 'user.service', 'globals', function ($rootSc
 	});
 
 	$rootScope.$on('$routeChangeError', function (event, curr, prev, err) {
-		// Some operations, like switching Organizations, caused the current $route to reload.
+		// Some operations, like switching Glossaries, caused the current $route to reload.
 		// Sometimes reloading the $route results in a 403 (Forbidden), usually caused by the
-		// swapping of the organization context. "history.back()" sends the user back one step,
+		// swapping of the glossary context. "history.back()" sends the user back one step,
 		// before they performed the operation which threw a 403
 		if (err.status === 403 && err.data === 'Forbidden') {
 			history.back();

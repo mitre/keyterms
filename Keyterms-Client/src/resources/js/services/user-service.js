@@ -65,22 +65,22 @@ app.factory('user.service', ['$q', '$location', '$cookies', 'keytermsApi', funct
 		}
 	};
 
-	service.updateUserDefaultOrg = function (orgId) {
+	service.updateUserDefaultGlossary = function (glossaryId) {
 		var __user = null;
-		return Keyterms.updateDefaultOrg(orgId).then(function (response) {
+		return Keyterms.updateDefaultGlossary(glossaryId).then(function (response) {
 			__user = response.data;
-			return Keyterms.checkOrgPermissions();
+			return Keyterms.checkGlossaryPermissions();
 		}).then(function (perms) {
 			setUser(angular.extend(__user, perms.data));
 		});
 	};
 
     service.updateUser = function (updates) {
-        if (updates.orgName && updates.currentOrg && updates.langList) {
+        if (updates.glossaryName && updates.currentGlossary && updates.langList) {
             var __user = null;
-            return Keyterms.updateUserOrg(updates.currentOrg).then(function (httpRes) {
+            return Keyterms.updateUserGlossary(updates.currentGlossary).then(function (httpRes) {
                 __user = httpRes.data;
-                return Keyterms.checkOrgPermissions();
+                return Keyterms.checkGlossaryPermissions();
             }).then(function (perms) {
                 setUser(angular.extend(__user, perms.data));
             });
@@ -97,8 +97,8 @@ app.factory('user.service', ['$q', '$location', '$cookies', 'keytermsApi', funct
 		return user;
 	};
 
-    service.getCurrentOrg = function () {
-        return user.organizations.find(org => org._id === user.currentOrg);
+    service.getCurrentGlossary = function () {
+        return user.glossaries.find(glossary => glossary._id === user.currentGlossary);
     };
 
 	service.checkUserCreds = function (__creds) {
@@ -112,7 +112,7 @@ app.factory('user.service', ['$q', '$location', '$cookies', 'keytermsApi', funct
 			Keyterms.validateUser(credentials).then(function (httpRes) {
 				__user = httpRes.data;
 				// TODO: revisit this
-				return Keyterms.checkOrgPermissions();
+				return Keyterms.checkGlossaryPermissions();
 			}).then(function (perms) {
 				setUser(angular.extend(__user, perms.data));
 				resolve(true);

@@ -34,7 +34,7 @@ var elastic = require('../utils/elasticSearch');
 
 var sourceUri = process.argv[2];
 
-var Organization = mongoose.model('Organization');
+var Glossary = mongoose.model('Glossary');
 var User = mongoose.model('User');
 var Term = mongoose.model('Term');
 var Entry = mongoose.model('Entry');
@@ -57,7 +57,7 @@ if (!sourceUri) {
 // 	static errors = [];
 // }
 
-var orgMap = {};
+var glossaryMap = {};
 var userMap = {};
 var tbToEntryMap = {};
 var ERRORS = [];
@@ -77,18 +77,18 @@ createConnections()
 .then( function (srcDb) {
 	console.log(`Connection established with ${sourceUri}`);
 
-// Convert all Components to Organizations
-	return convertComponentToOrg(srcDb)
-	.then( function (orgs) {
-		// Place each org in a map for easy access. 
+// Convert all Components to Glossaries
+	return convertComponentToGlossary(srcDb)
+	.then( function (glossaries) {
+		// Place each glossary in a map for easy access.
 		// Keyed by Component.Path or Component.Abbreviation (each are used interchangeably into old version)
 
-		orgs.forEach( function (org) {
-			if (!(org.path in orgMap))
-				orgMap[org.path] = org;
+		glossaries.forEach( function (gloss) {
+			if (!(gloss.path in glossaryMap))
+				glossaryMap[gloss.path] = gloss;
 
-			if (!(org.abbreviation in orgMap))
-				orgMap[org.abbreviation] = org;
+			if (!(gloss.abbreviation in glossaryMap))
+				glossaryMap[gloss.abbreviation] = gloss;
 		});
 
 // Convert all 'Users' to Users
@@ -123,7 +123,7 @@ createConnections()
 });
 
 
-var convertComponentToOrg = function (srcDb) {
+var convertComponentToGlossary = function (srcDb) {
 	var col = srcDb.collection('Components');
 
 	return col.find().toArray()
@@ -133,21 +133,21 @@ var convertComponentToOrg = function (srcDb) {
 		return Promise.mapSeries(docs, function (old) {
 			console.log(`Converting Component: ${old._id}`);
 
-			var org = new Organization();
-			org.name = old.FullName;
-			org.path = old._id.toString();
-			org.abbreviation = old.Abbreviation;
-			org.globalBlock = old.GlobalBlock;
-			org.lastModified = old.LastModified;
-			org.langList = old.ToLangList.concat(old.FromLangList);
+			var gloss = new Glossary();
+			gloss.name = old.FullName;
+			gloss.path = old._id.toString();
+			gloss.abbreviation = old.Abbreviation;
+			gloss.globalBlock = old.GlobalBlock;
+			gloss.lastModified = old.LastModified;
+			gloss.langList = old.ToLangList.concat(old.FromLangList);
 
-			//console.log(org);
-			return org.save()
+			//console.log(gloss);
+			return gloss.save()
 			.catch( function (err) {
 				// FOR DEV ONLY
 				if (err.code == 11000) {
 					console.log('skipping dup error for development...');
-					return Organization.findOne({abbreviation: old.Abbreviation});
+					return Glossary.findOne({abbreviation: old.Abbreviation});
 				}
 				else {
 					throw err;
@@ -156,7 +156,7 @@ var convertComponentToOrg = function (srcDb) {
 		});
 	})
 	.catch( function (err) {
-		console.error('CRITICAL ERROR IN `convertComponentToOrg`...');
+		console.error('CRITICAL ERROR IN `convertComponentToGlossary`...');
 
 		throw err;
 	});
@@ -178,16 +178,16 @@ var convertUserToUser = function (srcDb) {
 			user.password = (new mongoose.Types.ObjectId()).toString(); // generate random password
 			user.fullName = old.FullName;
 			user.certOnly = true; // turns off username/password authenticate for this user
-			user.organizations.push(orgMap[old.ComponentId]._id);
-			user.currentOrg = user.organizations[0]._id;
+			user.glossaries.push(glossaryMap[old.ComponentId]._id);
+			user.currentGlossary = user.glossaries[0]._id;
 
 			var async = Promise.resolve();
 
-			if (old.isAdmin && !!orgMap[old.ComponentId]) {
-				var org = orgMap[old.ComponentId];
-				org.qcs.push(user._id);
-				org.admins.push(user._id);
-				async = org.save();
+			if (old.isAdmin && !!glossaryMap[old.ComponentId]) {
+				var gloss = glossaryMap[old.ComponentId];
+				gloss.qcs.push(user._id);
+				gloss.admins.push(user._id);
+				async = gloss.save();
 			}
 
 			return async
@@ -325,7 +325,7 @@ var convertOrthographyToTerm = function (entry, ortho) {
 /**
  * Keyterms Status Reference
  *
- * ''		== 		Approved Org Entry
+ * ''		== 		Approved Glossary Entry
  * 'usr' 	== 		"My Entries" (old behavior)
  * 'dft'	==		Entry Draft
  * 'dep'	==		Deprecated (what do???)
@@ -340,7 +340,7 @@ var NOMINATION_STATUSES = ['add', 'del', 'mod'];
 
 var convertTBv2ToEntry = function (oldDoc) {
 	console.log(`Converting Entries: ${oldDoc._id.toString()}`);
-	
+
 	// TODO: ignore 'dep' Entries
 
 	// Return resolved promise so all errors/exceptions get caught auto-magically
@@ -348,9 +348,9 @@ var convertTBv2ToEntry = function (oldDoc) {
 	.then( function () {
 		var data = {};
 		var msg = '';
-		var org = orgMap[oldDoc.ComponentId];
+		var gloss = glossaryMap[oldDoc.ComponentId];
 
-		if (org == undefined) {
+		if (gloss == undefined) {
 			msg = 'Keyterms object\'s ComponentId doesn\'t exist';
 			ERRORS.push({
 				message: msg,
@@ -374,8 +374,8 @@ var convertTBv2ToEntry = function (oldDoc) {
 
 		// SchemaVersion			[Ignore]
 
-		// ComponentId				[Convert "path" string to Org Ref]
-		data.org = org._id.toString();
+		// ComponentId				[Convert "path" string to Glossary Ref]
+		data.glossary = gloss._id.toString();
 
 		// CreationDate				[camelCase]
 		data.creationDate = new Date(oldDoc.CreationDate);
@@ -426,8 +426,8 @@ var convertTBv2ToEntry = function (oldDoc) {
 			data.editScope = 'me';
 		}
 		else {
-			data.viewScope = (org.globalBlock) ? 'org' : 'any';
-			data.editScope = 'org';
+			data.viewScope = (gloss.globalBlock) ? 'glossary' : 'any';
+			data.editScope = 'glossary';
 		}
 		data.isDraft = oldDoc.Status == 'dft';
 
@@ -437,7 +437,7 @@ var convertTBv2ToEntry = function (oldDoc) {
 		// Moved to bottom of method to due the requirement for async operations
 		data.terms = [];
 		data.termLinks = [];
-		
+
 		// _id						[Don't Change?]
 
 		var entry = new Entry(data);
@@ -451,9 +451,9 @@ var convertTBv2ToEntry = function (oldDoc) {
 			return entry.save();
 		})
 		.then( function (entry) {
-			return org.addEntry(entry._id)
+			return gloss.addEntry(entry._id)
 			.then( function () {
-				return elastic.indexEntry(entry, org._id);
+				return elastic.indexEntry(entry, gloss._id);
 			})
 			.then( function () {
 				return entry;
@@ -477,7 +477,7 @@ var KeytermsQuery = {Status: {$nin: NOMINATION_STATUSES}, 'CreatedBy.Email': 'us
 var convertKeytermsToEntry = function (db) {
 	var col = db.collection('Keyterms');
 
-	// first find all Entries with status == "" (aka 'org' Entries)
+	// first find all Entries with status == "" (aka 'glossary' Entries)
 	return col.find(KeytermsQuery).toArray()
 	.then( function (docs) {
 		console.log(`Number of Entries: ${docs.length}`);

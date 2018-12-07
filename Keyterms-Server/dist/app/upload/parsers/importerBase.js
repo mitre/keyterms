@@ -35,12 +35,12 @@ var log = require('../../utils/logger').logger;
 Queue.configure(Promise);
 
 class ImporterBase {
-	constructor (org, formBase) {
+	constructor (glossary, formBase) {
 		log.verbose('Initializing ImporterBase...');
 
 		this.entries = {};
 		this.errors = {};
-		this.org = org;
+		this.glossary = glossary;
 
 		// The base for each Entry that will be created
 		// Some is defined in parsers/baseEntry.js
@@ -57,7 +57,7 @@ class ImporterBase {
 	// This is method is passed to the PromiseQueue to create an Entry once all necessary data has been parsed
 	__callCreateEntry (key, entryData) {
 		var self = this;
-		
+
 		// key: an identifier for a specific entry, which references the this.entries and this.errors map
 
 		// entryData: an object used to create a new Entry
@@ -75,7 +75,7 @@ class ImporterBase {
 		}
 
 		log.verbose('adding Entry ', key);
-		return $Entry.createEntry(entryData, self.org)
+		return $Entry.createEntry(entryData, self.glossary)
 		// the .then and .catch calls below are for tracking the success of the create operation
 		.then( function (doc) {
 

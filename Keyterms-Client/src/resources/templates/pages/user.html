@@ -28,7 +28,7 @@
         <h2 class="panel-title">My Information</h2>
     </div>
     <div class="panel-body">
-        <form class="form-horizontal" name="userForm" ng-submit="submitDefaultOrgChange()" novalidate>
+        <form class="form-horizontal" name="userForm" ng-submit="submitDefaultGlossaryChange()" novalidate>
             <!-- Full Name -->
             <div class="row form-group">
                 <label class="col-sm-3 text-right">Name</label>
@@ -44,21 +44,21 @@
                 <label class="col-sm-3 text-right">Email</label>
                 <div class="col-sm-6">{{ user.email }}</div>
             </div>
-            <!-- Default Organization -->
+            <!-- Default Glossary -->
             <div class="row form-group">
-                <label class="col-sm-3 text-right">Default Glossary</label>
+                <label class="col-sm-3 text-right">Preferred Glossary</label>
                 <div class="col-sm-6">
                     <div uib-dropdown class="btn-group select-tag">
                         <div class="btn btn-primary dropdown-selector" uib-dropdown-toggle>
-                            <i class="fa fa-sitemap" ng-if="selectedDefaultOrg.name"></i>
-                            {{selectedDefaultOrg.name || "No Default Glossary"}} <span class="caret" style=""></span>
+                            <i class="fa fa-sitemap" ng-if="selectedDefaultGlossary.name"></i>
+                            {{selectedDefaultGlossary.name || "No Preferred Glossary"}} <span class="caret" style=""></span>
                         </div>
                         <ul class="dropdown-menu dropdown-menu-left" uib-dropdown-menu role="menu">
                             <li role="menuitem">
-                                <a ng-click="updateSelectedDefaultOrg(false)" href="">No Default Glossary</a>
+                                <a ng-click="updateSelectedDefaultGlossary(false)" href="">No Preferred Glossary</a>
                             </li>
-                            <li role="menuitem" ng-repeat="org in user.organizations">
-                                <a ng-click="updateSelectedDefaultOrg(org)" href="">{{::org.name}}</a>
+                            <li role="menuitem" ng-repeat="glossary in user.glossaries">
+                                <a ng-click="updateSelectedDefaultGlossary(glossary)" href="">{{::glossary.name}}</a>
                             </li>
                         </ul>
                     </div>

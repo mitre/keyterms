@@ -30,7 +30,7 @@ var entryBase = {
 	termLinks: [],
 	tags: [],
 	notes: [],
-	editScope: 'org',
+	editScope: 'glossary',
 	schemaVersion: SCHEMA_VERSION,
 	type: 'term'
 };

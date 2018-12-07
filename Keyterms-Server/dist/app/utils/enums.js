@@ -35,10 +35,10 @@
 //exports.statuses = ',add,del,mod,usr,dft,dep'.split(',');
 
 exports.statusesINFO = [
-    { value: 'org',     name: 'Approved',       desc: 'glossary\'s entry'},
-    { value: 'usr',     name: 'User',           desc: 'user\'s personal entry'},
-    { value: 'dft',     name: 'Draft',          desc: 'user\'s personal entry in draft'},
-    { value: 'dep',     name: 'Deprecated',     desc: 'deprecated entry, not to be used, kept for information'}
+    { value: 'glossary',    name: 'Approved',       desc: 'glossary\'s entry'},
+    { value: 'usr',         name: 'User',           desc: 'user\'s personal entry'},
+    { value: 'dft',         name: 'Draft',          desc: 'user\'s personal entry in draft'},
+    { value: 'dep',         name: 'Deprecated',     desc: 'deprecated entry, not to be used, kept for information'}
 ];
 exports.statuses = exports.statusesINFO.map(status => status.value);
 
@@ -52,20 +52,19 @@ exports.nominationTypes = exports.nominationTypeINFO.map(type => type.value);
 
 //**********************************************************************************************************************
 exports.entryTypesINFO = [
-    { value: 'term',    	name: 'Term',           	desc: 'generic term or collocation'},
-    { value: 'attribute',   name: 'Attribute',          desc: 'an attribute of an entity'},
-    { value: 'document',    name:  'Document',          desc: 'an entry that describes a document'},
-    { value: 'event',   	name: 'Event',          	desc: 'an entry that describes an event'},
-    { value: 'location',    name: 'Location',       	desc: 'name of a place or landmark'},
-    { value: 'organization',     	name: 'Organization',   	desc: 'name of a company or group'},
-    { value: 'passage',    	name: 'Passage',       	desc: 'multi-sentence entries'},
-    { value: 'person',     	name: 'Person',         	desc: 'name of a person'},
-    { value: 'phrase',     	name: 'Phrase',       	desc: 'a short phrase, clause or sentence'}
+    { value: 'term',    	 name: 'Term',           	desc: 'generic term or collocation'},
+    { value: 'attribute',    name: 'Attribute',          desc: 'an attribute of an entity'},
+    { value: 'document',     name: 'Document',           desc: 'an entry that describes a document'},
+    { value: 'event',   	 name: 'Event',          	desc: 'an entry that describes an event'},
+    { value: 'location',     name: 'Location',       	desc: 'name of a place or landmark'},
+    { value: 'organization', name: 'Organization',  	    desc: 'name of a company or group'},
+    { value: 'passage',    	 name: 'Passage',       	    desc: 'multi-sentence entries'},
+    { value: 'person',     	 name: 'Person',         	desc: 'name of a person'},
+    { value: 'phrase',     	 name: 'Phrase',       	    desc: 'a short phrase, clause or sentence'}
 ];
 exports.entryTypes = exports.entryTypesINFO.map(type => type.value);
 
 //**********************************************************************************************************************
-exports.noteTypes = 'usage,example,pos,meaning,source,general,nominate'.split(',');
 exports.noteTypesINFO = [
     { value: 'general', 	  name: 'General',        	  desc: 'general type of overview note'},
     { value: 'example', 	  name: 'Example',        	  desc: 'example of how the term is used'},
@@ -80,6 +79,7 @@ exports.noteTypesINFO = [
 	{ value: 'routing',       name: 'Routing',            desc: 'where the term should be used'},
 	{ value: 'status',        name: 'Status',             desc: 'is the term used, deprecated, active, etc.'}
 ];
+exports.noteTypes = exports.noteTypesINFO.map(type => type.value);
 
 //**********************************************************************************************************************
 exports.orthTypesINFO = [
@@ -98,17 +98,17 @@ exports.orthTypes = exports.orthTypesINFO.map(status => status.value);
 
 //**********************************************************************************************************************
 exports.editScopeTypesINFO = [
-	{ value: 'any', 	name: 'Anyone', 				comparison: 10,		desc: 'Any KeyTerms user is allowed to make edits to this Entry'},
-	{ value: 'org', 	name: 'Glossary Members',	    comparison: 5,		desc: 'This Entry follows the KeyTerms default Glossary-based curation pattern'},
-	{ value: 'me', 		name: 'Just Me', 				comparison: 1,		desc: 'The author of this Entry is the only person whom is allowed to make edits'}
+	{ value: 'any', 	  name: 'Anyone', 				comparison: 10,		desc: 'Any KeyTerms user is allowed to make edits to this Entry'},
+	{ value: 'glossary',  name: 'Glossary Members',	    comparison: 5,		desc: 'This Entry follows the KeyTerms default Glossary-based curation pattern'},
+	{ value: 'me', 		  name: 'Just Me', 				comparison: 1,		desc: 'The author of this Entry is the only person whom is allowed to make edits'}
 ];
 exports.editScopeTypes = exports.editScopeTypesINFO.map(type => type.value);
 
 //**********************************************************************************************************************
 exports.viewScopeTypesINFO = [
-	{ value: 'any', 	name: 'Anyone', 				comparison: 10,		desc: 'Any KeyTerms user is allowed view this Entry'},
-	{ value: 'org', 	name: 'Glossary Members',    	comparison: 5,		desc: 'Only members of this Entry\'s Glossary will be able to view it'},
-	{ value: 'me', 	    name: 'Just Me', 				comparison: 1,		desc: 'This Entry is private to the author'}
+	{ value: 'any', 	  name: 'Anyone', 				comparison: 10,		desc: 'Any KeyTerms user is allowed view this Entry'},
+	{ value: 'glossary',  name: 'Glossary Members',    	comparison: 5,		desc: 'Only members of this Entry\'s Glossary will be able to view it'},
+	{ value: 'me', 	      name: 'Just Me', 				comparison: 1,		desc: 'This Entry is private to the author'}
 ];
 exports.viewScopeTypes = exports.viewScopeTypesINFO.map(type => type.value);
 

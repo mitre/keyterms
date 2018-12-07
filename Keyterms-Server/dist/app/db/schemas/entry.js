@@ -102,14 +102,14 @@ var defaultSchemaVersion = function () {
 
 /* eslint-disable key-spacing, comma-style */
 var entrySchema = BaseSchema.extendSchema({
-	editScope: 				{type: String, enum: enums.editScopeTypes, required: true, default: () => 'org'}
-	, viewScope: 			{type: String, enum: enums.viewScopeTypes, required: true, default: () => 'org'}
+	editScope: 				{type: String, enum: enums.editScopeTypes, required: true, default: () => 'glossary'}
+	, viewScope: 			{type: String, enum: enums.viewScopeTypes, required: true, default: () => 'glossary'}
 	, isDraft:				{type: Boolean, default: false}
 	, schemaVersion: 		{type: String, trim: true, required: true, default: defaultSchemaVersion}
 	, modificationDate: 	{type: Date, default: Date.now}
 		// type was added to support future-features. Defaulting to 'term' until these features are added
 	, type: 				{type: String, required: true, enum: enums.entryTypes, default: () => 'term'}
-	, org:					{type: Schema.Types.ObjectId, required: true}
+	, glossary:				{type: Schema.Types.ObjectId, required: true}
 	, isDeprecated: 		{type: Boolean, default: false}
 	, terms: 				[{type: Schema.Types.ObjectId, ref: 'Term'}]
 	, termLinks: 			[termLinkSchema]
@@ -367,11 +367,11 @@ entrySchema.methods.calcDelta = function (edits) {
 	return delta;
 };
 
-entrySchema.methods.addToOrCreateTags = function (tags, orgId) {
+entrySchema.methods.addToOrCreateTags = function (tags, glossaryId) {
 	var thisEntry = this;
 
 	return Promise.mapSeries(tags, function (tag) {
-		return Tag.findOrCreateTag(tag, orgId)
+		return Tag.findOrCreateTag(tag, glossaryId)
 		.then( function (tagDoc) {
 			// this .then() will execute on each individual tag document
  			return tagDoc.addEntryToTag(thisEntry._id);
@@ -386,7 +386,7 @@ entrySchema.methods.addToOrCreateTags = function (tags, orgId) {
 	});
 };
 
-entrySchema.methods.removeFromTags = function (orgRef) {
+entrySchema.methods.removeFromTags = function (glossaryRef) {
 	var thisEntry = this;
 
 	if (thisEntry.tags.length === 0) {
@@ -394,7 +394,7 @@ entrySchema.methods.removeFromTags = function (orgRef) {
 	}
 
 	return Promise.map(thisEntry.tags, function (tagId) {
-		return Tag.findOne({_id: tagId, org: orgRef}).exec()
+		return Tag.findOne({_id: tagId, glossary: glossaryRef}).exec()
 		.then( function (tagDoc) {
 			if (!tagDoc) {
 				return true;
@@ -504,8 +504,8 @@ var fieldsToPopulate = [
 		select: 'username email fullName'
 	},
 	{
-		path: 'org',
-		model: 'Organization',
+		path: 'glossary',
+		model: 'Glossary',
 		select: 'name abbreviation'
 	},
 	{
@@ -541,9 +541,9 @@ entrySchema.pre('save', function (next) {
 	var self = this;
 
 	if (this.bannerText === undefined || this.bannerText === '') {
-		this.populate({path: 'org', model: 'Organization', select: 'name'}).execPopulate()
+		this.populate({path: 'glossary', model: 'Glossary', select: 'name'}).execPopulate()
 		.then( function () {
-			self.bannerText = self.org.name;
+			self.bannerText = self.glossary.name;
 			next();
 		})
 		.catch(next);

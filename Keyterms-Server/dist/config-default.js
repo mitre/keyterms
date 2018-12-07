@@ -71,10 +71,10 @@ config.server = {
 	}
 };
 
-// Common (default) Organization configuration
-config.commonOrg = {
-	name: 'Default Glossary',
-	abbreviation: 'gloss',
+// Common (default) Glossary configuration
+config.commonGlossary = {
+	name: 'Common Glossary',
+	abbreviation: 'common',
 	description: 'Glossary that all users belong to by default'
 }
 

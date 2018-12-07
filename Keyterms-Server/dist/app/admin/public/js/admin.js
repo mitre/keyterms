@@ -40,11 +40,11 @@
 		})
 		.when('/user', {
 			templateUrl: __templatePath + '/user.html',
-			controller: ['$scope', '$location', '$uibModal', 'Api.service', 'Org', 'CommonOrg', 'Orgs', function ($scope, $location, $uibModal, ApiSvc, Org, CommonOrg, Orgs) {
+			controller: ['$scope', '$location', '$uibModal', 'Api.service', 'Glossary', 'CommonGlossary', 'Glossaries', function ($scope, $location, $uibModal, ApiSvc, Glossary, CommonGlossary, Glossaries) {
 				$scope.user = {};
 				$scope.user.password = Math.random().toString(36).slice(2, 14);
-				$scope.user.organizations = [CommonOrg];
-				$scope.user.currentOrg = CommonOrg;
+				$scope.user.glossaries = [CommonGlossary];
+				$scope.user.currentGlossary = CommonGlossary;
 
 				$scope.submit_value = $scope.title = 'Create User';
 				$scope.nonmodal = true;
@@ -98,25 +98,25 @@
 				};
 
 				// Defaults
-				if (!!$location.search().org) {
-					//$scope.user.org = $location.search().org;
-					var index = Orgs.map( function (org) { return org._id; }).indexOf($location.search().org);
-					$scope.org = Orgs[index];
-					console.log('$scope.org: ', $scope.org); // test this
+				if (!!$location.search().glossary) {
+					//$scope.user.glossary = $location.search().glossary;
+					var index = Glossaries.map( function (glossary) { return glossary._id; }).indexOf($location.search().glossary);
+					$scope.glossary = Glossaries[index];
+					console.log('$scope.glossary: ', $scope.glossary); // test this
 				}
 			}]
 			, resolve: {
-				Org: ['User.service', function (UserService) {
-					return UserService.getUser().currentOrg;
+				Glossary: ['User.service', function (UserService) {
+					return UserService.getUser().currentGlossary;
 				}],
-				CommonOrg: ['Api.service', function (ApiSvc) {
-					return ApiSvc.getCommonOrg()
+				CommonGlossary: ['Api.service', function (ApiSvc) {
+					return ApiSvc.getCommonGlossary()
 					.then(function (res) {
 						return res.data;
 					});
 				}],
-				Orgs: ['Api.service', function (ApiSvc) {
-					return ApiSvc.getOrgs()
+				Glossaries: ['Api.service', function (ApiSvc) {
+					return ApiSvc.getGlossaries()
 					.then(function (res) {
 						return res.data;
 					});
@@ -133,23 +133,23 @@
 				$scope.submit = function () {
 					var data = angular.copy($scope.user);
 
-					// Drop any organizations marked for removal from user's org list
-					var orgsToKeep = [];
-					data.organizations.forEach(function(org) {
-						if(data.__orgsToRemove.indexOf(org._id) < 0) {
-							orgsToKeep.push(org);
+					// Drop any glossaries marked for removal from user's glossary list
+					var glossariesToKeep = [];
+					data.glossaries.forEach(function(glossary) {
+						if(data.__glossariesToRemove.indexOf(glossary._id) < 0) {
+							glossariesToKeep.push(glossary);
 						} else {
-							// if this was the user's current or default org, reset those fields
-							if(data.currentOrg === org._id) {
-								data.currentOrg = null;
+							// if this was the user's current or default glossary, reset those fields
+							if(data.currentGlossary === glossary._id) {
+								data.currentGlossary = null;
 							}
-							if(data.defaultOrg === org._id) {
-								data.defaultOrg = null;
+							if(data.defaultGlossary === glossary._id) {
+								data.defaultGlossary = null;
 							}
 						}
 					});
-					data.organizations = orgsToKeep;
-					data.currentOrg = (data.currentOrg || data.organizations[0]._id);	// if current org was reset, choose first valid org
+					data.glossaries = glossariesToKeep;
+					data.currentGlossary = (data.currentGlossary || data.glossaries[0]._id);	// if current glossary was reset, choose first valid glossary
 
 					ApiSvc.updateUser(data)
 					.then( function (resp) {
@@ -157,18 +157,18 @@
 					});
 				};
 
-				$scope.isOrgAdmin = function (org) {
-					return org.admins.indexOf($scope.user._id) != -1;
+				$scope.isGlossaryAdmin = function (glossary) {
+					return glossary.admins.indexOf($scope.user._id) != -1;
 				};
 
-				$scope.isOrgQC = function (org) {
-					return org.qcs.indexOf($scope.user._id) != -1;
+				$scope.isGlossaryQC = function (glossary) {
+					return glossary.qcs.indexOf($scope.user._id) != -1;
 				};
 
-				$scope.showOrgDeleteBtn = function (orgId) {
-					return $scope.user.organizations.length > 1 &&
-						  ($scope.user.organizations.length - $scope.user.__orgsToRemove.length > 1 ||
-						   $scope.user.__orgsToRemove.indexOf(orgId) > -1);
+				$scope.showGlossaryDeleteBtn = function (glossaryId) {
+					return $scope.user.glossaries.length > 1 &&
+						  ($scope.user.glossaries.length - $scope.user.__glossariesToRemove.length > 1 ||
+						   $scope.user.__glossariesToRemove.indexOf(glossaryId) > -1);
 				}
 
 				$scope.back = function () {
@@ -177,7 +177,7 @@
 
 				// assign the User object to the form data model (to auto-populate form)
 				$scope.user = User;
-				$scope.user.__orgsToRemove = [];
+				$scope.user.__glossariesToRemove = [];
 
 				$scope.submit_value = 'Save Changes';
 				$scope.title = 'Edit User';
@@ -221,9 +221,9 @@
 					{val: 'email', view: 'Email'}
 				];
 
-				if (!!$location.search().org) {
+				if (!!$location.search().glossary) {
 					$scope.users = $scope.users.filter( function (user) {
-						return user.organizations.indexOf($location.search().org) != -1;
+						return user.glossaries.indexOf($location.search().glossary) != -1;
 					});
 				}
 
@@ -280,10 +280,10 @@
 				}]
 			}
 		})
-		.when('/org', {
-			templateUrl: __templatePath + '/org.html',
+		.when('/glossary', {
+			templateUrl: __templatePath + '/glossary.html',
 			controller: ['$scope', '$location', '$sce', 'Api.service', 'LangCodes', function ($scope, $location, $sce, ApiSvc, LangCodes) {
-				$scope.org = {
+				$scope.glossary = {
 					langList: []
 				};
 
@@ -295,9 +295,9 @@
 				$scope.showUsers = false;
 
 				$scope.submit = function () {
-					ApiSvc.createOrg(angular.copy($scope.org))
+					ApiSvc.createGlossary(angular.copy($scope.glossary))
 					.then( function (resp) {
-						$location.path('/orgs');
+						$location.path('/glossaries');
 					});
 				};
 
@@ -306,7 +306,7 @@
 				$scope.supportedPopoverText =
 					$sce.trustAsHtml('A master list of all languages KeyTerms supports.<br><br>Add a language to this Glossary by clicking the <i class="fa fa-fw fa-plus text-success"></i>');
 
-				$scope.orgPopoverText =
+				$scope.glossaryPopoverText =
 					$sce.trustAsHtml('These are the languages currently associated with this Glossary.<br><br>Remove a language from this Glossary by clicking the <i class="fa fa-fw fa-times text-danger"></i>');
 			}]
 			, resolve: {
@@ -325,17 +325,17 @@
 				}]
 			}
 		})
-		.when('/org/:id', {
-			templateUrl: __templatePath + '/org.html',
-			controller: ['$scope', '$location', '$sce', 'Api.service', 'Org', 'LangCodes', 'Users', function ($scope, $location, $sce, ApiSvc, Org, LangCodes, Users) {
-				$scope.org = angular.merge({}, Org);
+		.when('/glossary/:id', {
+			templateUrl: __templatePath + '/glossary.html',
+			controller: ['$scope', '$location', '$sce', 'Api.service', 'Glossary', 'LangCodes', 'Users', function ($scope, $location, $sce, ApiSvc, Glossary, LangCodes, Users) {
+				$scope.glossary = angular.merge({}, Glossary);
 				$scope.users = Users;
 				$scope.users.forEach( function (user) {
-					if ($scope.org.qcs.indexOf(user._id) != -1) {
+					if ($scope.glossary.qcs.indexOf(user._id) != -1) {
 						user.qc = true;
 					}
 
-					if ($scope.org.admins.indexOf(user._id) != -1) {
+					if ($scope.glossary.admins.indexOf(user._id) != -1) {
 						user.admin = true;
 					}
 				});
@@ -349,27 +349,27 @@
 				$scope.userUpdate = function (user) {
 					console.log('change fired');
 					if (user.qc != undefined) {
-						var qcIndex = $scope.org.qcs.indexOf(user._id);
+						var qcIndex = $scope.glossary.qcs.indexOf(user._id);
 						if (user.qc && qcIndex == -1) {
-							// qc set to true and user is not currently in org qc list, add it
-							$scope.org.qcs.push(user._id);
+							// qc set to true and user is not currently in glossary qc list, add it
+							$scope.glossary.qcs.push(user._id);
 						}
 						else if (!user.qc && qcIndex != -1) {
-							// qc set to false and user is currently listed in org qc, remove them
-							$scope.org.qcs.splice(qcIndex, 1);
+							// qc set to false and user is currently listed in glossary qc, remove them
+							$scope.glossary.qcs.splice(qcIndex, 1);
 						}
 						// user.qc && qcIndex != -1	// do noting
 						// !user.qc && qcIndex == -1	// do nothing
 					}
 					if (user.admin != undefined) {
-						var adIndex = $scope.org.admins.indexOf(user._id);
+						var adIndex = $scope.glossary.admins.indexOf(user._id);
 						if (user.admin && adIndex == -1) {
-							// admin set to true and user is not currently in org qc list, add it
-							$scope.org.admins.push(user._id);
+							// admin set to true and user is not currently in glossary qc list, add it
+							$scope.glossary.admins.push(user._id);
 						}
 						else if (!user.admin && adIndex != -1) {
-							// admin set to false and user is currently listed in org qc, remove them
-							$scope.org.admins.splice(adIndex, 1);
+							// admin set to false and user is currently listed in glossary qc, remove them
+							$scope.glossary.admins.splice(adIndex, 1);
 						}
 						// user.admin && adIndex != -1	// do noting
 						// !user.admin && adIndex == -1	// do nothing
@@ -377,15 +377,15 @@
 				};
 
 				$scope.submit = function () {
-					console.log($scope.org);
+					console.log($scope.glossary);
 					//return;
 
-					ApiSvc.updateOrg(angular.copy($scope.org))
+					ApiSvc.updateGlossary(angular.copy($scope.glossary))
 					.then( function (resp) {
-						return ApiSvc.updateMembers($scope.org._id, $scope.users);
+						return ApiSvc.updateMembers($scope.glossary._id, $scope.users);
 					})
 					.then( function (resp) {
-						$location.path('/orgs');
+						$location.path('/glossaries');
 					});
 				};
 
@@ -394,12 +394,12 @@
 				$scope.supportedPopoverText =
 					$sce.trustAsHtml('A master list of all languages KeyTerms supports.<br><br>Add a language to this Glossary by clicking the <i class="fa fa-fw fa-plus text-success"></i>');
 
-				$scope.orgPopoverText =
+				$scope.glossaryPopoverText =
 					$sce.trustAsHtml('These are the languages currently associated with this Glossary.<br><br>Remove a language from this Glossary by clicking the <i class="fa fa-fw fa-times text-danger"></i>');
 			}]
 			, resolve: {
-				Org: ['$route', 'Api.service', function ($route, ApiSvc) {
-					return ApiSvc.getOrgById($route.current.params.id)
+				Glossary: ['$route', 'Api.service', function ($route, ApiSvc) {
+					return ApiSvc.getGlossaryById($route.current.params.id)
 					.then( function (res) {
 						return res.data;
 					})
@@ -418,19 +418,19 @@
 					})
 				}],
 				Users: ['$route', 'Api.service', function ($route, ApiSvc) {
-					return ApiSvc.getOrgUsers($route.current.params.id)
+					return ApiSvc.getGlossaryUsers($route.current.params.id)
 					.then( function (res) {
 						return res.data;
 					})
 				}],
 			}
 		})
-		.when('/org/:id/manage', {
+		.when('/glossary/:id/manage', {
 			templateUrl: __templatePath + '/manageUsers.html',
-			controller: ['$scope', '$location', '$timeout', 'Api.service', 'addUserModal', 'Org', 'CommonOrg', 'Users',
-			function ($scope, $location, $timeout, ApiSvc, addUserModal, Org, CommonOrg, Users) {
-				$scope.org = Org;
-				$scope.commonOrg = CommonOrg;
+			controller: ['$scope', '$location', '$timeout', 'Api.service', 'addUserModal', 'Glossary', 'CommonGlossary', 'Users',
+			function ($scope, $location, $timeout, ApiSvc, addUserModal, Glossary, CommonGlossary, Users) {
+				$scope.glossary = Glossary;
+				$scope.commonGlossary = CommonGlossary;
 				$scope.members = Users.members;
 				$scope.users = Users.nonMembers;
 
@@ -459,7 +459,7 @@
 
 
 				$scope.save = function () {
-					ApiSvc.updateMembers(Org._id, $scope.members)
+					ApiSvc.updateMembers(Glossary._id, $scope.members)
 					.then( function (resp) {
 						addUserModal.cacheMsg({success: 'Glossary was successfully updated'});
 						addUserModal.$routeReload();
@@ -483,34 +483,34 @@
 				}, 1750);
 			}]
 			, resolve: {
-				Org: ['$route', 'Api.service', function ($route, ApiSvc) {
-					return ApiSvc.getOrgById($route.current.params.id)
+				Glossary: ['$route', 'Api.service', function ($route, ApiSvc) {
+					return ApiSvc.getGlossaryById($route.current.params.id)
 					.then( function (res) {
 						return res.data;
 					})
 				}],
-				CommonOrg: ['$route', 'Api.service', function ($route, ApiSvc) {
-					return ApiSvc.getCommonOrg()
+				CommonGlossary: ['$route', 'Api.service', function ($route, ApiSvc) {
+					return ApiSvc.getCommonGlossary()
 					.then( function (res) {
 						return res.data;
 					})
 				}],
 				Users: ['$route', 'Api.service', function ($route, ApiSvc) {
-					return ApiSvc.getOrgUsers($route.current.params.id, true)
+					return ApiSvc.getGlossaryUsers($route.current.params.id, true)
 					.then( function (res) {
 						return res.data;
 					})
 				}],
 			}
 		})
-		.when('/orgs', {
-			templateUrl: __templatePath + '/orgs.html',
-			controller: function ($scope, Orgs) {
-				$scope.orgs = Orgs;
+		.when('/glossaries', {
+			templateUrl: __templatePath + '/glossaries.html',
+			controller: function ($scope, Glossaries) {
+				$scope.glossaries = Glossaries;
 
 				$scope.filterChange = function (field) {
-					return Orgs.map( function (org) {
-						return org[field].name || org[field];
+					return Glossaries.map( function (glossary) {
+						return glossary[field].name || glossary[field];
 					});
 				};
 
@@ -520,8 +520,8 @@
 				];
 			}
 			, resolve: {
-				Orgs: ['Api.service', function (ApiSvc) {
-					return ApiSvc.getOrgs()
+				Glossaries: ['Api.service', function (ApiSvc) {
+					return ApiSvc.getGlossaries()
 					.then(function (res) {
 						return res.data;
 					});
@@ -600,36 +600,36 @@
 			return api.delete('/user/u/' + id);
 		};
 
-	////////////////// Organizations //////////////////
-		service.getOrgs = function () {
-			return api.get('/org/list');
+	////////////////// Glossaries //////////////////
+		service.getGlossaries = function () {
+			return api.get('/glossary/list');
 		};
-		service.getCommonOrg = function () {
-			return api.get('/org/getCommon');
+		service.getCommonGlossary = function () {
+			return api.get('/glossary/getCommon');
 		};
-		service.getOrgById = function (id) {
-			return api.get('/org/o/' + id);
-		};
-
-		service.createOrg = function (body) {
-			return api.post('/org/create', body);
+		service.getGlossaryById = function (id) {
+			return api.get('/glossary/g/' + id);
 		};
 
-		service.updateOrg = function (data) {
-			return api.post('/org/o/' + data._id, data);
+		service.createGlossary = function (body) {
+			return api.post('/glossary/create', body);
 		};
 
-		service.getOrgUsers = function (id, all) {
-			var url = '/org/members/' + id + ((!!all) ? '?all=true' : '');
+		service.updateGlossary = function (data) {
+			return api.post('/glossary/g/' + data._id, data);
+		};
+
+		service.getGlossaryUsers = function (id, all) {
+			var url = '/glossary/members/' + id + ((!!all) ? '?all=true' : '');
 			return api.get(url);
 		};
 
 		service.addMembers = function (id, members) {
-			return api.put('/org/members/' + id, members);
+			return api.put('/glossary/members/' + id, members);
 		};
 
 		service.updateMembers = function (id, members) {
-			return api.post('/org/members/' + id, members);
+			return api.post('/glossary/members/' + id, members);
 		};
 
 		return service;
@@ -673,15 +673,15 @@
 
 		var modal = true;
 
-		var ctrl = ['$scope', 'Org', 'CommonOrg', 'Members', 'Users', function ($scope, Org, CommonOrg, Members, Users) {
+		var ctrl = ['$scope', 'Glossary', 'CommonGlossary', 'Members', 'Users', function ($scope, Glossary, CommonGlossary, Members, Users) {
 			var vm = this;
 			var waitingOnResp = false;
 
 			vm.addExisting = null;
 			vm.modal = true;
 
-			vm.org = Org;
-			vm.commonOrg = CommonOrg;
+			vm.glossary = Glossary;
+			vm.commonGlossary = CommonGlossary;
 			vm.members = Members;
 			vm.users = Users;
 
@@ -708,19 +708,19 @@
 					var toAdd = vm.toAdd.map( function (user) {
 						return {
 							_id: user._id,
-							admin: user.isOrgAdmin || false,
-							qc: user.isOrgQC || false
+							admin: user.isGlossaryAdmin || false,
+							qc: user.isGlossaryQC || false
 						}
 					});
-					fn = ApiSvc.addMembers(vm.org._id, toAdd);
+					fn = ApiSvc.addMembers(vm.glossary._id, toAdd);
 				}
 				else if (vm.addExisting === false) {
 					var body = {};
 					body.email = vm.userForm.email.$modelValue;
 					body.username = vm.userForm.username.$modelValue;
 					body.fullName = vm.userForm.fullName.$modelValue;
-					body.organizations = [vm.org._id];
-					body.currentOrg = vm.org._id;
+					body.glossaries = [vm.glossary._id];
+					body.currentGlossary = vm.glossary._id;
 					body.password = vm.password;
 
 					fn = ApiSvc.createUser(body);
@@ -764,7 +764,7 @@
 
 		}];
 
-		service.openModal = function (scope, org, members, users) {
+		service.openModal = function (scope, glossary, members, users) {
 			msgCache = null;	// reset msgCache each time modal is opened
 
 			modal = $uibModal.open({
@@ -774,8 +774,8 @@
 				controllerAs: '$modal',
 				size: 'lg',
 				resolve: {
-					Org: function () { return scope.org || org; },
-					CommonOrg: function () { return scope.commonOrg || org; },
+					Glossary: function () { return scope.glossary || glossary; },
+					CommonGlossary: function () { return scope.commonGlossary || glossary; },
 					Members: function () { return scope.members || members; },
 					Users: function () { return scope.users || users; }
 				}
@@ -856,21 +856,21 @@
 		}
 	}])
 
-	.directive('rmOrgUser', function () {
+	.directive('rmGlossaryUser', function () {
 		return {
 			restrict: 'E',
-			template: '<span title="Remove user from this Glossary"><div class="btn btn-sm btn-primary" ng-click="__rmOrgUser(user)"><i class="fa fa-fw fa-lg fa-trash text-danger i-btn" style="color:white;"></i></div></span>',
+			template: '<span title="Remove user from this Glossary"><div class="btn btn-sm btn-primary" ng-click="__rmGlossaryUser(user)"><i class="fa fa-fw fa-lg fa-trash text-danger i-btn" style="color:white;"></i></div></span>',
 			scope: {
 				'user': '=user',
 				'form': '=form',
-				'orgid': '=orgid'
+				'glossaryid': '=glossaryid'
 			},
 			link: function (scope, elem) {
 				scope.user.marked = false;
-				scope.user.__orgsToRemove = [];
+				scope.user.__glossariesToRemove = [];
 				scope.form = scope.form || {$setDirty: angular.noop};
 
-				scope.__rmOrgUser = function (user) {
+				scope.__rmGlossaryUser = function (user) {
 					var tr = elem.parent().parent();
 
 					if (!scope.user.marked) {
@@ -881,7 +881,7 @@
 						elem.find('span').attr('title', 'Undo remove user from this Glossary');
 
 						scope.user.marked = true;
-						scope.user.__orgsToRemove.push(scope.orgid);
+						scope.user.__glossariesToRemove.push(scope.glossaryid);
 						scope.form.$setDirty();		// causes the save button to "unable disable" once a user has been marked for removal
 					}
 					else {
@@ -892,7 +892,7 @@
 						elem.find('span').attr('title', 'Remove user from this Glossary');
 
 						scope.user.marked = false;
-						scope.user.__orgsToRemove.splice(scope.user.__orgsToRemove.indexOf(scope.orgid));
+						scope.user.__glossariesToRemove.splice(scope.user.__glossariesToRemove.indexOf(scope.glossaryid));
 					}
 				}
 			}
@@ -906,16 +906,16 @@
 			templateUrl:  __templatePath + '/langSelect.html',
 			link: function ($scope, elem, attrs) {
 				$scope.addLang = function (code) {
-					if ($scope.org.langList.indexOf(code) == -1) {
-						$scope.org.langList.push(code);
-						$scope.orgForm.$setDirty();
+					if ($scope.glossary.langList.indexOf(code) == -1) {
+						$scope.glossary.langList.push(code);
+						$scope.glossaryForm.$setDirty();
 					}
 				};
 
 				$scope.rmLang = function (code) {
-					var index = $scope.org.langList.indexOf(code);
-					$scope.org.langList.splice(index, 1);
-					$scope.orgForm.$setDirty();
+					var index = $scope.glossary.langList.indexOf(code);
+					$scope.glossary.langList.splice(index, 1);
+					$scope.glossaryForm.$setDirty();
 				};
 			}
 		};

@@ -31,7 +31,7 @@ var Promise = require('bluebird');
 
 /* eslint-disable key-spacing, comma-style */
 var tagSchema = new Schema({
-	org: {type: Schema.Types.ObjectId, ref: 'Organization', required: true},
+	glossary: {type: Schema.Types.ObjectId, ref: 'Glossary', required: true},
     content: {type: String, required: true},
     entries: [{type: Schema.Types.ObjectId, ref: 'Entry'}]
 });
@@ -105,14 +105,14 @@ tagSchema.methods.removeOrReplaceFromEntries = function (replacementDoc) {
 	});
 };
 
-tagSchema.statics.findOrCreateTag = function (tag, orgId) {
+tagSchema.statics.findOrCreateTag = function (tag, glossaryId) {
 	var Tag = this;
 
-	return Tag.findOne({content: tag, org: orgId}).exec()
+	return Tag.findOne({content: tag, glossary: glossaryId}).exec()
 	.then( function (tagDoc) {
 		if (tagDoc == null) {
 
-			return Tag.create({content: tag, org: orgId});
+			return Tag.create({content: tag, glossary: glossaryId});
 		}else {
             return tagDoc;
         }

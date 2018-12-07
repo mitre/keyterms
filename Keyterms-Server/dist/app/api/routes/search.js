@@ -34,7 +34,7 @@ var NLP = require('../../utils/nlpServices');
 var elastic = require('../../utils/elasticSearch');
 var log = require('../../utils/logger').logger;
 var Entry = mongoose.model('Entry');
-var Organization = mongoose.model('Organization');
+var Glossary = mongoose.model('Glossary');
 var escape = require('escape-html');
 
 
@@ -181,40 +181,40 @@ var processMongoQuery = function (entries, entryDict) {
 
 // Optional parameters:
 // exact=true|false, default false
-// org=org.abbrev, no default
-// Abstraction of "default", organizational Entry search
-var executeOrgSearch = function (req) {
-	log.info("querying mongo for terms with: '" + req.ktSearchTerm + "' in organization: " + req.org.name);
+// glossary=glossary.abbrev, no default
+// Abstraction of "default", Glossary Entry search
+var executeGlossarySearch = function (req) {
+	log.info("querying mongo for terms with: '" + req.ktSearchTerm + "' in glossary: " + req.glossary.name);
 	console.log("test");
 	var exactParam = (req.query.exact === 'true') || false;
-	var orgParam = req.query.org || null;
+	var glossaryParam = req.query.glossary || null;
 
 	return Promise.resolve()
 	.then( function () {
-		// only query mongo for Organization if searching outside of current org
-		if (orgParam === null) {
-			return req.org;
+		// only query mongo for Glossary if searching outside of current glossary
+		if (glossaryParam === null) {
+			return req.glossary;
 		} else {
-			return Organization.findOne({abbreviation: orgParam}).lean().exec()
-			.then( function (org) {
-				// check to see if the org is globally blocked
-				if (org.globalBlock) {
-					throw new Error('Cannot query globally blocked organizations from outside that organization');
+			return Glossary.findOne({abbreviation: glossaryParam}).lean().exec()
+			.then( function (glossary) {
+				// check to see if the glossary is globally blocked
+				if (glossary.globalBlock) {
+					throw new Error('Cannot query globally blocked glossaries from outside that glossary');
 				} else {
-					return org;
+					return glossary;
 				}
 			});
 		}
 	})
-	.then( function (org) {
+	.then( function (glossary) {
 
-		return elastic.searchOrgIndex(req.ktSearchTerm, req.langCode, org._id, exactParam);
+		return elastic.searchGlossaryIndex(req.ktSearchTerm, req.langCode, glossary._id, exactParam);
 	})
 	.then( function (resp) {
 		//console.log("Response: ", resp);
 		var entryIds = getIdDict(resp);
 
-		var searchQuery = { _id: {$in: Object.keys(entryIds)}, viewScope: {$in: ['any', 'org']} };
+		var searchQuery = { _id: {$in: Object.keys(entryIds)}, viewScope: {$in: ['any', 'glossary']} };
 
         return Entry.findAndPopulateForGui(searchQuery)
 		.then( function (entries) {
@@ -222,19 +222,19 @@ var executeOrgSearch = function (req) {
 		});
 	});
 };
-exports.executeOrgSearch = executeOrgSearch;
+exports.executeGlossarySearch = executeGlossarySearch;
 
 var executeDefaultSearch = function (req) {
 	log.info(`executing default search for terms with ${ req.ktSearchTerm }`);
 
 	var glossScope = req.glossScope.value;
-	var userOrgs = req.user.organizations;
-	var userCurrentOrg = req.user.currentOrg;
+	var userGlossaries = req.user.glossaries;
+	var userCurrentGlossary = req.user.currentGlossary;
 
 	var exactParam = (req.query.exact === 'true') || false;
 
-	// Find all Organization's to check for the global block flag
-	return Organization.find({globalBlock: true}).select('globalBlock').lean().exec()
+	// Find all Glossaries to check for the global block flag
+	return Glossary.find({globalBlock: true}).select('globalBlock').lean().exec()
 	.then( function (blocked) {
 		// Execute elastic query for Entries
 		return elastic.searchDefault(req.ktSearchTerm, req.langCode, exactParam)
@@ -250,8 +250,8 @@ var executeDefaultSearch = function (req) {
 						_id: {$in: Object.keys(entryIds)},
 						isDraft: false,
                         $or: [
-                            {org: req.org._id, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
-                            {org: req.org._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
+                            {glossary: req.glossary._id, viewScope: {$in: ['any', 'glossary']}},				// Entry is in user's glossary and viewScope is at least "this glossary"
+                            {glossary: req.glossary._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active glossary
                         ]
 					};
 					break;
@@ -262,8 +262,8 @@ var executeDefaultSearch = function (req) {
                         _id: {$in: Object.keys(entryIds)},
                         isDraft: false,
                         $or: [
-                            {org: {$in: userOrgs}, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
-                            {org: {$in: userOrgs}, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
+                            {glossary: {$in: userGlossaries}, viewScope: {$in: ['any', 'glossary']}},				// Entry is in user's glossary and viewScope is at least "this glossary"
+                            {glossary: {$in: userGlossaries}, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active glossary
                         ]
                     };
                     break;
@@ -274,9 +274,9 @@ var executeDefaultSearch = function (req) {
                         _id: {$in: Object.keys(entryIds)},										// Entry has to have been returned from Elastic
                         isDraft: false,														// Never return Entries that are Drafts
                         $or: [
-                            {org: {$nin: blocked}, viewScope: 'any'},							// Entry is in a non-blocked org and viewScope is anyone
-                            {org: req.org._id, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
-                            {org: req.org._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
+                            {glossary: {$nin: blocked}, viewScope: 'any'},							// Entry is in a non-blocked glossary and viewScope is anyone
+                            {glossary: req.glossary._id, viewScope: {$in: ['any', 'glossary']}},				// Entry is in user's glossary and viewScope is at least "this glossary"
+                            {glossary: req.glossary._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active glossary
                         ]
                     };
                     break;
@@ -290,9 +290,9 @@ var executeDefaultSearch = function (req) {
 			// 	_id: {$in: Object.keys(entryIds)},										// Entry has to have been returned from Elastic
 			// 	 isDraft: false,														// Never return Entries that are Drafts
 			// 	 $or: [
-			// 		{org: {$nin: blocked}, viewScope: 'any'},							// Entry is in a non-blocked org and viewScope is anyone
-			// 		 {org: req.org._id, viewScope: {$in: ['any', 'org']}},				// Entry is in user's org and viewScope is at least "this org"
-			// 		 {org: req.org._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active org
+			// 		{glossary: {$nin: blocked}, viewScope: 'any'},							// Entry is in a non-blocked glossary and viewScope is anyone
+			// 		 {glossary: req.glossary._id, viewScope: {$in: ['any', 'glossary']}},				// Entry is in user's glossary and viewScope is at least "this glossary"
+			// 		 {glossary: req.glossary._id, createdBy: req.user._id, viewScope: 'me'}		// Entry is a personal term associated in active glossary
 			// 	]
 			// };
 
@@ -322,25 +322,25 @@ var executeDefaultSearch = function (req) {
 };
 exports.executeDefaultSearch = executeDefaultSearch;
 
-// This is the restful endpoint version of "org" search on an user's organization
-var searchOrgEntries = function (req, res, next) {
+// This is the restful endpoint version of "glossary" search on an user's glossary
+var searchGlossaryEntries = function (req, res, next) {
 
-	executeOrgSearch(req)
+	executeGlossarySearch(req)
 	.then( function (docs) {
 
 		res.json(docs);
 	})
 	.catch(next);
 };
-exports.searchOrgEntries = searchOrgEntries;
+exports.searchGlossaryEntries = searchGlossaryEntries;
 
-// This is the restful endpoint version of "org" search on an user's organization
+// This is the restful endpoint version of "glossary" search on an user's glossary
 // This is currently the default search handler
 var searchSharedEntries = function (req, res, next) {
 
 	executeDefaultSearch(req)
 	.then( function (docs) {
-        
+
 		res.json(docs);
 	})
 	.catch(next);

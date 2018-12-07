@@ -33,7 +33,7 @@ var log = inc.log;
 // NOTE: Abstract Class
 class xmlParser extends ImporterBase {
 	constructor (req, base) {
-		super(req.org, base);
+		super(req.glossary, base);
 
 		log.verbose('Initializing xml Parser...');
 

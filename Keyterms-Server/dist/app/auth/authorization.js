@@ -28,7 +28,7 @@
 var log = require('../utils/logger').logger;
 
 var mongoose = require('mongoose');
-var Org = mongoose.model('Organization');
+var Glossary = mongoose.model('Glossary');
 
 exports.ensureAdmin = function(req, res, next) {
 	// ensure authenticated user exists with admin role,
@@ -41,35 +41,35 @@ exports.ensureAdmin = function(req, res, next) {
 	}
 };
 
-exports.ensureOrgAdmin = function(req, res, next){
-	//check the organization to see if the user is an admin
-	if(req.org.admins.indexOf(req.user._id) > -1){
+exports.ensureGlossaryAdmin = function(req, res, next){
+	//check the Glossary to see if the user is an admin
+	if(req.glossary.admins.indexOf(req.user._id) > -1){
 		return next();
 	}
 	else{
-		log.warn('ensureOrgAdmin threw 403');
+		log.warn('ensureGlossaryAdmin threw 403');
 		return res.sendStatus(403);
 	}
 };
 
-exports.ensureOrgQc = function(req, res, next){
+exports.ensureGlossaryQc = function(req, res, next){
 
-	if(req.org.qcs.indexOf(req.user._id) > -1){
+	if(req.glossary.qcs.indexOf(req.user._id) > -1){
 		return next();
 	}
 	else{
-		log.warn('ensureOrgQc threw 403');
+		log.warn('ensureGlossaryQc threw 403');
 		return res.sendStatus(403);
 	}
 };
 
-exports.ensureSysAdminOrOrgAdmin = function (req, res, next) {
+exports.ensureSysAdminOrGlossaryAdmin = function (req, res, next) {
 	// Check if sys admin
 	if (!!req.user && req.user.isAdmin) {
         return next();
     }
-	// check if org admin
-	else if (req.org.admins.indexOf(req.user._id) > -1) {
+	// check if glossary admin
+	else if (req.glossary.admins.indexOf(req.user._id) > -1) {
         return next();
     }
 	else {
@@ -78,16 +78,16 @@ exports.ensureSysAdminOrOrgAdmin = function (req, res, next) {
 };
 
 exports.ensureQcOfAny = function (req, res, next) {
-	Org.find({_id: {$in: req.user.organizations}}).select('name abbreviation qcs').exec()
-	.then( function (orgDocs) {
+	Glossary.find({_id: {$in: req.user.glossaries}}).select('name abbreviation qcs').exec()
+	.then( function (glossaryDocs) {
 		var isQC = false;
 		var qcOf = [];
 
-		for (let org of orgDocs) {
+		for (let glossary of glossaryDocs) {
 
-			if (org.qcs.indexOf(req.user._id) !== -1) {
+			if (glossary.qcs.indexOf(req.user._id) !== -1) {
 				isQC = true;
-				qcOf.push(org);
+				qcOf.push(glossary);
 			}
 		}
 
