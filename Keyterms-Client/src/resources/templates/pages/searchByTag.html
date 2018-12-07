@@ -26,6 +26,9 @@
 <style>
     .muted { color: #555555; }
     #tag-button {margin-right: 5px}
+    button.mr {
+        margin-right: 5px;
+    }
 </style>
 <div id="search-by-tag" class="template-container">
     <span class="h3">Showing results for: {{:: tag}}</span>
@@ -39,6 +42,7 @@
             <!--<button class="btn btn-primary btn-sm" ng-click="selectAllBtn.onClick()">{{ selectAllBtn.name }}</button>-->
             <button class="btn btn-primary btn-sm pull-right" ng-click="openDeleteModal()" uib-tooltip="Nominate selected terms to be deleted" tooltip-animation="false" tooltip-placement="bottom">Delete</button>
             <button class="btn btn-primary btn-sm pull-right" id="tag-button" ng-click="openTagModal()" uib-tooltip="Nominate selected terms to have new tags" tooltip-animation="false" tooltip-placement="bottom">Tag</button>
+            <button class="btn btn-primary btn-sm pull-right mr" ng-click="exportSelected()" uib-tooltip="Export selected terms" tooltip-animation="false" tooltip-placement="bottom">Export</button>
         </div>
     </div>
     <div id="results-container" class="term-list-container">

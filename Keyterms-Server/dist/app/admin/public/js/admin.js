@@ -293,11 +293,21 @@
 				$scope.title = 'Create Glossary';
 				$scope.button = 'Create';
 				$scope.showUsers = false;
+				$scope.error = false;
+				$scope.duplicateError = false;
 
 				$scope.submit = function () {
 					ApiSvc.createGlossary(angular.copy($scope.glossary))
 					.then( function (resp) {
 						$location.path('/glossaries');
+					}).catch(function (resp) {
+						console.log(resp);
+						if (!!resp.status && resp.status === 409) {
+							$scope.duplicateError = true;
+						} else {
+							$scope.error = true;
+						}
+
 					});
 				};
 
