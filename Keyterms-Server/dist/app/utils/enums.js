@@ -70,6 +70,7 @@ exports.noteTypesINFO = [
     { value: 'general', 	  name: 'General',        	  desc: 'general type of overview note'},
     { value: 'example', 	  name: 'Example',        	  desc: 'example of how the term is used'},
 	{ value: 'etymology',     name: 'Etymology',          desc:  'historical derivation information'},
+	{ value: 'form', name: 'Form', desc: 'type of word form, e.g. acronym, abbreviation, short form'},
 	{ value: 'formality',     name: 'Formality',         desc: 'degree of formality, e.g. formal, academic, vernacular, vulgar'},
 	{ value: 'function',      name: 'Function',          desc: 'function of the Entry or Term'},
     { value: 'meaning', 	  name: 'Meaning',        	  desc: 'definition'},
