@@ -146,7 +146,7 @@ describe("06-01 Testing Tag API", function(){
         .expect(200)
         .expect('Content-Type', /json/)
 		.expect(function(res) {
-			expect(res.body).to.have.property('content', 'TEST TAG RENAMED');
+			expect(res.body).to.have.property('content', 'test tag renamed');
 		})
         .end(function(err, res) {
             done(err);

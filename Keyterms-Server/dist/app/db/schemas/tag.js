@@ -114,6 +114,7 @@ tagSchema.statics.findOrCreateTag = function (tag, glossaryId) {
 		if (tagDoc == null) {
 
 			tag = normalizeTag(tag);
+
 			return Tag.create({content: tag, glossary: glossaryId});
 		}else {
             return tagDoc;
@@ -127,10 +128,21 @@ var normalizeTag = function(tag) {
 	//makes tag lowercase and removes leading and trailing whitespace
 	tag = tag.toLocaleLowerCase().trim();
 
-	tag = tag.replace(/(^[^a-zA-Z]+)|([^a-zA-Z]+$)/g, '');
-    // tag = tag.replace(/[^a-zA-Z]+$/, '');
-    tag = tag.replace(/[\s*\-\s*]+/, '-');
-    // tag = tag.replace(/\s+/g, '');
+	//removes any leading or trailing punctuation
+	tag = tag.replace(/(^[^a-zA-Z0-9]+)|([^a-zA-Z0-9]+$)/g, '');
+
+	//removes whitespaces around hyphens
+    tag = tag.replace(/(\s*\-\s*)+/, '-');
+
+	//removes whitespaces aroung underscores
+    tag = tag.replace(/(\s*\_\s*)+/, '_');
+
+    //replaces consecutive whitespaces with one whitespace
+	tag = tag.replace(/(\s{2})+/, ' ');
+
+	//removes nonprintable, nonspacing characters
+	tag = tag.replace(/([^ -~]+)/g, '');
+
 
     return tag;
 };
