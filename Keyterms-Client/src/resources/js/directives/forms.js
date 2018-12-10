@@ -358,11 +358,19 @@ app.directive('entrySubmit', ['$route', '$uibModal', 'globals', 'keytermsClient.
 			scope: {
 				entryData: '=entry',
 				nav: '=nav',
-				entryForm: '=entryForm'
+				entryForm: '=entryForm',
 			},
 			templateUrl: 'resources/templates/widgets/entrySubmit.html',
 			controller: ['$scope', function ($scope) {
 				$scope.globals = globals;
+
+				$scope.showApproverComments = false;
+				$scope.commentsLinkText = 'Add Approver Comments';
+
+				$scope.toggleApproverComments = function() {
+					$scope.commentsLinkText = $scope.showApproverComments ? 'Add Approver Comments' : 'Hide Approver Comments';
+					$scope.showApproverComments = !$scope.showApproverComments;
+				}
 
 				$scope.commentsTooltip = 'Comments are only visible within the Nomination workflow. ' +
 					"This field is ignored if 'Nominate' is not selected";
@@ -718,6 +726,8 @@ app.directive('entrySubmit', ['$route', '$uibModal', 'globals', 'keytermsClient.
 					$scope.entryData.viewScope = null;
 					clearDisables();
 				};
+
+
 			}]
 		}
 	}]);
