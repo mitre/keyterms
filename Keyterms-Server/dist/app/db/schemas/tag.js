@@ -108,12 +108,10 @@ tagSchema.methods.removeOrReplaceFromEntries = function (replacementDoc) {
 
 tagSchema.statics.findOrCreateTag = function (tag, glossaryId) {
 	var Tag = this;
-
+    tag = normalizeTag(tag);
 	return Tag.findOne({content: tag, glossary: glossaryId}).exec()
 	.then( function (tagDoc) {
 		if (tagDoc == null) {
-
-			tag = normalizeTag(tag);
 
 			return Tag.create({content: tag, glossary: glossaryId});
 		}else {
