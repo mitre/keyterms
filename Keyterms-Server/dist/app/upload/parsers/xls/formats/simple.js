@@ -53,7 +53,7 @@ class simple extends xlsParser {
 
        return Promise.all(promises)
         .then( function (res) {
-
+            console.log("testing here");
             return new Promise( function (resolve) {
 
                 self.ws.eachRow( function (row, rowNum) {
@@ -104,6 +104,12 @@ class simple extends xlsParser {
 
                                 entry.notes.push(note);
                             }
+                        }
+
+                        //set entry type if one is given. 'term' is default
+                        else if (header.toLowerCase().includes("EntryType")) {
+                            entry.type = extract(header);
+
                         }
 
                         //------ TERM LOGIC ---------

@@ -41,10 +41,20 @@ class XLS2D extends xlsParser {
                 // handy shortcut function that references the header map
                 // and returns the value of the row's cell via column name
                 var extract = function (field) {
-                    return row.values[self.headerPos[field]];
+
+                    if(field.toLocaleLowerCase().includes("note")) {
+                        return row.values[self.headerPos[field]];
+                    }
+
+                    else {
+                        return row.values[self.orderedHeaders[field]];
+                    }
+
                 };
 
-                var entry = self.entries[extract(self.headers[1])];
+                //--------------TESTING DYNAMIC HEADER LOCATION STARTS HERE-----------------
+
+                var entry = self.entries[extract("entry")];
                 if (entry === undefined) {
                     // this means a new entry is being processed
 
@@ -56,41 +66,42 @@ class XLS2D extends xlsParser {
                     termMap = {}; // reset term map
                     entry = self.createEntry();
 
-                    lastEntryId = extract(self.headers[1]);
+                    lastEntryId = extract("entry");
                 }
 
-                switch (extract(self.headers[2])) {
-                    case 'TERM':
-                    case 'Term':
+                var switchHeader = extract("field").toLocaleLowerCase();
+                if (switchHeader.includes('_')) {
+                    switchHeader = switchHeader.substr(0, switchHeader.indexOf('_'));
+                }
+
+                switch (switchHeader) {
                     case 'term':
+
                         var term = {};
-                        term.termText = extract(self.headers[3]);
-                        term.langCode = extract(self.headers[5]);
-                        term.variety = extract(self.headers[6]);
-                        term.script = extract(self.headers[7]);
+                        term.termText = extract("value");
+                        term.langCode = extract("language");
+                        term.variety = extract("variety");
+                        term.script = extract("script");
 
                         var tempArr = [];
 
-                        if( extract(self.headers[10]) ) {
-                            var posNote = {};
-                            posNote.text = extract(self.headers[10]);
-                            posNote.type = 'pos';
-                            tempArr.push(posNote);
-                        }
+                        self.orderedHeaders["notes"].forEach( function (header) {
 
-                        if (extract(self.headers[11])) {
-                            var exampleNote = {};
-                            exampleNote.text = extract(self.headers[11]);
-                            exampleNote.type = 'example';
-                            tempArr.push(exampleNote);
-                        }
+                            if(extract(header)) {
 
-                        if (extract(self.headers[12])) {
-                            var usageNote = {};
-                            usageNote.text = extract(self.headers[12]);
-                            usageNote.type = 'usage';
-                            tempArr.push(usageNote);
-                        }
+                                var termNote = {};
+                                termNote.text = extract(header);
+                                if (header.includes("_")) {
+                                    termNote.type = header.slice(header.indexOf("_") + 1).toLowerCase();
+                                }
+
+                                else {
+                                    termNote.type = 'general';
+                                }
+
+                                tempArr.push(termNote);
+                            }
+                        });
 
                         if ( tempArr.length > 0) {
                             term.notes = [];
@@ -104,27 +115,35 @@ class XLS2D extends xlsParser {
                         termMap[entry.terms.length] = entry.terms[entry.terms.length - 1];
 
                         // is linked?
-                        if (!!extract(self.headers[8])) {
+                        if (!!extract("linkedFrom")) {
                             var link = {};
                             link.lhs = entry.terms[entry.terms.length - 1];
-                            link.rhs = termMap[extract(self.headers[8])];
-                            link.relationType = extract(self.headers[9]);
+                            link.rhs = termMap[extract("linkedFrom")];
+                            link.relationType = extract("linkType");
 
                             entry.termLinks.push(link);
                         }
 
                         break;
-                    case 'TAG':
-                    case 'Tag':
+
 					case 'tag':
-                        entry.tags.push(extract(self.headers[3]));
+                        entry.tags.push(extract("value"));
 
                         break;
-                    case 'NOTE':
-                    case 'Note':
+                    case 'note':
+                        console.log("ARE WE HERE");
                         var note = {};
-                        note.text = extract(self.headers[3]);
-                        note.type = extract(self.headers[10]) || 'general';
+                        var header = extract("field");
+                        note.text = extract("value");
+
+                        if (header.includes("_")) {
+                            note.type = header.slice(header.indexOf("_") + 1).toLowerCase();
+                        }
+
+                        else {
+                            note.type = 'general';
+                        }
+
                         entry.notes.push(note);
 
                         break;
@@ -133,7 +152,7 @@ class XLS2D extends xlsParser {
                 }
 
                 // update entry within entries map
-                self.entries[extract(self.headers[1])] = entry;
+                self.entries[extract("entry")] = entry;
             });
 
             self.queueLastEntry(lastEntryId, resolve);
