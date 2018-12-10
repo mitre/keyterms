@@ -56,6 +56,7 @@ tagSchema.methods.removeEntryFromTag = function (entryId) {
 };
 
 tagSchema.methods.rename = function (newTag) {
+	newTag = normalizeTag(newTag);
 	this.content = newTag;
 	return this.save();
 };
@@ -112,11 +113,26 @@ tagSchema.statics.findOrCreateTag = function (tag, glossaryId) {
 	.then( function (tagDoc) {
 		if (tagDoc == null) {
 
+			tag = normalizeTag(tag);
 			return Tag.create({content: tag, glossary: glossaryId});
 		}else {
             return tagDoc;
         }
 	});
+};
+
+var normalizeTag = function(tag) {
+	//TAG normalize logic here. String trimming, etc
+
+	//makes tag lowercase and removes leading and trailing whitespace
+	tag = tag.toLocaleLowerCase().trim();
+
+	tag = tag.replace(/(^[^a-zA-Z]+)|([^a-zA-Z]+$)/g, '');
+    // tag = tag.replace(/[^a-zA-Z]+$/, '');
+    tag = tag.replace(/[\s*\-\s*]+/, '-');
+    // tag = tag.replace(/\s+/g, '');
+
+    return tag;
 };
 
 exports.tagSchema = tagSchema;
