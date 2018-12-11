@@ -50,8 +50,14 @@ exports.create = function(req, res, next){
         res.status(201).json(result);
     })
 	.catch(function (err) {
-    	err.status = 400;
-		next(err);
+		log.debug(err);
+		if (!!err.code && err.code === 11000) {
+			log.error('Glossary Name & Glossary Abbreviation must be unique.');
+			res.sendStatus(409);
+		} else {
+			err.status = 400;
+			next(err);
+		}
 	});
 };
 

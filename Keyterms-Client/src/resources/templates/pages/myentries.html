@@ -22,13 +22,17 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
+<style>
+	button.mr {
+		margin-right: 5px;
+	}
+</style>
 <div id="user-terms" class="template-container">
 	<div class="control-button-container" ng-if="filteredResults.length > 0">
-		<button class="btn btn-primary btn-sm" ng-click="selectAllBtn.onClick()">{{ selectAllBtn.name }}</button>
-		<button class="btn btn-primary btn-sm" ng-disabled="!anyChecked()" ng-click="openTagModal(true)" uib-tooltip="Approve selected terms to have new tags" tooltip-animation="false" tooltip-placement="bottom">Tag</button>
-		<button class="btn btn-primary btn-sm" ng-disabled="!anyChecked()" ng-click="openDeleteModal(null, true)" uib-tooltip="Approve selected terms to be deleted" tooltip-animation="false" tooltip-placement="bottom">Delete</button>
-		<button class="btn btn-primary btn-sm" ng-disabled="!anyChecked()" ng-click="exportSelected()" uib-tooltip="Export selected terms" tooltip-animation="false" tooltip-placement="bottom">Export</button>
+		<select-all filtered-results="filteredResults" search-results="searchResults"></select-all>
+		<button class="btn btn-primary btn-sm pull-right" ng-disabled="!anyChecked()" ng-click="openTagModal(true)" uib-tooltip="Approve selected terms to have new tags" tooltip-animation="false" tooltip-placement="bottom">Tag</button>
+		<button class="btn btn-primary btn-sm pull-right mr" ng-disabled="!anyChecked()" ng-click="openDeleteModal(null, true)" uib-tooltip="Approve selected terms to be deleted" tooltip-animation="false" tooltip-placement="bottom">Delete</button>
+		<button class="btn btn-primary btn-sm pull-right mr" ng-disabled="!anyChecked()" ng-click="exportSelected()" uib-tooltip="Export selected terms" tooltip-animation="false" tooltip-placement="bottom">Export</button>
 	</div>
 	<div id="user-terms-container" class="term-list-container selectable" >
 		<display-entry-list entries="filteredResults"></display-entry-list>

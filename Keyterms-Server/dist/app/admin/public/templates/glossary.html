@@ -26,6 +26,17 @@
 <h1 class="page-title">{{ ::title }}</h1>
 <div class="well">
     <form class="form-horizontal" name="glossaryForm" ng-submit="submit()" novalidate ng-switch="showUsers">
+        <div class="form-group" ng-if="error">
+            <div class="col-sm-6 col-sm-offset-3 text-danger">
+                Sorry, an error occurred during Glossary Creation.
+            </div>
+        </div>
+<!--Duplicate Name/Abbrv Error-->
+        <div class="form-group" ng-if="duplicateError">
+            <div class="col-sm-6 col-sm-offset-3 text-danger">
+                Glossaries must have unique names and abbreviations.
+            </div>
+        </div>
 <!-- Name -->
         <div class="form-group">
             <label class="col-sm-3 control-label">Name</label>

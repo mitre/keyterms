@@ -191,6 +191,7 @@ app.config(function ($routeProvider, $locationProvider, $httpProvider) {
 			$scope.selectAllBtn = fnFactory.controlButtons.selectAllBtn($scope);
 			$scope.openTagModal = fnFactory.controlButtons.openBulkTagModal($scope);
 			$scope.openDeleteModal = fnFactory.controlButtons.openBulkDeleteModal($scope, '/tags');
+			$scope.exportSelected = fnFactory.controlButtons.exportSelected($scope);
 
 			//////////////// Init Sequence ////////////////////////////
 			$scope.paginationWatcher = angular.noop; // init as function which does nothing
