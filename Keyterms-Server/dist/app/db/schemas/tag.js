@@ -129,6 +129,9 @@ var normalizeTag = function(tag) {
 	//removes any leading or trailing punctuation
 	tag = tag.replace(/(^[^a-zA-Z0-9]+)|([^a-zA-Z0-9]+$)/g, '');
 
+	//replaces em-dashes with regular -
+    tag = tag.replace(/\u2013|\u2014/g, "-");
+
 	//removes whitespaces around hyphens
     tag = tag.replace(/(\s*\-\s*)+/, '-');
 
@@ -140,7 +143,6 @@ var normalizeTag = function(tag) {
 
 	//removes nonprintable, nonspacing characters
 	tag = tag.replace(/([^ -~]+)/g, '');
-
 
     return tag;
 };
