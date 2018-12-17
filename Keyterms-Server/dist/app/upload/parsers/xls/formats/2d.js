@@ -131,7 +131,6 @@ class XLS2D extends xlsParser {
 
                         break;
                     case 'note':
-                        console.log("ARE WE HERE");
                         var note = {};
                         var header = extract("field");
                         note.text = extract("value");

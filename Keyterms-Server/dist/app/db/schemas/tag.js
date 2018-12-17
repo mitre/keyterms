@@ -56,6 +56,7 @@ tagSchema.methods.removeEntryFromTag = function (entryId) {
 };
 
 tagSchema.methods.rename = function (newTag) {
+	newTag = normalizeTag(newTag);
 	this.content = newTag;
 	return this.save();
 };
@@ -107,7 +108,7 @@ tagSchema.methods.removeOrReplaceFromEntries = function (replacementDoc) {
 
 tagSchema.statics.findOrCreateTag = function (tag, glossaryId) {
 	var Tag = this;
-
+    tag = normalizeTag(tag);
 	return Tag.findOne({content: tag, glossary: glossaryId}).exec()
 	.then( function (tagDoc) {
 		if (tagDoc == null) {
@@ -117,6 +118,33 @@ tagSchema.statics.findOrCreateTag = function (tag, glossaryId) {
             return tagDoc;
         }
 	});
+};
+
+var normalizeTag = function(tag) {
+	//TAG normalize logic here. String trimming, etc
+
+	//makes tag lowercase and removes leading and trailing whitespace
+	tag = tag.toLocaleLowerCase().trim();
+
+	//removes any leading or trailing punctuation
+	tag = tag.replace(/(^[^a-zA-Z0-9]+)|([^a-zA-Z0-9]+$)/g, '');
+
+	//replaces em-dashes with regular -
+    tag = tag.replace(/\u2013|\u2014/g, "-");
+
+	//removes whitespaces around hyphens
+    tag = tag.replace(/(\s*\-\s*)+/, '-');
+
+	//removes whitespaces aroung underscores
+    tag = tag.replace(/(\s*\_\s*)+/, '_');
+
+    //replaces consecutive whitespaces with one whitespace
+	tag = tag.replace(/(\s{2})+/, ' ');
+
+	//removes nonprintable, nonspacing characters
+	tag = tag.replace(/([^ -~]+)/g, '');
+
+    return tag;
 };
 
 exports.tagSchema = tagSchema;
