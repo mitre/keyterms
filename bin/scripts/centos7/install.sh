@@ -159,24 +159,26 @@ case "$clientchoice" in
         echo "... KeyTerms client deployed to $CLIENT_TOMCAT_DIR"
         echo "USER ATTENTION REQUIRED: If you are having problems with the client under tomcat, please verify the server location setting in $CLIENT_TOMCAT_DIR/config.js"
 
-        echo ' '; read -p 'Would you like to install a script in the ROOT webapp to redirect to the KeyTerms client? (y|N) '
-        y|Y)
-            echo '... backing up ROOT webapp ...'
-            ROOT_DIR=$CATALINA_HOME/webapps/ROOT
-            if ! [ -d $CATALINA_HOME/webapps/ROOT_BAK ]; then
-                mv $CATALINA_HOME/webapps/ROOT $CATALINA_HOME/webapps/ROOT_BAK
-            fi
-            echo '... configuring ROOT for KeyTerms redirect ...'
-            cp $CONF_DIR/root-default-web.xml $ROOT_DIR/WEB-INF/web.xml
-            if [ -e $ROOT_DIR/index.html ]; then
-                rm $ROOT_DIR/index.html
-            fi
-            cp $CONF_DIR/root-redirect-index.jsp $ROOT_DIR/index.jsp
-            echo '... done. ROOT will now redirect to KeyTerms'
-            ;;
-        *)
-            echo '... not installing redirect. ROOT webapp will remain accessible.'
-            ;;
+        echo ' '; read -p 'Would you like to install a script in the ROOT webapp to redirect to the KeyTerms client? (y|N) ' redirectchoice
+        case $redirectchoice in
+            y|Y)
+                echo '... backing up ROOT webapp ...'
+                ROOT_DIR=$CATALINA_HOME/webapps/ROOT
+                if ! [ -d $CATALINA_HOME/webapps/ROOT_BAK ]; then
+                    mv $CATALINA_HOME/webapps/ROOT $CATALINA_HOME/webapps/ROOT_BAK
+                fi
+                echo '... configuring ROOT for KeyTerms redirect ...'
+                cp $CONF_DIR/root-default-web.xml $ROOT_DIR/WEB-INF/web.xml
+                if [ -e $ROOT_DIR/index.html ]; then
+                    rm $ROOT_DIR/index.html
+                fi
+                cp $CONF_DIR/root-redirect-index.jsp $ROOT_DIR/index.jsp
+                echo '... done. ROOT will now redirect to KeyTerms'
+                ;;
+            *)
+                echo '... not installing redirect. ROOT webapp will remain accessible.'
+                ;;
+        esac
         ;;
 esac
 
