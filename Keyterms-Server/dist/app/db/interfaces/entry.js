@@ -224,7 +224,7 @@ exports.removeEntry = removeEntry;
 
 var processNotesDelta = function (item, delta) {
 	// removes all notes which should be deleted
-	item.notes = item.notes.filter(n => delta.notes.del.indexOf(n._id) === -1);
+	item.notes = item.notes.filter(n => delta.notes.del.indexOf(n._id.toString()) === -1);
 
 	// adds notes
 	item.notes = item.notes.concat(delta.notes.add || []);
