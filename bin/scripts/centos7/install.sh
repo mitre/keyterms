@@ -165,7 +165,7 @@ case "$clientchoice" in
                 echo '... backing up ROOT webapp ...'
                 ROOT_DIR=$CATALINA_HOME/webapps/ROOT
                 if ! [ -d $CATALINA_HOME/webapps/ROOT_BAK ]; then
-                    mv $CATALINA_HOME/webapps/ROOT $CATALINA_HOME/webapps/ROOT_BAK
+                    cp -R $CATALINA_HOME/webapps/ROOT $CATALINA_HOME/webapps/ROOT_BAK
                 fi
                 echo '... configuring ROOT for KeyTerms redirect ...'
                 cp $CONF_DIR/root-default-web.xml $ROOT_DIR/WEB-INF/web.xml
