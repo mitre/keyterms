@@ -25,11 +25,11 @@
 
 (function() {
 	var __templatePath = 'static/templates';
-
+	
 	angular.module('baas-admin' , ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
 
 	.config( function ($routeProvider, $locationProvider, $httpProvider) {
-
+	
 		$routeProvider
 		.when('/', {
 			redirectTo: '/home'
@@ -337,7 +337,7 @@
 		})
 		.when('/glossary/:id', {
 			templateUrl: __templatePath + '/glossary.html',
-			controller: ['$scope', '$location', '$sce', 'Api.service', 'Glossary', 'LangCodes', 'Users', function ($scope, $location, $sce, ApiSvc, Glossary, LangCodes, Users) {
+			controller: ['$scope', '$location', '$sce', 'Api.service', 'Glossary', 'LangCodes', 'Users', 'User.service', function ($scope, $location, $sce, ApiSvc, Glossary, LangCodes, Users, UserSvc) {
 				$scope.glossary = angular.merge({}, Glossary);
 				$scope.users = Users;
 				$scope.users.forEach( function (user) {
@@ -394,6 +394,17 @@
 					.then( function (resp) {
 						return ApiSvc.updateMembers($scope.glossary._id, $scope.users);
 					})
+					.then( function (resp) {
+						$location.path('/glossaries');
+					});
+				};
+				var isAuthorizedToDelete = UserSvc.getUser().isAdmin;
+				$scope.isDeletable = isAuthorizedToDelete;
+//				var areGlossariesDeletable = glossaryIsDeletable.appConfig;
+//				$scope.isDeletable = areGlossariesDeletable && isAuthorizedToDelete;
+
+				$scope.deleteThisGlossary = function () {
+					ApiSvc.deleteGlossary($scope.glossary)
 					.then( function (resp) {
 						$location.path('/glossaries');
 					});
@@ -629,6 +640,10 @@
 			return api.post('/glossary/g/' + data._id, data);
 		};
 
+		service.deleteGlossary = function (data) {
+			return api.post('/glossary/delete/' + data._id, data);
+		};
+
 		service.getGlossaryUsers = function (id, all) {
 			var url = '/glossary/members/' + id + ((!!all) ? '?all=true' : '');
 			return api.get(url);
@@ -844,7 +859,16 @@
 
 		return service;
 	}])
-
+	.factory('glossaryIsDeletable', ['../../../config', function(config) {
+//			require: '../../../auth/authorization',
+//			link: function (authorize) {
+//				return authorize.ensureAdmin;
+//			}
+		var service = {};
+		service.appConfig = function (appConfig) {
+			return appConfig.glossariesAreDeletable;
+		}
+	}])
 	.directive('removalItem', [function () {
 		return {
 			restrict: 'C',

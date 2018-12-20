@@ -25,7 +25,10 @@
 
 var mongoose = require('mongoose');
 var Promise = require('bluebird');
+var fs = require('fs');
 var config = require('../../../config');
+var areGlossariesDeletable = require('../../../config').glossariesAreDeletable;
+var glossaryArchiveName = require('../../../config').glossaryArchiveName;
 
 var log = require('../../utils/logger').logger;
 
@@ -78,11 +81,19 @@ exports.update = function (req, res, next) {
 };
 
 exports.delete = function(req, res, next){
-    req.glossaryDoc.removeGlossary()
-    .then( function () {
-		res.sendStatus(204);
-	})
-    .catch(next);
+	
+	if(areGlossariesDeletable){
+		log.verbose('Glossaries are deletable');
+		archiveGlossary(req.glossaryDoc);
+		reassignAllUsersToDefaults(req.glossaryDoc);
+		req.glossaryDoc.removeGlossary()
+		.then( function () {
+			res.sendStatus(204);
+		})
+		.catch(next);
+	} else {
+		log.info('Glossaries are NOT deletable');
+	}
 };
 
 exports.addQC = function(req, res, next){
@@ -248,11 +259,94 @@ exports.updateMembers = function (req, res, next) {
 
 // This needs to be mounted AFTER verifyRequest middleware
 exports.checkGlossaryPermissions = function (req, res) {
+
 	var creds = {
-		isGlossaryAdmin: (req.glossary.admins.indexOf(req.user._id) !== -1),
-		isGlossaryQC: (req.glossary.qcs.indexOf(req.user._id) !== -1),
-		glossaryName: req.glossary.name || '',
-		langList: req.glossary.langList || []
+		isGlossaryAdmin : false,
+		isGlossaryQC : false,
+		glossaryName: '',
+		langList: []
 	};
+
+	if (req.glossary!=null){
+		if ((req.glossary.admins!=null) && (req.glossary.qcs!=null)){
+			creds = {
+				isGlossaryAdmin: (req.glossary.admins.indexOf(req.user._id) !== -1),
+				isGlossaryQC: (req.glossary.qcs.indexOf(req.user._id) !== -1),
+				glossaryName: req.glossary.name || '',
+				langList: req.glossary.langList || []
+			};
+		}
+	}
 	res.json(creds);
 };
+
+function localGetMembers(glossaryDoc) {
+	var async = Promise.resolve();
+	var resp = {
+		members: [],
+		nonMembers: []
+	};
+
+	async.then( function () {
+		User.find({}).select('-password').exec()
+		.then( function (users) {
+
+			users.forEach(user => {
+				var userObj = user.toObject();
+				var list = resp.nonMembers;
+
+				// if member of glossary
+				if (user.glossaries.indexOf(glossaryDoc._id) !== -1) {
+					userObj.qc = glossaryDoc.qcs.indexOf(user._id) !== -1;
+					userObj.admin = glossaryDoc.admins.indexOf(user._id) !== -1;
+					list = resp.members;
+				}
+				else {
+					userObj.qc = false;
+					userObj.admin = false;
+				}
+
+				// the object-ified version of the document must be pushed to maintain the .qc and .admin fields
+				// serving the Mongoose Document strips the fields during the JSON conversion
+				list.push(userObj);
+			});
+			return resp;
+		});
+	});
+	return resp;
+}
+
+function archiveGlossary(glossaryDoc){
+
+	fs.writeFile(glossaryDoc.name + '_' + glossaryArchiveName, JSON.stringify(glossaryDoc, null, 4), (err) => {
+		if(err) {
+			log.error(err);
+			return;
+		}
+		log.info("Glossary " + glossaryDoc.name + " archived to " + glossaryDoc.name + '_' + glossaryArchiveName);
+	});
+	
+}
+
+// Switch all users from the given Glossary to the 'isCommon' defaultGlossary
+function reassignAllUsersToDefaults(glossaryDoc) {
+
+	var defaultGlossary = Glossary.findOne({'isCommon': true}).exec();
+	var members = localGetMembers(glossaryDoc).members;
+	if (members.length>0){
+
+		members.forEach(user => {
+			var userObj = user.toObject();
+
+			if (user.glossaries.indexOf(glossaryDoc._id) !== -1) {
+				if(user.glossaries.indexOf(defaultGlossary._id) == -1){
+					user.joinGlossary(defaultGlossary);
+				}
+				userObj.updateDefaultGlossary(defaultGlossary);
+			}
+			if (user.currentGlossary.indexOf(glossaryDoc._id) !== -1) {
+				userObj.switchActiveGlossary(defaultGlossary);
+			}
+		});
+	}
+}
