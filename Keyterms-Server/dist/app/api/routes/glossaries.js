@@ -34,6 +34,15 @@ var log = require('../../utils/logger').logger;
 
 var Glossary = mongoose.model('Glossary');
 var User = mongoose.model('User');
+var Entry = mongoose.model('Entry');
+
+// shortcut to calling the Entry method "populatedForGUI" on each Entry returned from a query
+var populateEntries = function (entries) {
+	return Promise.mapSeries(entries, function (e) {
+		log.debug(e.name);
+		return e.populateForGUI();
+	});
+};
 
 exports.idParam = function(req, res, next, id){
 	Glossary.findOne({'_id': id}).exec()
@@ -85,7 +94,7 @@ exports.delete = function(req, res, next){
 	if(areGlossariesDeletable){
 		log.verbose('Glossaries are deletable');
 		archiveGlossary(req.glossaryDoc);
-		reassignAllUsersToDefaults(req.glossaryDoc);
+//		reassignAllUsersToDefaults(req.glossaryDoc);
 		req.glossaryDoc.removeGlossary()
 		.then( function () {
 			res.sendStatus(204);
@@ -318,14 +327,24 @@ function localGetMembers(glossaryDoc) {
 
 function archiveGlossary(glossaryDoc){
 
-	fs.writeFile(glossaryDoc.name + '_' + glossaryArchiveName, JSON.stringify(glossaryDoc, null, 4), (err) => {
-		if(err) {
-			log.error(err);
-			return;
-		}
-		log.info("Glossary " + glossaryDoc.name + " archived to " + glossaryDoc.name + '_' + glossaryArchiveName);
-	});
-	
+	var query = {};
+	Promise.resolve(glossaryDoc)
+	.then( function (glossaryDoc) {
+		query['glossary'] = glossaryDoc;
+		var mongooseQuery = Entry.find(query);
+		return mongooseQuery.exec();
+	})
+	.then( populateEntries )
+	.then( function (populatedEntries) {
+		fs.writeFile(glossaryDoc.name + '_' + glossaryArchiveName, JSON.stringify(populatedEntries, null, 4), (err) => {
+			if(err) {
+				log.error(err);
+				return;
+			}
+			log.info("Glossary " + glossaryDoc.name + " archived to " + glossaryDoc.name + '_' + glossaryArchiveName);
+		});
+	})
+	.catch((err) => console.log("error: ", err.message));
 }
 
 // Switch all users from the given Glossary to the 'isCommon' defaultGlossary
