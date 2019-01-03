@@ -148,6 +148,7 @@ config.elastic = {
 };
 
 config.tempDirectory = 'tmp';
-
+config.glossariesAreDeletable = 'true';
+config.glossaryArchiveName = 'archive.json';
 
 module.exports = (_config != null) ? _config : config;
