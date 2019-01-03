@@ -112,13 +112,24 @@
             </div>
         </div>
 <!-- Submit Button -->
-        <div class="form-group">
-            <div class="row">
+        <div class="form-group" ng-switch="{{ :: isDeletable }}">
+            <div class="row" ng-switch-when="false">
                 <div class="col-sm-offset-4 col-sm-2">
                     <button type="submit" class="btn btn-primary btn-block" ng-disabled="glossaryForm.$invalid || glossaryForm.$pristine">{{ ::button }}</button>
                 </div>
                 <div class="col-sm-2">
                     <a class="btn btn-default btn-block" href="javascript: history.back()">Cancel</a>
+                </div>
+            </div>
+            <div class="row" ng-switch-when="true">
+                <div class="col-sm-offset-3 col-sm-2">
+                    <button type="submit" class="btn btn-primary btn-block" ng-disabled="glossaryForm.$invalid || glossaryForm.$pristine">{{ ::button }}</button>
+                </div>
+                <div class="col-sm-2">
+                    <a class="btn btn-default btn-block" href="javascript: history.back()">Cancel</a>
+                </div>
+                <div class="col-sm-3">
+                    <button type=button class="btn btn-default btn-block" ng-click="deleteThisGlossary()">Delete this Glossary</button>
                 </div>
             </div>
             <div class="row" ng-show="glossaryForm.$invalid">

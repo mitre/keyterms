@@ -15,17 +15,22 @@
 		}
 	</style>
 	<button class="btn btn-primary btn-sm" ng-click="toggleSelectPage()">
-		<i class="fa fa-fw" ng-class="{'fa-check-square': pageSelected, 'fa-square': !pageSelected}"></i>
-		{{buttonText}}
+		<span ng-if="pageSelected && selectedCount() > 0">
+			<i class="fa fa-fw fa-check-square" ></i> Deselect All
+		</span>
+		<span ng-if="!pageSelected || selectedCount() === 0">
+			<i class="fa fa-fw fa-square"></i> Select All
+		</span>
+
 	</button>
-	<div ng-if="pageSelected && hasPagedResults()" class="select-status">
-		<span ng-if="pageSelected && !allSelected">
+	<div ng-if="selectedCount() > 0" class="select-status">
+		<span ng-if="!allSelected">
 			{{selectedCount()}} Items Selected.
-			<a class="cursor-pointer" ng-click="toggleCrossPageSelect()">Select all {{::searchResults.length}} items.</a>
+			<a class="cursor-pointer" ng-if="hasPagedResults()" ng-click="toggleCrossPageSelect()">Select all {{searchResults.length}} items.</a>
 		</span>
 		<span ng-if="allSelected">
 			{{selectedCount()}} Items Selected.
-			<a ng-click="toggleCrossPageSelect()">Clear Selection</a>
+			<a ng-click="toggleCrossPageSelect()" ng-if="hasPagedResults()">Clear Selection</a>
 		</span>
 	</div>
 </div>

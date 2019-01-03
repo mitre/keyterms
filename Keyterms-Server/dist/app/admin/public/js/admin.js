@@ -25,11 +25,11 @@
 
 (function() {
 	var __templatePath = 'static/templates';
-
+	
 	angular.module('baas-admin' , ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
 
 	.config( function ($routeProvider, $locationProvider, $httpProvider) {
-
+	
 		$routeProvider
 		.when('/', {
 			redirectTo: '/home'
@@ -102,7 +102,7 @@
 					//$scope.user.glossary = $location.search().glossary;
 					var index = Glossaries.map( function (glossary) { return glossary._id; }).indexOf($location.search().glossary);
 					$scope.glossary = Glossaries[index];
-					console.log('$scope.glossary: ', $scope.glossary); // test this
+					//console.log('$scope.glossary: ', $scope.glossary); // test this
 				}
 			}]
 			, resolve: {
@@ -337,7 +337,7 @@
 		})
 		.when('/glossary/:id', {
 			templateUrl: __templatePath + '/glossary.html',
-			controller: ['$scope', '$location', '$sce', 'Api.service', 'Glossary', 'LangCodes', 'Users', function ($scope, $location, $sce, ApiSvc, Glossary, LangCodes, Users) {
+			controller: ['$scope', '$location', '$sce', 'Api.service', 'Glossary', 'LangCodes', 'Users', 'User.service', function ($scope, $location, $sce, ApiSvc, Glossary, LangCodes, Users, UserSvc) {
 				$scope.glossary = angular.merge({}, Glossary);
 				$scope.users = Users;
 				$scope.users.forEach( function (user) {
@@ -397,6 +397,19 @@
 					.then( function (resp) {
 						$location.path('/glossaries');
 					});
+				};
+				var isAuthorizedToDelete = UserSvc.getUser().isAdmin;
+				$scope.isDeletable = isAuthorizedToDelete;
+//				var areGlossariesDeletable = glossaryIsDeletable.appConfig;
+//				$scope.isDeletable = areGlossariesDeletable && isAuthorizedToDelete;
+
+				$scope.deleteThisGlossary = function () {
+					if(confirm("Are you sure want to delete this entire glossary?")) {
+						ApiSvc.deleteGlossary($scope.glossary)
+						.then( function (resp) {
+							$location.path('/glossaries');
+						});
+					}
 				};
 
 				$scope.globalBlockPopover = 'Prevent all Entries of this Glossary from being searchable by users outside of this Glossary';
@@ -629,6 +642,10 @@
 			return api.post('/glossary/g/' + data._id, data);
 		};
 
+		service.deleteGlossary = function (data) {
+			return api.post('/glossary/delete/' + data._id, data);
+		};
+
 		service.getGlossaryUsers = function (id, all) {
 			var url = '/glossary/members/' + id + ((!!all) ? '?all=true' : '');
 			return api.get(url);
@@ -660,7 +677,7 @@
 	.factory('errorInterceptors', ['$q', '$injector', function ($q, $injector) {
 		var interceptor = {};
 		interceptor.responseError = function (response) {
-			console.log(response.status);
+			console.log('Response Status: ', response.status);
 
 			if (response.status < 0 || response.status >= 500 || response.status == 404) {
 				// redirect to error page
@@ -844,7 +861,16 @@
 
 		return service;
 	}])
-
+	.factory('glossaryIsDeletable', ['../../../config', function(config) {
+//			require: '../../../auth/authorization',
+//			link: function (authorize) {
+//				return authorize.ensureAdmin;
+//			}
+		var service = {};
+		service.appConfig = function (appConfig) {
+			return appConfig.glossariesAreDeletable;
+		}
+	}])
 	.directive('removalItem', [function () {
 		return {
 			restrict: 'C',

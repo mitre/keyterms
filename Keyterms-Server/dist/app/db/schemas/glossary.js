@@ -76,10 +76,11 @@ glossarySchema.pre('remove', function (next) {
 glossarySchema.methods.removeGlossary = function () {
     var self = this;
     return new Promise(function (resolve, reject) {
-        log.debug('removing Glossary');
-        self.entries.forEach(function (entry) {
-            entry.remove();
-        });
+        if(self.entries){
+            self.entries.forEach(function (entry) {
+                entry.remove();
+            });
+        }
         self.remove().then(resolve).catch(reject);
     });
 };
