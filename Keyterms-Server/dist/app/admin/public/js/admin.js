@@ -102,7 +102,7 @@
 					//$scope.user.glossary = $location.search().glossary;
 					var index = Glossaries.map( function (glossary) { return glossary._id; }).indexOf($location.search().glossary);
 					$scope.glossary = Glossaries[index];
-					console.log('$scope.glossary: ', $scope.glossary); // test this
+					//console.log('$scope.glossary: ', $scope.glossary); // test this
 				}
 			}]
 			, resolve: {
@@ -404,10 +404,12 @@
 //				$scope.isDeletable = areGlossariesDeletable && isAuthorizedToDelete;
 
 				$scope.deleteThisGlossary = function () {
-					ApiSvc.deleteGlossary($scope.glossary)
-					.then( function (resp) {
-						$location.path('/glossaries');
-					});
+					if(confirm("Are you sure want to delete this entire glossary?")) {
+						ApiSvc.deleteGlossary($scope.glossary)
+						.then( function (resp) {
+							$location.path('/glossaries');
+						});
+					}
 				};
 
 				$scope.globalBlockPopover = 'Prevent all Entries of this Glossary from being searchable by users outside of this Glossary';
@@ -675,7 +677,7 @@
 	.factory('errorInterceptors', ['$q', '$injector', function ($q, $injector) {
 		var interceptor = {};
 		interceptor.responseError = function (response) {
-			console.log(response.status);
+			console.log('Response Status: ', response.status);
 
 			if (response.status < 0 || response.status >= 500 || response.status == 404) {
 				// redirect to error page

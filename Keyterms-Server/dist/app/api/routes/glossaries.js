@@ -94,7 +94,7 @@ exports.delete = function(req, res, next){
 	if(areGlossariesDeletable){
 		log.verbose('Glossaries are deletable');
 		archiveGlossary(req.glossaryDoc);
-//		reassignAllUsersToDefaults(req.glossaryDoc);
+		reassignAllUsersToDefaults(req.glossaryDoc);
 		req.glossaryDoc.removeGlossary()
 		.then( function () {
 			res.sendStatus(204);
@@ -344,7 +344,7 @@ function archiveGlossary(glossaryDoc){
 			log.info("Glossary " + glossaryDoc.name + " archived to " + glossaryDoc.name + '_' + glossaryArchiveName);
 		});
 	})
-	.catch((err) => console.log("error: ", err.message));
+	.catch((err) => log.error("error: ", err.message));
 }
 
 // Switch all users from the given Glossary to the 'isCommon' defaultGlossary
