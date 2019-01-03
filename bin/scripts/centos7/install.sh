@@ -129,8 +129,8 @@ fi
 # TODO: ADD BIT FOR SETTING HTTP.PROXY IN CONNECTORS IN SERVER.XML
 
 # Update tomcat service with installed version
-sed -i -e "s|TOMCATDIR|${CATALINA_HOME}|g" $SERVICES_DIR/$TOMCAT_DAEMON
 cp $SERVICES_DIR/$TOMCAT_DAEMON /etc/systemd/system/
+sed -i -e "s|TOMCATDIR|${CATALINA_HOME}|g" /etc/systemd/system/$TOMCAT_DAEMON
 chown -R $TOMCAT_USER:$APP_GROUP $CATALINA_HOME
 systemctl daemon-reload
 
