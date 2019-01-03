@@ -29,6 +29,7 @@ var fs = require('fs');
 var path = require('path');
 
 var Entry = mongoose.model('Entry');
+var Tag = mongoose.model('Tag');
 var search = require('./search');
 var log = require('../../utils/logger').logger;
 var exportUtil = require('../../export/exports');
@@ -146,6 +147,13 @@ exports.glossaryToJSON = function (req, res, next) {
 		query.classification = req.query['classification'];
 	}
 
+    // if(!!req.query['tags']) {
+    // 	query.tags = {};
+    // 	query.tags.tag = {};
+    //     //query.tags.content = req.query['tags'];
+    //     query.tags.tag['$in'] = req.query['tags'];
+    // }
+
 	Promise.resolve()
 	.then( function () {
 		if (!!req.query.glossary) {
@@ -164,21 +172,33 @@ exports.glossaryToJSON = function (req, res, next) {
 		}
 	})
 	.then( function (glossary) {
-		log.debug('Additional query parameters: ', query);
+        log.debug('Additional query parameters: ', query);
 
-		query['_id'] = {$in: glossary.entries};
+        return Tag.findOne({content: req.query['tags'], glossary: glossary._id})
+            .then(function (tagDoc) {
+                var entries = []
+                tagDoc.entries.forEach(function (entry) {
+                    entries.push(entry);
+                })
+
+                return entries;
+            })
+    })
+	.then(function (entries) {
+		query['_id'] = {$in: entries};
 		var mongooseQuery = Entry.find(query);
 
 		if (!!req.query['langCode']) {
 			if (req.query['langCode'] !== 'und') {
+
 				return mongooseQuery.populate({
 					path: 'terms',
 					match: {langCode: req.query['langCode']}
 				})
-				.exec()
-				.then( function (entries) {
-					return entries.filter(e => e.terms.length);
-				});
+					.exec()
+					.then( function (entries) {
+						return entries.filter(e => e.terms.length);
+					});
 			}
 
 			// else - if langCode == 'und' (aka Any), do nothing
@@ -186,8 +206,8 @@ exports.glossaryToJSON = function (req, res, next) {
 
 		// execute the query and return a promise
 		return mongooseQuery.exec();
-
 	})
+
 	.then( populateEntries )
 	.then( function (populatedEntries) {
 		log.debug('Length of results: ', populatedEntries.length);
