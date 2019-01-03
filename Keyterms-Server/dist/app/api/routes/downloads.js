@@ -147,13 +147,6 @@ exports.glossaryToJSON = function (req, res, next) {
 		query.classification = req.query['classification'];
 	}
 
-    // if(!!req.query['tags']) {
-    // 	query.tags = {};
-    // 	query.tags.tag = {};
-    //     //query.tags.content = req.query['tags'];
-    //     query.tags.tag['$in'] = req.query['tags'];
-    // }
-
 	Promise.resolve()
 	.then( function () {
 		if (!!req.query.glossary) {
@@ -174,15 +167,23 @@ exports.glossaryToJSON = function (req, res, next) {
 	.then( function (glossary) {
         log.debug('Additional query parameters: ', query);
 
-        return Tag.findOne({content: req.query['tags'], glossary: glossary._id})
-            .then(function (tagDoc) {
-                var entries = []
-                tagDoc.entries.forEach(function (entry) {
-                    entries.push(entry);
-                })
+        if(!!req.query['tags'])
+		{
+            return Tag.findOne({content: req.query['tags'], glossary: glossary._id})
+                .then(function (tagDoc) {
+                    var entries = []
+                    tagDoc.entries.forEach(function (entry) {
+                        entries.push(entry);
+                    })
 
-                return entries;
-            })
+                    return entries;
+                })
+		}
+        else
+		{
+        	return glossary.entries;
+		}
+
     })
 	.then(function (entries) {
 		query['_id'] = {$in: entries};
