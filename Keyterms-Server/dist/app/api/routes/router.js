@@ -452,6 +452,7 @@ glossaryRouter.route('/g/:id')
  *
  */
 .delete(glossaries.delete);
+glossaryRouter.post('/delete/:id', auth.authorize.ensureAdmin, glossaries.delete);
 
 /**
  * @api {post} /api/glossary/addQC/:id add QC

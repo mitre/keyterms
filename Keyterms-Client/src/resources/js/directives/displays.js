@@ -146,8 +146,15 @@ app.directive('selectAll', function () {
 
 			// Select / Deselect All on Page
 			scope.toggleSelectPage = function () {
-				// Toggle
-				scope.pageSelected = !scope.pageSelected;
+
+				// If no elements are selected, assume the user is trying to do a page select
+				if (scope.selectedCount() === 0 ) {
+					scope.pageSelected = true;
+				} else {
+					// Toggle
+					scope.pageSelected = !scope.pageSelected;
+
+				}
 
 				// Deal with the filtered results, if we have them, otherwise deal with all of the search results
 				var list = 'filteredResults' in scope ? scope.filteredResults : scope.searchResults;
@@ -177,10 +184,11 @@ app.directive('selectAll', function () {
 						item.checkVal = true;
 					});
 				} else {
+					scope.pageSelected = false;
 					scope.searchResults.forEach(function (item) {
 						item.checkVal = false;
 					});
-					scope.toggleSelectPage();
+
 				}
 			}
 
