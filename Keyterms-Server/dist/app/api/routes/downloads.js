@@ -183,6 +183,7 @@ exports.glossaryToJSON = function (req, res, next) {
 
 				start = end + 1;
 				currentStr = currentStr.slice(start);
+				currentStr = currentStr.trim();
 
 			}
 			tags.push(currentStr);
@@ -193,7 +194,6 @@ exports.glossaryToJSON = function (req, res, next) {
 
 			return Promise.all(tagQuery)
 				.then(function (tags) {
-					console.log("tags: ", tags);
 
 					tags.forEach(function (tag) {
 						tag.entries.forEach(function (entry) {
