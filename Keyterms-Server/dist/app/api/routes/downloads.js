@@ -215,7 +215,6 @@ exports.glossaryToJSON = function (req, res, next) {
 
     })
 	.then(function (entries) {
-		console.log("2nd entries: ", entries);
 		query['_id'] = {$in: entries};
 		var mongooseQuery = Entry.find(query);
 
