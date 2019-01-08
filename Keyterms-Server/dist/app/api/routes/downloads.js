@@ -169,13 +169,39 @@ exports.glossaryToJSON = function (req, res, next) {
 
         if(!!req.query['tags'])
 		{
-            return Tag.findOne({content: req.query['tags'], glossary: glossary._id})
-                .then(function (tagDoc) {
-                    var entries = []
-                    tagDoc.entries.forEach(function (entry) {
-                        entries.push(entry);
-                    })
+            var entries = [];
+			var tags = [];
+			var currentStr = req.query['tags'];
+			var start = 0;
+			var end = 0;
+			var tagQuery = [];
 
+			while(currentStr.includes(','))
+			{
+				end = currentStr.indexOf(',');
+				tags.push(currentStr.slice(start, end));
+
+				start = end + 1;
+				currentStr = currentStr.slice(start);
+
+			}
+			tags.push(currentStr);
+
+			tags.forEach(function (tag) {
+                tagQuery.push(Tag.findOne({content: tag, glossary: glossary._id}))
+			})
+
+			return Promise.all(tagQuery)
+				.then(function (tags) {
+					console.log("tags: ", tags);
+
+					tags.forEach(function (tag) {
+						tag.entries.forEach(function (entry) {
+                            if(!entries.includes(entry)) {
+                                entries.push(entry);
+                            }
+                        })
+                    })
                     return entries;
                 })
 		}
@@ -186,6 +212,7 @@ exports.glossaryToJSON = function (req, res, next) {
 
     })
 	.then(function (entries) {
+		console.log("2nd entries: ", entries);
 		query['_id'] = {$in: entries};
 		var mongooseQuery = Entry.find(query);
 
