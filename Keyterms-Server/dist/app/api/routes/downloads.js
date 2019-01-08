@@ -29,6 +29,7 @@ var fs = require('fs');
 var path = require('path');
 
 var Entry = mongoose.model('Entry');
+var Tag = mongoose.model('Tag');
 var search = require('./search');
 var log = require('../../utils/logger').logger;
 var exportUtil = require('../../export/exports');
@@ -164,21 +165,70 @@ exports.glossaryToJSON = function (req, res, next) {
 		}
 	})
 	.then( function (glossary) {
-		log.debug('Additional query parameters: ', query);
+        log.debug('Additional query parameters: ', query);
 
-		query['_id'] = {$in: glossary.entries};
+        if(!!req.query['tags'])
+		{
+            var entries = [];
+			var tags = [];
+			var currentStr = req.query['tags'];
+			var start = 0;
+			var end = 0;
+			var tagQuery = [];
+
+			while(currentStr.includes(','))
+			{
+				end = currentStr.indexOf(',');
+				tags.push(currentStr.slice(start, end));
+
+				start = end + 1;
+				currentStr = currentStr.slice(start);
+				currentStr = currentStr.trim();
+
+			}
+			tags.push(currentStr);
+
+			tags.forEach(function (tag) {
+                tagQuery.push(Tag.findOne({content: tag, glossary: glossary._id}))
+			})
+
+			return Promise.all(tagQuery)
+				.then(function (tags) {
+
+					tags.forEach(function (tag) {
+
+						if(tag) {
+                            tag.entries.forEach(function (entry) {
+                                if(!entries.includes(entry)) {
+                                    entries.push(entry);
+                                }
+                            })
+						}
+                    })
+                    return entries;
+                })
+		}
+        else
+		{
+        	return glossary.entries;
+		}
+
+    })
+	.then(function (entries) {
+		query['_id'] = {$in: entries};
 		var mongooseQuery = Entry.find(query);
 
 		if (!!req.query['langCode']) {
 			if (req.query['langCode'] !== 'und') {
+
 				return mongooseQuery.populate({
 					path: 'terms',
 					match: {langCode: req.query['langCode']}
 				})
-				.exec()
-				.then( function (entries) {
-					return entries.filter(e => e.terms.length);
-				});
+					.exec()
+					.then( function (entries) {
+						return entries.filter(e => e.terms.length);
+					});
 			}
 
 			// else - if langCode == 'und' (aka Any), do nothing
@@ -186,8 +236,8 @@ exports.glossaryToJSON = function (req, res, next) {
 
 		// execute the query and return a promise
 		return mongooseQuery.exec();
-
 	})
+
 	.then( populateEntries )
 	.then( function (populatedEntries) {
 		log.debug('Length of results: ', populatedEntries.length);

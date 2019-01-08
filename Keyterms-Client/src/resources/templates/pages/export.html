@@ -78,43 +78,15 @@
 					</p>
 				</div>
 			</div>
-			<!--<div class="form-group">
-				<label class="col-xs-3 control-label">Restricted by Tags:</label>
-				<div class="col-xs-8">
-					<div class="tag-list-display" style="display:block;">
-		  				<uib-alert ng-repeat="tag in formData.tagList" type="success" close="removeTag($index)">{{ tag }}</uib-alert>
-						<input type="text" placeholder="add tags" class="pull-left" ng-keyup="addTag($event)" ng-model="formData.tagStr">
-		  			</div>
-		  		</div>
-	  			<div class="col-xs-1">
-	  				<div class="btn-group" uib-dropdown>
-						<button type="button" class="btn btn-lg btn-primary" uib-dropdown-toggle>
-							<span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu" uib-dropdown-menu role="menu">
-							<li role="menuitem"><a href="#">Action</a></li>
-							<li role="menuitem"><a href="#">Another action</a></li>
-							<li role="menuitem"><a href="#">Something else here</a></li>
-							<li class="divider"></li>
-							<li role="menuitem"><a href="#">Separated link</a></li>
-						</ul>
-					</div>
-	  			</div>
-			</div>-->
+			<div class="form-group">
+				<label class="col-xs-3 control-label">Filter by Tag:</label>
+				<div class="col-xs-4">
+					<input type="text" class="form-control" ng-model="formData.tags">
+				</div>
+			</div>
 			<div class="form-group">
 				<label class="col-xs-3 control-label">Select Language:</label>
 				<div class="col-xs-4">
-					<!--<div class="select-tag btn-group" uib-dropdown>-->
-						<!--<button type="button" class="btn btn-primary btn-select">{{ formData.langCode }}</button>-->
-						<!--<button type="button" class="btn btn-primary" uib-dropdown-toggle> -->
-							<!--&nbsp;<span class="caret"></span>-->
-						<!--</button>-->
-						<!--<ul class="dropdown-menu" uib-dropdown-menu role="menu">-->
-							<!--<li role="menuitem" ng-repeat="lang in langCodeList">-->
-								<!--<a ng-click="formData.langCode = lang">{{ lang }}</a>-->
-							<!--</li>-->
-						<!--</ul>-->
-					<!--</div>-->
 					<lang-code-dropdown binding="formData.langCode"></lang-code-dropdown>
 				</div>
 			</div>

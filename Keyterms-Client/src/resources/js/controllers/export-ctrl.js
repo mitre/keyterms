@@ -42,6 +42,7 @@ app.controller('export-ctrl', ['$scope', 'globals', 'ApiUrl', function ($scope, 
     $scope.formData.lastMod.startDate = '';
     $scope.formData.lastMod.endDate = '';
     $scope.formData.langCode = '';
+    $scope.formData.tags = '';
 	$scope.formData.langCode = globals.langCodeList[12];
 	$scope.formData.fileType = globals.supportedFileTypeList[0];
 
@@ -51,16 +52,17 @@ app.controller('export-ctrl', ['$scope', 'globals', 'ApiUrl', function ($scope, 
         '&creationEndDate=' + 	$scope.formData.creation.endDate +
         '&modifiedStartDate=' + 	$scope.formData.lastMod.startDate +
         '&modifiedEndDate=' + 	$scope.formData.lastMod.endDate +
-        '&langCode=' + 			$scope.formData.langCode;
+        '&langCode=' + 			$scope.formData.langCode +
+    	'&tags=' +				$scope.formData.tags;
     $scope.apiUrl = apiUrl;
 
 	$scope.buildQuery = function () {
 		var nextChar = '?';
 		var baseURL = apiUrl + 'api/download/glossary';
 		var paramVals = [$scope.formData.creation.startDate, $scope.formData.creation.endDate,
-			$scope.formData.lastMod.startDate, $scope.formData.lastMod.endDate, $scope.formData.langCode.value, $scope.formData.fileType.value];
+			$scope.formData.lastMod.startDate, $scope.formData.lastMod.endDate, $scope.formData.langCode.value, $scope.formData.tags, $scope.formData.fileType.value];
 
-		var paramNames = ['creationStartDate=', 'creationEndDate=', 'modifiedStartDate=', 'modifiedEndDate=', 'langCode=', 'fileType='];
+		var paramNames = ['creationStartDate=', 'creationEndDate=', 'modifiedStartDate=', 'modifiedEndDate=', 'langCode=', 'tags=', 'fileType='];
 
 		paramVals.forEach(function (param, index) {
 
