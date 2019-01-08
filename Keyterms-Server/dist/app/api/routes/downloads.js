@@ -196,11 +196,14 @@ exports.glossaryToJSON = function (req, res, next) {
 				.then(function (tags) {
 
 					tags.forEach(function (tag) {
-						tag.entries.forEach(function (entry) {
-                            if(!entries.includes(entry)) {
-                                entries.push(entry);
-                            }
-                        })
+
+						if(tag) {
+                            tag.entries.forEach(function (entry) {
+                                if(!entries.includes(entry)) {
+                                    entries.push(entry);
+                                }
+                            })
+						}
                     })
                     return entries;
                 })
