@@ -13,7 +13,7 @@ if ! whoami | grep -q "root$"; then
 fi
 
 # Prompt for OS
-AVAILABLE_OS=$(cd $SCRIPT_DIR; ls -dm */ | tr -d '/' | tr -s ', ' '|' | awk '{gsub(/centos7/,"CENTOS7")}1')
+AVAILABLE_OS=$(cd $SCRIPT_DIR; find * -maxdepth 0 -type d -print0 | tr -s '\0' '|' | head -c-1 | awk '{gsub(/centos7/,"CENTOS7")}1')
 read -p "Choose the operating system that KeyTerms is being installed on ($AVAILABLE_OS): " oschoice
 oschoice=$(echo $oschoice | awk '{tolower($0)}')
 if [ -z "$oschoice" ]; then
