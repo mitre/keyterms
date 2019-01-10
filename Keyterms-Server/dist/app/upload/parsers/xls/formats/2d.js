@@ -31,6 +31,7 @@ class XLS2D extends xlsParser {
         var self = this;
         var termMap = {};
         var lastEntryId = 0;
+        var labelExists = false;
 
         return new Promise( function( resolve ) {
 
@@ -52,11 +53,12 @@ class XLS2D extends xlsParser {
 
                 };
 
-                //--------------TESTING DYNAMIC HEADER LOCATION STARTS HERE-----------------
-
                 var entry = self.entries[extract("entry")];
                 if (entry === undefined) {
                     // this means a new entry is being processed
+
+                    //Bool to check if a label exists on the entry
+                    labelExists = false;
 
                     // add entry to import queue
                     if (lastEntryId > 0) {
@@ -82,7 +84,11 @@ class XLS2D extends xlsParser {
                         term.langCode = extract("language");
                         term.variety = extract("variety");
                         term.script = extract("script");
-                        term.isLabel = extract("isLabel");
+
+                        if(!labelExists && extract("isLabel")) {
+                            term.isLabel = extract("isLabel");
+                            labelExists = true;
+                        }
 
                         var tempArr = [];
 
