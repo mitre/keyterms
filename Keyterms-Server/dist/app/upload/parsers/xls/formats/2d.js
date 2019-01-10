@@ -82,6 +82,7 @@ class XLS2D extends xlsParser {
                         term.langCode = extract("language");
                         term.variety = extract("variety");
                         term.script = extract("script");
+                        term.isLabel = extract("isLabel");
 
                         var tempArr = [];
 
