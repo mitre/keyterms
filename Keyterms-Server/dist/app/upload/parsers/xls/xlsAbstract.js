@@ -95,6 +95,9 @@ class xlsParser extends ImporterBase {
             	self.orderedHeaders["notes"].push(val);
 			}
 
+			else if(header.includes("label")) {
+				self.orderedHeaders["isLabel"] = index;
+       		 }
 			else {
             	//throw new Error('Incorrect headers');
 			}
