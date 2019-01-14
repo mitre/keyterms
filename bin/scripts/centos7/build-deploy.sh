@@ -3,8 +3,9 @@
 proj_root=$(cd "$(dirname $0)/../../.."; pwd)
 zip_file="keyterms-$(date +%Y-%m-%d.%H-%M).tgz"
 
-# Get supported dependency versions
+# Get necessary installation variables
 source $proj_root/bin/scripts/supported-dependencies
+source $proj_root/bin/scripts/proxy-vars
 
 # Create deploy folder and copy top-level content over
 echo ' '; echo 'Creating deploy directory...'

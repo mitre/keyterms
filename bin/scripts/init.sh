@@ -12,6 +12,10 @@ if ! whoami | grep -q "root$"; then
     exit 0
 fi
 
+# Create temporary file to store proxy variables
+touch $SCRIPT_DIR/proxy-vars
+PROXY_VARS=$SCRIPT_DIR/proxy-vars
+
 # Prompt for OS
 AVAILABLE_OS=$(cd $SCRIPT_DIR; find * -maxdepth 0 -type d -print0 | tr -s '\0' '|' | head -c-1 | awk '{gsub(/centos7/,"CENTOS7")}1')
 read -p "Choose the operating system that KeyTerms is being installed on ($AVAILABLE_OS): " oschoice
@@ -30,15 +34,18 @@ ln -fs "$oschoice" "$SCRIPT_DIR/chosen-os"
 read -p 'If you are behind an http proxy, please enter the proxy URL (press enter if no proxy): ' proxyhttp
 if [ -n "$proxyhttp" ]; then
     export http_proxy=$proxyhttp
+    echo "http_proxy=$proxyhttp" >> $PROXY_VARS
 fi
 read -p 'If you are behind an https proxy, please enter the proxy URL (press enter if no proxy, or enter "same" if same as http proxy): ' proxyhttps
 case "$proxyhttps" in
     same|Same|SAME)
         export https_proxy=$proxyhttp
+        echo "https_proxy=$proxyhttp" >> $PROXY_VARS
         ;;
     *)
         if [ -n "$proxyhttps" ]; then
             export https_proxy=$proxyhttps
+            echo "https_proxy=$proxyhttps" >> $PROXY_VARS
         fi
         ;;
 esac
