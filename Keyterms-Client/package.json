@@ -23,7 +23,7 @@
     "build-es6-n": "cp -r src/ public/keyterms && node build.js",
     "start": "npm run dev-start",
     "lint": "eslint --ignore-path .eslintignore src/**",
-    "dev-start": "node build.js && http-server ./",
+    "dev-start": "node build.js && http-server ./src",
     "prod-start": "npm run build && http-server",
     "simple-start": "npm run build-es6 && http-server",
     "test": "npm run build-es6-n && http-server"
