@@ -330,6 +330,14 @@ Promise.resolve()
 		var host = listener.address().address;
 		var port = listener.address().port;
 		onStartUp(host, port, secure);
+	}).on('error', function(err) {
+		if (err.errno === 'EADDRINUSE') {
+			log.error("Can't start server; port %s already in use", port);
+		} else {
+			log.error(err);
+		}
+		log.error("Exiting...");
+		process.exit();
 	});
 });
 

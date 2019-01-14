@@ -35,7 +35,7 @@ var $Entry = require('../../db').interfaces.$Entry;
 // requires the Express middleware format of req, res, next
 var createNominationEP = require('./nominations').create;
 
-// Middleware which fetches and entry from it's _id attribute
+// Middleware which fetches an entry from its _id attribute
 // Bound to ':id' param only
 exports.param = function () {
 	$Entry.validateParam.apply(this, arguments);

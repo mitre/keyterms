@@ -46,7 +46,7 @@ router.use('/plugin', express.static(path.join(__dirname, 'plugin')));
 
 router.use(auth.authenticate.processCert);
 
-// ensure the user is an qc of *any* glossary
+// ensure the user is QC of *any* glossary
 router.use(auth.authorize.ensureQcOfAny);
 
 router.use(fileUploader());
