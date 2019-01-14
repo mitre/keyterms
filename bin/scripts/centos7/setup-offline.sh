@@ -24,8 +24,13 @@ NODEJS_USERNAME=kt_nodejs
 # Services
 TOMCAT_DAEMON=tomcat.service
 
-# Get supported dependency versions
+# Get necessary installation variables
 source $SCRIPTS_DIR/supported-dependencies
+INSTALL_VARS=$SCRIPTS_DIR/install-vars
+if [ -e $INSTALL_VARS ]; then
+    rm -f $INSTALL_VARS
+fi
+touch $INSTALL_VARS
 
 # Check if running as root, abort if not.
 if ! whoami | grep -q "root$"; then
@@ -146,6 +151,7 @@ echo 'Checking for Tomcat installation ...'
 if [ -n "$CATALINA_HOME" ]; then
     echo "... Tomcat is installed. CATALINA_HOME is $CATALINA_HOME"
     export TOMCAT_USER=$(stat -c '%U' $CATALINA_HOME)
+    echo "TOMCAT_USER=$TOMCAT_USER" >> $INSTALL_VARS
     echo "... Tomcat user is $TOMCAT_USER"
     if ! id -Gn $TOMCAT_USER | grep -q -c $APP_GROUP; then
         echo '... adding Tomcat user to KeyTerms group ...'
@@ -157,8 +163,10 @@ if [ -n "$CATALINA_HOME" ]; then
 # else check for existing Tomcat service file
 elif [ -e /etc/systemd/system/$TOMCAT_DAEMON ]; then
     export CATALINA_HOME=$(cat /etc/systemd/system/$TOMCAT_DAEMON | grep "CATALINA_HOME" | cut -c27-)
+    echo "CATALINA_HOME=$CATALINA_HOME" >> $INSTALL_VARS
     echo "... Tomcat is installed. CATALINA_HOME is $CATALINA_HOME"
     export TOMCAT_USER=$(stat -c '%U' $CATALINA_HOME)
+    echo "TOMCAT_USER=$TOMCAT_USER" >> $INSTALL_VARS
     echo "... Tomcat user is $TOMCAT_USER"
 
 # else Tomcat is not installed; prompt for installation
@@ -185,9 +193,11 @@ else
             tar -xf $LIB_DIR/$ARCHIVE.tar.gz
             rm -f $LIB_DIR/$ARCHIVE.tar.gz
             export CATALINA_HOME="$APP_DIR/tomcat/$ARCHIVE"
+            echo "CATALINA_HOME=$CATALINA_HOME" >> $INSTALL_VARS
 
             echo '... creating Tomcat user ...'
             export TOMCAT_USER=$TOMCAT_USERNAME
+            echo "TOMCAT_USER=$TOMCAT_USER" >> $INSTALL_VARS
             useradd -M -g $APP_GROUP $TOMCAT_USER
             chown -R $TOMCAT_USER:$APP_GROUP $CATALINA_HOME
 
@@ -248,6 +258,7 @@ if ! [[ -x "$(command -v node)" || -x "$(command -v nodejs)" ]]; then
 
             echo '... creating nodejs user ...'
             export NODEJS_USER=$NODEJS_USERNAME
+            echo "NODEJS_USER=$NODEJS_USER" >> $INSTALL_VARS
             useradd -M -g $APP_GROUP $NODEJS_USER
             chown -R $NODEJS_USER:$APP_GROUP $APP_DIR/nodejs
 
@@ -263,6 +274,7 @@ else
         echo "... Node.js version $NODE_V is installed."
     fi
     export NODEJS_USER=$NODEJS_USERNAME
+    echo "NODEJS_USER=$NODEJS_USER" >> $INSTALL_VARS
     if cut -d: -f1 /etc/passwd | grep -q -w $NODEJS_USER
     then
         echo "... nodejs user exists: $NODEJS_USER"

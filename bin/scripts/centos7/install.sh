@@ -12,6 +12,7 @@
 APP_DIR=/usr/opt
 PROJ_DIR=$(cd "$(dirname $0)/../../.."; pwd)
 BIN_DIR=$PROJ_DIR/bin
+SCRIPTS_DIR=$PROJ_DIR/bin/scripts
 SERVICES_DIR=$BIN_DIR/services
 LIB_DIR=$PROJ_DIR/lib
 CLIENT_DIR=$PROJ_DIR/Keyterms-Client
@@ -24,6 +25,9 @@ NLP_WAR=keytermsnlp.war
 
 # Services
 TOMCAT_DAEMON=tomcat.service
+
+# Installation variables
+source $SCRIPTS_DIR/install-vars
 
 # Users and groups
 APP_GROUP=keyterms
@@ -187,6 +191,10 @@ systemctl start $TOMCAT_DAEMON
 systemctl enable $TOMCAT_DAEMON
 
 ################################################################################
+
+# Clean up temporary files
+rm -f $SCRIPTS_DIR/proxy-vars
+rm -f $SCRIPTS_DIR/install-vars
 
 # Run init-cli script
 echo ' '
