@@ -324,7 +324,10 @@ var env = class Env {
 			.then(function (res) {
 				done();
 			})
-			.catch(done);
+			.catch(function(err) {
+				console.log(err);
+				done();
+			});
 
 		})
 
