@@ -36,7 +36,7 @@ app.service('init.service', ['$q', '$http', '$location', 'keytermsApi', 'globals
 
 	// TODO: initialize user data as well and login creds?
 	var promise = $q.all([Keyterms.requestLangCodes(), Keyterms.requestEnums(), Keyterms.requestKeyTermsVersion()])
-	.success(function(data) {
+	.then(function(data) {
 		if (data.indexOf(undefined) !== -1) {
 			$location.path('/server-down');
 			// this must return a resolved promise to complete navigation to /server-down
@@ -68,8 +68,7 @@ app.service('init.service', ['$q', '$http', '$location', 'keytermsApi', 'globals
 		 * 		"globals.userId = data[3].data;"
 		 */
 		console.log('init service has resolved');
-	})
-	.error(function (http, status) {
+	}, function (http, status) {
 		console.log('Unable to load Lang Codes, Enums, and KeyTerms Version. Probably need to login again.',http,status);
 		$location.path('/login');
 		// this must return a resolved promise to complete navigation to /login
