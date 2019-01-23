@@ -402,7 +402,7 @@ exports.exploreGlossaryTerms = function (glossId, langCode) {
 				terms: {
 					field: 'termText.raw',
 					size: 10000,
-					order: {'_doc': 'asc'}
+					order: {'_key': 'asc'}
 				},
 				aggs: {
 					'mongoIds': {
