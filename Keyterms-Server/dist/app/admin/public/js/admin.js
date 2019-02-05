@@ -399,12 +399,14 @@
 					});
 				};
 				var isAuthorizedToDelete = UserSvc.getUser().isAdmin;
-				$scope.isDeletable = isAuthorizedToDelete;
+				$scope.isDeletable = isAuthorizedToDelete === undefined ? false : isAuthorizedToDelete;
+				console.log("Is Deletable: " + $scope.isDeletable);
 //				var areGlossariesDeletable = glossaryIsDeletable.appConfig;
 //				$scope.isDeletable = areGlossariesDeletable && isAuthorizedToDelete;
 
 				$scope.deleteThisGlossary = function () {
 					if(confirm("Are you sure want to delete this entire glossary?")) {
+						console.log("About to delete Glossary");
 						ApiSvc.deleteGlossary($scope.glossary)
 						.then( function (resp) {
 							$location.path('/glossaries');
