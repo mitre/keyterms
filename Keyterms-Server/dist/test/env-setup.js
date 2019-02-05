@@ -178,8 +178,10 @@ var env = class Env {
 		.then( function (user) {
 			self.user = user;
 
-			self.glossary.addQC(self.user);
-			self.glossary.addAdmin(self.user);
+			self.glossary.addQC(self.user)
+			.then( function () {
+                self.glossary.addAdmin(self.user);
+            });
 
 			console.log('logging in...', self.user._id);
 
