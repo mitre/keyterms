@@ -197,7 +197,7 @@ exports.renameTag = function (req, res, next) {
 	}
 
 	// Check if the tag's name already exists
-	Tag.count({content: req.body.newTag, glossary: req.glossary._id}).exec()
+	Tag.countDocuments({content: req.body.newTag, glossary: req.glossary._id}).exec()
 	.then( function (count) {
 		if (count === 0) {
 

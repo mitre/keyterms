@@ -48,7 +48,7 @@ var db = require('../../db').init({performCheck: false})
 
 	var Tag = mongoose.model('Tag');
 
-	return Tag.remove({entries: {$size: 0}}).lean().exec();
+	return Tag.deleteMany({entries: {$size: 0}}).lean().exec();
 })
 .then( function (result) {
 	result = result.result;

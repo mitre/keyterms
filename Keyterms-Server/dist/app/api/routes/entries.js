@@ -44,6 +44,7 @@ exports.param = function () {
 // Error handling middleware for entries
 exports.errorHandlers = function (err, req, res, next) {
 	var msg = err.message || '';
+	log.error("About to pass along an error...");
 	if (err.name === 'ValidationError') {
 		var typeMsg = '';
 		if (!!err.errors.type && !!err.errors.type.message) {
@@ -109,10 +110,10 @@ exports.read = function (req, res, next) {
 		}
 		if (failedAuthorization) { return res.sendStatus(403); }
 
-		return Nomination.count({'originalEntry': entry._id, 'type': 'mod'}).exec()
+		return Nomination.countDocuments({'originalEntry': entry._id, 'type': 'mod'}).exec()
 		.then(function(modNoms) {
 			entry.modNoms = modNoms;
-			return Nomination.count({'originalEntry': entry._id, 'type': 'del'}).exec();
+			return Nomination.countDocuments({'originalEntry': entry._id, 'type': 'del'}).exec();
 		})
 		.then(function(delNoms){
 			entry.delNoms = delNoms;
