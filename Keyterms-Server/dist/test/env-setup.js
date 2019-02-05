@@ -53,7 +53,7 @@ request.set('Origin', 'http://localhost:4000');
 
 var init = function (done) {
 
-	return mongoose.model('Glossary').count({})
+	return mongoose.model('Glossary').countDocuments({})
 	.then( function (glossaryCount) {
 		if (glossaryCount == 0)
 			return mongoose.model('Glossary').create(mock.standard.glossary);
@@ -61,7 +61,7 @@ var init = function (done) {
 			return mongoose.model('Glossary').findOne(mock.standard.glossary).exec();
 	})
 	.then( function (glossary) {
-		return mongoose.model('User').count({})
+		return mongoose.model('User').countDocuments({})
 		.then( function (usrCount) {
 			if (usrCount == 0) {
 				var usr = deepCopy(mock.standard.user);
@@ -155,7 +155,7 @@ var env = class Env {
 			return mongoose.model('Glossary').create(mock.standard.glossary)
 		})
 		.then( function(glossary) {
-			return mongoose.model('Glossary').ensureIndexes()
+			return mongoose.model('Glossary').createIndexes()
 			.then(function () {
 				return glossary;
 			})
@@ -169,7 +169,7 @@ var env = class Env {
 
             return mongoose.model('User').create(usr)
 			.then( function(user) {
-				return mongoose.model('User').ensureIndexes()
+				return mongoose.model('User').createIndexes()
 				.then(function(){
 					return user;
 				})

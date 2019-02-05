@@ -78,10 +78,10 @@ glossarySchema.methods.removeGlossary = function () {
     return new Promise(function (resolve, reject) {
         if(self.entries){
             self.entries.forEach(function (entry) {
-                entry.remove();
+                entry.deleteOne();
             });
         }
-        self.remove().then(resolve).catch(reject);
+        self.deleteOne().then(resolve).catch(reject);
     });
 };
 

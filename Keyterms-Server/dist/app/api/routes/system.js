@@ -38,7 +38,7 @@ exports.legacyApi = (req, res) => res.redirect('/docs');
 exports.status = function (req, res, next) {
 	Promise.all([
 		getVersion(),
-		mongoose.model('Entry').count(),
+		mongoose.model('Entry').countDocuments(),
 		sys.getKeyTermsVersion()
 	])
 	.then( function (data) {
