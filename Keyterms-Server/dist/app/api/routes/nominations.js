@@ -80,7 +80,7 @@ exports.getNominations = function (req, res, next) {
 
 // Middleware to verify the requested nomination exists in the database
 exports.param = function (req, res, next, nomId) {
-	Nomination.count({_id: nomId})
+	Nomination.countDocuments({_id: nomId})
 	.then( function (count) {
 		if (count === 1) {
 			if (req.glossary.nominations.indexOf(nomId) === -1) {
@@ -210,7 +210,7 @@ exports.read = function (req, res, next) {
 };
 
 exports.reject = function (req, res, next) {
-	Nomination.findOne({_id: req.params.id}).remove().exec()
+	Nomination.findOne({_id: req.params.id}).deleteOne().exec()
 	.then( function () {
 		res.json({wasSuccessful: true});
 		return req.glossary.removeNom(req.params.id);
@@ -263,7 +263,7 @@ exports.approve = function (req, res, next) {
 		res.json(result);
 		return Promise.all([
 			req.glossary.removeNom(result._id),
-			Nomination.findOne({_id: req.params.id}).remove().exec()
+			Nomination.findOne({_id: req.params.id}).deleteOne().exec()
 		]);
 	})
 	.then( function () {

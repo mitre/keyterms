@@ -90,13 +90,13 @@ exports.update = function (req, res, next) {
 };
 
 exports.delete = function(req, res, next){
-	
+
 	if(areGlossariesDeletable){
 		log.verbose('Glossaries are deletable');
 		archiveGlossary(req.glossaryDoc);
 		reassignAllUsersToDefaults(req.glossaryDoc);
-		req.glossaryDoc.removeGlossary()
-		.then( function () {
+		return req.glossaryDoc.remove()
+		.then(function() {
 			res.sendStatus(204);
 		})
 		.catch(next);

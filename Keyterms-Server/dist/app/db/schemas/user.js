@@ -28,7 +28,7 @@
 var Promise = require('bluebird');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 
 var log = require('../../utils/logger').logger;
 

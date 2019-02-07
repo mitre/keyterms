@@ -52,10 +52,10 @@ var log = require('./logger').logger;
  */
 
 var termIndexTemplate = {
-	'template': 'kt_*',
+	'index_patterns': 'kt_*',
 	'order': 100,
 	'mappings': {
-		'term': {
+		'_doc': {
 			'_all': {
 				'enabled': false
 			},
@@ -73,8 +73,8 @@ var termIndexTemplate = {
 							'analyzer': 'simple'
 						},
 						'raw': {
-							'type': 'string',
-							'index': 'not_analyzed'
+							'type': 'keyword',
+							'index': false
 						}
 					}
 				},
@@ -87,38 +87,6 @@ var termIndexTemplate = {
 					'doc_values': true
 				}
 			}
-		},
-		'tag': {
-			'_all': {
-				'enabled': false
-			},
-			'_source': {
-				'enabled': false
-			},
-			'dynamic': 'strict',
-			'properties': {
-				'tag': {
-					'type': 'keyword'
-				}
-			}
-		},
-		'note': {
-			'_all': {
-				'enabled': false
-			},
-			'_source': {
-				'enabled': false
-			},
-			'dynamic': 'strict',
-			'properties': {
-				'noteText': {
-					'type': 'text',
-					'analyzer': 'whitespace'
-				},
-				'noteType': {
-					'type': 'keyword'
-				}
-			}
 		}
 	},
 	'settings': {
@@ -129,6 +97,7 @@ var termIndexTemplate = {
 
 // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/configuration.html
 var client = new elasticsearch.Client({
+	apiVersion: '6.5',
 	host: config,
 	defer: function () {
 		var resolve, reject;
@@ -162,7 +131,7 @@ exports.ping = function() {
 	return client.ping();
 };
 
-var glossaryIndexTemplateName = 'glossary_index_template';
+var glossaryIndexTemplateName = 'glossary_index_template_6.5';
 exports.termIndexTemplate = {
 	exists: function () {
 		return client.indices.getTemplate({name: glossaryIndexTemplateName})
@@ -213,7 +182,7 @@ var indexTerms = function (entry, glossId) {
 		// push action description first
 		actions.push({ index: {
 			_index: 'kt_' + glossId,
-			_type: 'term',
+			_type: '_doc',
 			_id: term._id
 			// NOTE: Running index on the same _id will "replace" the old document in the index
 		}});
@@ -241,7 +210,7 @@ var deindexTerms = function (terms, glossId) {
 		actions.push({
 			delete: {
 				_index: 'kt_' + glossId,
-				_type: 'term',
+				_type: '_doc',
 				_id: term
 			}
 		});
@@ -276,7 +245,6 @@ exports.indexEntry = function (entry, glossId, delTerms) {
 		return Promise.all(promiseArray);
 	})
 	.then( function (resp) {
-
 		log.debug(`Successfully indexed Entry ${entry._id} into Elastic`);
 		return resp;
 	})
@@ -295,7 +263,7 @@ exports.deindexEntry = function (entry, glossId) {
 	entry.terms.forEach( function (term) {
 		body.push( { delete: {
 			_index: 'kt_' + glossId,
-			_type: 'term',
+			_type: '_doc',
 			_id: term
 		}});
 	});
@@ -382,7 +350,7 @@ exports.searchGlossaryIndex = function (searchTerm, langCode, glossId, exact) {
 	// execute the search query
 	return client.search({
 		index: 'kt_' + glossId,
-		type: 'term',
+		type: '_doc',
 		body: queryBody
 	})
 	.then( function (resp) {
@@ -402,7 +370,7 @@ exports.searchDefault = function (searchTerm, langCode, exact) {
 	// execute the search query
 	return client.search({
 		index: 'kt_*',
-		type: 'term',
+		type: '_doc',
 		body: createQueryBody(searchTerm, langCode, exact)
 	})
 	.then( function (resp) {
@@ -434,7 +402,7 @@ exports.exploreGlossaryTerms = function (glossId, langCode) {
 				terms: {
 					field: 'termText.raw',
 					size: 10000,
-					order: {'_term': 'asc'}
+					order: {'_key': 'asc'}
 				},
 				aggs: {
 					'mongoIds': {
@@ -456,7 +424,7 @@ exports.exploreGlossaryTerms = function (glossId, langCode) {
 
 	return client.search({
 		index: 'kt_' + glossId,
-		type: 'term',
+		type: '_doc',
 		body: aggregateQuery
 	})
 		.catch(function (err) {

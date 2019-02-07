@@ -450,7 +450,7 @@ exports.updateEntry = function (id, data, glossaryId) {
 exports.validateParam = function (req, res, next, entryId) {
 	// use Entry.count() to verify Entry exists
 	// .count() returns slightly faster than .find()
-	Entry.count({_id: entryId}).exec()
+	Entry.countDocuments({_id: entryId}).exec()
 	.then( function (count) {
 		if (count === 1) {
 			if (req.glossary.entries.indexOf(entryId) === -1) {

@@ -184,7 +184,10 @@ entrySchema.pre('save', function (next) {
 });
 
 entrySchema.pre('remove', function (next) {
-	Term.remove({_id: {$in: this.terms}}).exec().then( next );
+	Term.deleteMany({_id: {$in: this.terms}}).exec().then( function(stuff) {
+		console.log(stuff);
+		next();
+	} );
 });
 
 var calcObjDelta = function (curr, nom, get) {
@@ -445,7 +448,7 @@ entrySchema.methods.removeTerms = function (termIds) {
 	}, this);
 
 	return Promise.mapSeries(termIds, function (id) {
-		return Term.remove({_id: id}).exec();
+		return Term.deleteOne({_id: id}).exec();
 	});
 
 	//return Term.remove({_id: {$in: termIds}}).exec();
